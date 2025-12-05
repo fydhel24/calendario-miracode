@@ -16,10 +16,20 @@ export default function CalendarLayout({
     breadcrumbs = [],
 }: CalendarLayoutProps) {
     const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(true);
+    const [isRightMenuExpanded, setIsRightMenuExpanded] = useState(false);
 
     const toggleLeftSidebar = () => {
         setIsLeftSidebarCollapsed(!isLeftSidebarCollapsed);
     };
+
+    const handleRightMenuExpansionChange = (expanded: boolean) => {
+        setIsRightMenuExpanded(expanded);
+    };
+
+    // Calculate dynamic widths
+    const leftSidebarWidth = isLeftSidebarCollapsed ? 64 : 256; // w-16 or w-64
+    const rightMenuWidth = isRightMenuExpanded ? 384 : 64; // w-96 or w-16
+    const calendarWidth = `calc(100vw - ${leftSidebarWidth}px - ${rightMenuWidth}px)`;
 
     return (
         <AppShell variant="sidebar">
@@ -47,16 +57,26 @@ export default function CalendarLayout({
                     </div>
                 </div>
 
-                {/* Área principal del calendario - se extiende hasta el borde derecho cuando el menú está colapsado */}
-                <div className="flex-1 p-6">
+                {/* Área principal del calendario - se ajusta dinámicamente según el menú derecho */}
+                <div 
+                    className="transition-all duration-300 ease-in-out p-6"
+                    style={{
+                        width: calendarWidth,
+                        maxWidth: '100%'
+                    }}
+                >
                     <div className="h-full w-full bg-background/50 backdrop-blur-sm rounded-2xl border border-border/50 shadow-2xl overflow-hidden">
                         <FullCalendarComponent />
                     </div>
                 </div>
 
                 {/* Menú de la derecha - Siempre visible con comportamiento expandible */}
-                <div className="border-l border-sidebar-border shadow-xl">
-                    <RightMenu className="h-full bg-gradient-to-b from-sidebar to-sidebar/95" />
+                <div className="border-l border-sidebar-border shadow-xl flex-shrink-0">
+                    <RightMenu 
+                        className="h-full bg-gradient-to-b from-sidebar to-sidebar/95" 
+                        isExpanded={isRightMenuExpanded}
+                        onExpansionChange={handleRightMenuExpansionChange}
+                    />
                 </div>
             </div>
         </AppShell>

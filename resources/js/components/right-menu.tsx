@@ -27,10 +27,19 @@ interface MenuOption {
 interface RightMenuProps {
     className?: string;
     onToggle?: () => void;
+    isExpanded?: boolean;
+    onExpansionChange?: (expanded: boolean) => void;
 }
 
-export function RightMenu({ className, onToggle }: RightMenuProps) {
-    const [activeOption, setActiveOption] = useState<string | null>(null);
+export function RightMenu({ className, onToggle, isExpanded: externalIsExpanded, onExpansionChange }: RightMenuProps) {
+    const [internalActiveOption, setInternalActiveOption] = useState<string | null>(null);
+
+    // Use internal state for active option
+    const activeOption = internalActiveOption;
+    
+    // Determine if menu should show expanded content
+    // If external state is provided, use it; otherwise use internal active option
+    const shouldShowExpandedContent = externalIsExpanded !== undefined ? externalIsExpanded : activeOption !== null;
 
     const menuOptions: MenuOption[] = [
         {
@@ -206,24 +215,27 @@ export function RightMenu({ className, onToggle }: RightMenuProps) {
     ];
 
     const handleOptionClick = (optionId: string) => {
-        if (activeOption === optionId) {
+        if (internalActiveOption === optionId) {
             // Si ya está seleccionado, deseleccionar para volver a vista de iconos
-            setActiveOption(null);
+            setInternalActiveOption(null);
+            if (onExpansionChange) onExpansionChange(false);
         } else {
             // Si no está seleccionado, mostrar contenido
-            setActiveOption(optionId);
+            setInternalActiveOption(optionId);
+            if (onExpansionChange) onExpansionChange(true);
         }
     };
 
     const handleBackToIcons = () => {
-        setActiveOption(null);
+        setInternalActiveOption(null);
+        if (onExpansionChange) onExpansionChange(false);
     };
 
     return (
         <div className={`bg-sidebar border-l border-sidebar-border h-full flex ${className}`}>
             {/* Estructura expandible: siempre los iconos + contenido cuando está activo */}
             <div className={`flex h-full transition-all duration-300 ease-in-out ${
-                activeOption ? 'w-96' : 'w-16'
+                shouldShowExpandedContent ? 'w-96' : 'w-16'
             }`}>
                 {/* Iconos del menú - siempre visible */}
                 <div className="flex flex-col border-r border-sidebar-border w-16 bg-gradient-to-b from-sidebar to-sidebar/95">
@@ -251,7 +263,7 @@ export function RightMenu({ className, onToggle }: RightMenuProps) {
                 </div>
 
                 {/* Contenido - se muestra cuando hay una opción activa */}
-                {activeOption && (
+                {shouldShowExpandedContent && (
                     <div className="flex-1 overflow-hidden">
                         <div className="h-full flex flex-col bg-background/30 backdrop-blur-sm">
                             <div className="p-4 border-b border-sidebar-border bg-gradient-to-r from-sidebar to-sidebar/95">
@@ -270,7 +282,7 @@ export function RightMenu({ className, onToggle }: RightMenuProps) {
                                 </div>
                             </div>
                             <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
-                                {menuOptions.find(opt => opt.id === activeOption)?.content}
+                                {menuOptions.find(opt => opt.id === internalActiveOption)?.content}
                             </div>
                         </div>
                     </div>
