@@ -25,7 +25,6 @@ interface RightMenuProps {
 }
 
 export function RightMenu({ className, onToggle }: RightMenuProps) {
-    const [isExpanded, setIsExpanded] = useState(false);
     const [activeOption, setActiveOption] = useState<string | null>(null);
 
     const menuOptions: MenuOption[] = [
@@ -181,95 +180,72 @@ export function RightMenu({ className, onToggle }: RightMenuProps) {
     ];
 
     const handleOptionClick = (optionId: string) => {
-        setActiveOption(optionId);
+        if (activeOption === optionId) {
+            // Si ya está seleccionado, deseleccionar para volver a vista de iconos
+            setActiveOption(null);
+        } else {
+            // Si no está seleccionado, mostrar contenido
+            setActiveOption(optionId);
+        }
     };
 
-    const handleBack = () => {
+    const handleBackToIcons = () => {
         setActiveOption(null);
     };
 
     return (
         <div className={`bg-sidebar border-l border-sidebar-border h-full flex ${className}`}>
-            {/* Header con toggle */}
-            <div className="flex flex-col border-r border-sidebar-border">
-                {onToggle && (
-                    <div className="p-2 border-b border-sidebar-border">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={onToggle}
-                            className="h-8 w-8"
-                            title="Ocultar menú"
-                        >
-                            <X className="h-4 w-4" />
-                        </Button>
-                    </div>
-                )}
-                
-                {/* Iconos del menú */}
-                <div className="flex flex-col p-2 space-y-2">
-                    {menuOptions.map((option) => {
-                        const Icon = option.icon;
-                        return (
-                            <Button
-                                key={option.id}
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleOptionClick(option.id)}
-                                className="h-10 w-10"
-                                title={option.label}
-                            >
-                                <Icon className="h-5 w-5" />
-                            </Button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* Contenido */}
-            <div className="flex-1 overflow-hidden">
-                {activeOption ? (
-                    <div className="h-full flex flex-col">
-                        <div className="p-4 border-b border-sidebar-border">
-                            <div className="flex items-center gap-2">
+            {/* Estructura expandible: siempre los iconos + contenido cuando está activo */}
+            <div className={`flex h-full transition-all duration-300 ${
+                activeOption ? 'w-96' : 'w-16'
+            }`}>
+                {/* Iconos del menú - siempre visible */}
+                <div className="flex flex-col border-r border-sidebar-border w-16">
+                    <div className="flex flex-col p-2 space-y-2">
+                        {menuOptions.map((option) => {
+                            const Icon = option.icon;
+                            return (
                                 <Button
+                                    key={option.id}
                                     variant="ghost"
                                     size="icon"
-                                    onClick={handleBack}
-                                    className="h-8 w-8"
+                                    onClick={() => handleOptionClick(option.id)}
+                                    className={`h-10 w-10 ${
+                                        activeOption === option.id 
+                                            ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
+                                            : ''
+                                    }`}
+                                    title={option.label}
                                 >
-                                    <ChevronLeft className="h-4 w-4" />
+                                    <Icon className="h-5 w-5" />
                                 </Button>
-                                <h3 className="font-medium">
-                                    {menuOptions.find(opt => opt.id === activeOption)?.label}
-                                </h3>
-                            </div>
-                        </div>
-                        <div className="flex-1 overflow-y-auto">
-                            {menuOptions.find(opt => opt.id === activeOption)?.content}
-                        </div>
+                            );
+                        })}
                     </div>
-                ) : (
-                    <div className="p-4">
-                        <h3 className="font-medium mb-4">Menú de Acciones</h3>
-                        <p className="text-sm text-muted-foreground">
-                            Selecciona una opción para comenzar
-                        </p>
-                        <div className="mt-4 space-y-2">
-                            {menuOptions.map((option) => {
-                                const Icon = option.icon;
-                                return (
+                </div>
+
+                {/* Contenido - se muestra cuando hay una opción activa */}
+                {activeOption && (
+                    <div className="flex-1 overflow-hidden">
+                        <div className="h-full flex flex-col">
+                            <div className="p-4 border-b border-sidebar-border">
+                                <div className="flex items-center gap-2">
                                     <Button
-                                        key={option.id}
                                         variant="ghost"
-                                        className="w-full justify-start gap-2"
-                                        onClick={() => handleOptionClick(option.id)}
+                                        size="icon"
+                                        onClick={handleBackToIcons}
+                                        className="h-8 w-8"
                                     >
-                                        <Icon className="h-4 w-4" />
-                                        {option.label}
+                                        <ChevronLeft className="h-4 w-4" />
                                     </Button>
-                                );
-                            })}
+                                    <h3 className="font-medium">
+                                        {menuOptions.find(opt => opt.id === activeOption)?.label}
+                                    </h3>
+                                </div>
+                            </div>
+                            <div className="flex-1 overflow-y-auto">
+                                {menuOptions.find(opt => opt.id === activeOption)?.content}
+                            </div>
                         </div>
                     </div>
                 )}

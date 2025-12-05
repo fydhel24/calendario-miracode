@@ -16,14 +16,9 @@ export default function CalendarLayout({
     breadcrumbs = [],
 }: CalendarLayoutProps) {
     const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(true);
-    const [isRightMenuCollapsed, setIsRightMenuCollapsed] = useState(true);
 
     const toggleLeftSidebar = () => {
         setIsLeftSidebarCollapsed(!isLeftSidebarCollapsed);
-    };
-
-    const toggleRightMenu = () => {
-        setIsRightMenuCollapsed(!isRightMenuCollapsed);
     };
 
     return (
@@ -59,25 +54,10 @@ export default function CalendarLayout({
                     </div>
                 </div>
 
-                {/* Menú de la derecha - Opciones de creación (solo cuando está expandido) */}
-                {!isRightMenuCollapsed && (
-                    <div className="w-80 overflow-hidden transition-all duration-300 border-l border-sidebar-border">
-                        <RightMenu className="h-full" onToggle={toggleRightMenu} />
-                    </div>
-                )}
-
-                {/* Botón flotante del menú de creación - cuando está colapsado */}
-                {isRightMenuCollapsed && (
-                    <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-50">
-                        <button
-                            onClick={toggleRightMenu}
-                            className="p-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors"
-                            title="Mostrar menú de creación"
-                        >
-                            <Plus className="h-6 w-6" />
-                        </button>
-                    </div>
-                )}
+                {/* Menú de la derecha - Siempre visible con comportamiento expandible */}
+                <div className="border-l border-sidebar-border">
+                    <RightMenu className="h-full" />
+                </div>
             </div>
         </AppShell>
     );
