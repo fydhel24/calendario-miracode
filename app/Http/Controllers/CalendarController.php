@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Calendario;
 use App\Models\User;
 use App\Models\UserCalendario;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CalendarController extends Controller
 {
+    use AuthorizesRequests;
     public function index()
     {
         $user = Auth::user();
@@ -70,7 +72,7 @@ class CalendarController extends Controller
 
         $calendario->update($request->only(['nombre', 'descripcion', 'template', 'estado']));
 
-        return back()->with('success', 'Calendario actualizado.');
+        return response()->json($calendario->load('users'))->withHeaders(['X-Inertia' => false]);
     }
 
     public function destroy(Calendario $calendario)

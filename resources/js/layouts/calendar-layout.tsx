@@ -100,6 +100,21 @@ export default function CalendarLayout({
                                 setSelectedCalendar(newCalendar);
                                 setEvents(newCalendar.eventos || []);
                             }}
+                            onCalendarUpdated={(updatedCalendar) => {
+                                setCalendariosState((prev) =>
+                                    prev.map((c) =>
+                                        c.id === updatedCalendar.id
+                                            ? updatedCalendar
+                                            : c,
+                                    ),
+                                );
+                                if (
+                                    selectedCalendar?.id === updatedCalendar.id
+                                ) {
+                                    setSelectedCalendar(updatedCalendar);
+                                    setEvents(updatedCalendar.eventos || []);
+                                }
+                            }}
                         />
                     </div>
                 </div>

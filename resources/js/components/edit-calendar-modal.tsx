@@ -6,20 +6,25 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-interface CreateCalendarModalProps {
-    onCalendarCreated?: (calendar: any) => void;
+interface EditCalendarModalProps {
+    calendar?: any;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onCalendarUpdated?: (calendar: any) => void;
 }
 
-function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
-    const [open, setOpen] = useState(false);
+function EditCalendarModal({
+    calendar,
+    open,
+    onOpenChange,
+    onCalendarUpdated,
+}: EditCalendarModalProps) {
     const [form, setForm] = useState({
         nombre: '',
         descripcion: '',
@@ -28,16 +33,29 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
     });
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        if (calendar) {
+            setForm({
+                nombre: calendar.nombre || '',
+                descripcion: calendar.descripcion || '',
+                template: calendar.template || '',
+                estado: calendar.estado || 'activo',
+            });
+        }
+    }, [calendar]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!calendar) return;
+
         setLoading(true);
 
         try {
             const csrfToken = document
                 .querySelector('meta[name="csrf-token"]')
                 ?.getAttribute('content');
-            const response = await fetch('/calendarios', {
-                method: 'POST',
+            const response = await fetch(`/calendarios/${calendar.id}`, {
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken || '',
@@ -46,17 +64,11 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
             });
 
             if (response.ok) {
-                const newCalendar = await response.json();
-                setOpen(false);
-                setForm({
-                    nombre: '',
-                    descripcion: '',
-                    template: '',
-                    estado: 'activo',
-                });
-                onCalendarCreated?.(newCalendar);
+                const updatedCalendar = await response.json();
+                onOpenChange(false);
+                onCalendarUpdated?.(updatedCalendar);
             } else {
-                console.error('Error creating calendar');
+                console.error('Error updating calendar');
             }
         } catch (error) {
             console.error('Error:', error);
@@ -66,22 +78,12 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 hover:bg-sidebar-accent"
-                    title="Crear calendario"
-                >
-                    <Plus className="h-3 w-3" />
-                </Button>
-            </DialogTrigger>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Crear Nuevo Calendario</DialogTitle>
+                    <DialogTitle>Editar Calendario</DialogTitle>
                     <DialogDescription>
-                        Crea un nuevo calendario para organizar tus eventos.
+                        Modifica los detalles del calendario.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
@@ -151,7 +153,7 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
                     </div>
                     <DialogFooter>
                         <Button type="submit" disabled={loading}>
-                            {loading ? 'Creando...' : 'Crear Calendario'}
+                            {loading ? 'Guardando...' : 'Guardar Cambios'}
                         </Button>
                     </DialogFooter>
                 </form>
@@ -160,4 +162,4 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
     );
 }
 
-export default CreateCalendarModal;
+export default EditCalendarModal;

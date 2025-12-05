@@ -1,12 +1,15 @@
 import CreateCalendarModal from '@/components/create-calendar-modal';
+import EditCalendarModal from '@/components/edit-calendar-modal';
 import { Button } from '@/components/ui/button';
 import {
     Calendar,
     ChevronDown,
     ChevronRight,
+    Edit,
     HelpCircle,
     Home,
     Settings,
+    Trash2,
     Users,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -18,6 +21,7 @@ interface LeftSidebarProps {
     calendarios?: any[];
     onCalendarSelect?: (calendar: any) => void;
     onCalendarCreated?: (calendar: any) => void;
+    onCalendarUpdated?: (calendar: any) => void;
 }
 
 export function LeftSidebar({
@@ -27,8 +31,11 @@ export function LeftSidebar({
     calendarios = [],
     onCalendarSelect,
     onCalendarCreated,
+    onCalendarUpdated,
 }: LeftSidebarProps) {
     const [isExpanded, setIsExpanded] = useState(true);
+    const [editingCalendar, setEditingCalendar] = useState<any>(null);
+    const [editModalOpen, setEditModalOpen] = useState(false);
 
     const menuItems = [
         { id: 'home', label: 'Inicio', icon: Home, active: false },
@@ -97,16 +104,57 @@ export function LeftSidebar({
                                 {calendarios.map((calendario) => (
                                     <div
                                         key={calendario.id}
-                                        onClick={() =>
-                                            onCalendarSelect &&
-                                            onCalendarSelect(calendario)
-                                        }
-                                        className="flex cursor-pointer items-center gap-2 rounded-lg p-2 transition-all duration-200 hover:scale-[1.01] hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/50 hover:text-sidebar-accent-foreground hover:shadow-sm"
+                                        className="group flex items-center justify-between rounded-lg p-2 transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/50 hover:shadow-sm"
                                     >
-                                        <Calendar className="h-4 w-4" />
-                                        <span className="truncate text-sm">
-                                            {calendario.nombre}
-                                        </span>
+                                        <div
+                                            onClick={() =>
+                                                onCalendarSelect &&
+                                                onCalendarSelect(calendario)
+                                            }
+                                            className="flex flex-1 cursor-pointer items-center gap-2 hover:text-sidebar-accent-foreground"
+                                        >
+                                            <Calendar className="h-4 w-4" />
+                                            <span className="truncate text-sm">
+                                                {calendario.nombre}
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-6 w-6 hover:bg-sidebar-accent"
+                                                title="Editar calendario"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setEditingCalendar(
+                                                        calendario,
+                                                    );
+                                                    setEditModalOpen(true);
+                                                }}
+                                            >
+                                                <Edit className="h-3 w-3" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-6 w-6 hover:bg-destructive hover:text-destructive-foreground"
+                                                title="Eliminar calendario"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (
+                                                        confirm(
+                                                            '¿Estás seguro de que quieres eliminar este calendario?',
+                                                        )
+                                                    ) {
+                                                        router.delete(
+                                                            `/calendarios/${calendario.id}`,
+                                                        );
+                                                    }
+                                                }}
+                                            >
+                                                <Trash2 className="h-3 w-3" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -148,6 +196,13 @@ export function LeftSidebar({
                     </div>
                 )}
             </div>
+
+            <EditCalendarModal
+                calendar={editingCalendar}
+                open={editModalOpen}
+                onOpenChange={setEditModalOpen}
+                onCalendarUpdated={onCalendarUpdated}
+            />
         </div>
     );
 }
