@@ -25,6 +25,7 @@ export default function CalendarLayout({
         useState<any[]>(calendarios);
     const [selectedCalendar, setSelectedCalendar] = useState<any>(null);
     const [events, setEvents] = useState<any[]>([]);
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
     useEffect(() => {
         setCalendariosState(calendarios);
@@ -57,6 +58,12 @@ export default function CalendarLayout({
     const handleCalendarSelect = (calendar: any) => {
         setSelectedCalendar(calendar);
         setEvents(calendar.eventos || []);
+        setSelectedDate(null); // Reset selected date when changing calendar
+    };
+
+    const handleDateSelect = (date: string) => {
+        setSelectedDate(date);
+        setIsRightMenuExpanded(true); // Expand the right menu
     };
 
     // Calculate dynamic widths
@@ -142,7 +149,10 @@ export default function CalendarLayout({
                     )}
 
                     <div className="h-full w-full overflow-hidden rounded-2xl border border-border/50 bg-background/50 shadow-2xl backdrop-blur-sm">
-                        <FullCalendarComponent events={events} />
+                        <FullCalendarComponent
+                            events={events}
+                            onDateSelect={handleDateSelect}
+                        />
                     </div>
                 </div>
 
@@ -152,6 +162,11 @@ export default function CalendarLayout({
                         className="h-full bg-gradient-to-b from-sidebar to-sidebar/95"
                         isExpanded={isRightMenuExpanded}
                         onExpansionChange={handleRightMenuExpansionChange}
+                        selectedDate={selectedDate}
+                        selectedCalendar={selectedCalendar}
+                        onEventCreated={(newEvent) => {
+                            setEvents(prev => [...prev, newEvent]);
+                        }}
                     />
                 </div>
             </div>

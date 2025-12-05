@@ -12,6 +12,7 @@ import {
     Trash2,
     Users,
 } from 'lucide-react';
+import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
 interface LeftSidebarProps {
@@ -141,14 +142,8 @@ export function LeftSidebar({
                                                 title="Eliminar calendario"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    if (
-                                                        confirm(
-                                                            '¿Estás seguro de que quieres eliminar este calendario?',
-                                                        )
-                                                    ) {
-                                                        router.delete(
-                                                            `/calendarios/${calendario.id}`,
-                                                        );
+                                                    if (confirm('¿Estás seguro de que quieres eliminar este calendario?')) {
+                                                        router.delete(`/calendarios/${calendario.id}`);
                                                     }
                                                 }}
                                             >
