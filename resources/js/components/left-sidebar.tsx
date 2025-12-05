@@ -27,7 +27,7 @@ export function LeftSidebar({ className, isCollapsed, onToggle }: LeftSidebarPro
                     variant="ghost"
                     size="icon"
                     onClick={onToggle}
-                    className="h-8 w-8"
+                    className="h-8 w-8 hover:bg-sidebar-accent hover:scale-105 transition-all duration-200"
                 >
                     {isCollapsed ? (
                         <ChevronRight className="h-4 w-4" />
@@ -45,10 +45,10 @@ export function LeftSidebar({ className, isCollapsed, onToggle }: LeftSidebarPro
                             return (
                                 <div
                                     key={item.id}
-                                    className={`flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
+                                    className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all duration-200 ${
                                         item.active 
-                                            ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                                            : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                                            ? 'bg-gradient-to-r from-sidebar-accent to-sidebar-accent/80 text-sidebar-accent-foreground shadow-md transform scale-[1.02]' 
+                                            : 'hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/50 hover:text-sidebar-accent-foreground hover:shadow-sm hover:scale-[1.01]'
                                     }`}
                                 >
                                     <Icon className="h-4 w-4" />
@@ -61,7 +61,7 @@ export function LeftSidebar({ className, isCollapsed, onToggle }: LeftSidebarPro
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="w-full justify-start gap-2 h-8"
+                                className="w-full justify-start gap-2 h-8 hover:bg-sidebar-accent hover:scale-105 transition-all duration-200"
                             >
                                 <HelpCircle className="h-4 w-4" />
                                 <span className="text-sm">Ayuda</span>
@@ -79,11 +79,12 @@ export function LeftSidebar({ className, isCollapsed, onToggle }: LeftSidebarPro
                                     key={item.id}
                                     variant="ghost"
                                     size="icon"
-                                    className={`w-full h-10 ${
+                                    className={`w-full h-10 transition-all duration-200 hover:scale-110 ${
                                         item.active 
-                                            ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                                            : ''
+                                            ? 'bg-gradient-to-b from-sidebar-accent to-sidebar-accent/80 text-sidebar-accent-foreground shadow-md' 
+                                            : 'hover:bg-sidebar-accent hover:shadow-sm'
                                     }`}
+                                    title={item.label}
                                 >
                                     <Icon className="h-4 w-4" />
                                 </Button>

@@ -56,67 +56,70 @@ export default function FullCalendarComponent({
     };
 
     return (
-        <div className="w-full h-full bg-background rounded-xl border border-border p-6">
-            <FullCalendar
-                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                headerToolbar={{
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                }}
-                initialView="dayGridMonth"
-                editable={true}
-                selectable={true}
-                selectMirror={true}
-                dayMaxEvents={true}
-                weekends={true}
-                events={events}
-                dateClick={handleDateClick}
-                eventClick={handleEventClick}
-                height="100%"
-                locale="es"
-                buttonText={{
-                    today: 'Hoy',
-                    month: 'Mes',
-                    week: 'Semana',
-                    day: 'Día',
-                    prev: 'Anterior',
-                    next: 'Siguiente'
-                }}
-                eventDisplay="block"
-                eventBackgroundColor="#2563eb"
-                eventBorderColor="#2563eb"
-                eventTextColor="#ffffff"
-                allDayText="Todo el día"
-                moreLinkText="más"
-                noEventsText="No hay eventos para mostrar"
-                weekText="Sm"
-                allDaySlot={true}
-                slotMinTime="06:00:00"
-                slotMaxTime="22:00:00"
-                expandRows={true}
-                aspectRatio={1.35}
-                contentHeight="auto"
-                dayHeaderFormat={{
-                    weekday: 'short',
-                    day: 'numeric',
-                    omitCommas: true
-                }}
-                eventTimeFormat={{
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    meridiem: 'short'
-                }}
-                slotLabelFormat={{
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    omitZeroMinute: false,
-                    meridiem: 'short'
-                }}
-                dayHeaderClassNames="bg-muted/50 text-muted-foreground font-medium"
-                dayCellClassNames="hover:bg-accent/50 cursor-pointer"
-                eventClassNames="cursor-pointer hover:opacity-80"
-            />
+        <div className="w-full h-full bg-background/80 backdrop-blur-sm rounded-2xl border border-border/50 shadow-2xl overflow-hidden">
+            <div className="p-6 h-full">
+                <FullCalendar
+                    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                    headerToolbar={{
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    }}
+                    initialView="dayGridMonth"
+                    editable={true}
+                    selectable={true}
+                    selectMirror={true}
+                    dayMaxEvents={true}
+                    weekends={true}
+                    events={events}
+                    dateClick={handleDateClick}
+                    eventClick={handleEventClick}
+                    height="100%"
+                    locale="es"
+                    buttonText={{
+                        today: 'Hoy',
+                        month: 'Mes',
+                        week: 'Semana',
+                        day: 'Día',
+                        prev: 'Anterior',
+                        next: 'Siguiente'
+                    }}
+                    eventDisplay="block"
+                    eventBackgroundColor="rgb(37, 99, 235)"
+                    eventBorderColor="rgb(37, 99, 235)"
+                    eventTextColor="#ffffff"
+                    allDayText="Todo el día"
+                    moreLinkText="más"
+                    noEventsText="No hay eventos para mostrar"
+                    weekText="Sm"
+                    allDaySlot={true}
+                    slotMinTime="06:00:00"
+                    slotMaxTime="22:00:00"
+                    expandRows={true}
+                    aspectRatio={1.35}
+                    contentHeight="auto"
+                    dayHeaderFormat={{
+                        weekday: 'short',
+                        day: 'numeric',
+                        omitCommas: true
+                    }}
+                    eventTimeFormat={{
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        meridiem: 'short'
+                    }}
+                    slotLabelFormat={{
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        omitZeroMinute: false,
+                        meridiem: 'short'
+                    }}
+                    dayHeaderClassNames="bg-gradient-to-r from-muted/50 to-muted/30 text-muted-foreground font-semibold border-b border-border/20"
+                    dayCellClassNames="hover:bg-gradient-to-br hover:from-accent/50 hover:to-accent/30 cursor-pointer transition-all duration-200 border border-transparent hover:border-accent/50"
+                    eventClassNames="cursor-pointer hover:opacity-90 hover:shadow-md transition-all duration-200 border-0 rounded-md shadow-sm"
+                    themeSystem="standard"
+                />
+            </div>
         </div>
     );
 }

@@ -1,4 +1,9 @@
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
     Plus, 
     Calendar, 
@@ -33,32 +38,35 @@ export function RightMenu({ className, onToggle }: RightMenuProps) {
             label: 'Nuevo Evento',
             icon: Plus,
             content: (
-                <div className="p-4">
+                <div className="p-4 space-y-4">
                     <h3 className="text-lg font-semibold mb-4">Crear Nuevo Evento</h3>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         <div>
-                            <label className="text-sm font-medium">Título del Evento</label>
-                            <input 
+                            <Label htmlFor="event-title">Título del Evento</Label>
+                            <Input 
+                                id="event-title"
                                 type="text" 
-                                className="w-full mt-1 p-2 border rounded-md"
                                 placeholder="Escribe el título..."
+                                className="mt-1"
                             />
                         </div>
                         <div>
-                            <label className="text-sm font-medium">Fecha</label>
-                            <input 
+                            <Label htmlFor="event-date">Fecha</Label>
+                            <Input 
+                                id="event-date"
                                 type="date" 
-                                className="w-full mt-1 p-2 border rounded-md"
+                                className="mt-1"
                             />
                         </div>
                         <div>
-                            <label className="text-sm font-medium">Hora</label>
-                            <input 
+                            <Label htmlFor="event-time">Hora</Label>
+                            <Input 
+                                id="event-time"
                                 type="time" 
-                                className="w-full mt-1 p-2 border rounded-md"
+                                className="mt-1"
                             />
                         </div>
-                        <Button className="w-full mt-4">Crear Evento</Button>
+                        <Button className="w-full mt-6">Crear Evento</Button>
                     </div>
                 </div>
             )
@@ -68,26 +76,32 @@ export function RightMenu({ className, onToggle }: RightMenuProps) {
             label: 'Programar',
             icon: Clock,
             content: (
-                <div className="p-4">
+                <div className="p-4 space-y-4">
                     <h3 className="text-lg font-semibold mb-4">Programar Tarea</h3>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         <div>
-                            <label className="text-sm font-medium">Descripción</label>
-                            <textarea 
-                                className="w-full mt-1 p-2 border rounded-md"
-                                rows={3}
+                            <Label htmlFor="task-description">Descripción</Label>
+                            <Textarea 
+                                id="task-description"
                                 placeholder="Describe la tarea..."
+                                className="mt-1"
+                                rows={3}
                             />
                         </div>
                         <div>
-                            <label className="text-sm font-medium">Prioridad</label>
-                            <select className="w-full mt-1 p-2 border rounded-md">
-                                <option>Baja</option>
-                                <option>Media</option>
-                                <option>Alta</option>
-                            </select>
+                            <Label htmlFor="task-priority">Prioridad</Label>
+                            <Select>
+                                <SelectTrigger className="mt-1">
+                                    <SelectValue placeholder="Selecciona la prioridad" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="baja">Baja</SelectItem>
+                                    <SelectItem value="media">Media</SelectItem>
+                                    <SelectItem value="alta">Alta</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
-                        <Button className="w-full mt-4">Programar</Button>
+                        <Button className="w-full mt-6">Programar</Button>
                     </div>
                 </div>
             )
@@ -97,26 +111,28 @@ export function RightMenu({ className, onToggle }: RightMenuProps) {
             label: 'Invitar',
             icon: Users,
             content: (
-                <div className="p-4">
+                <div className="p-4 space-y-4">
                     <h3 className="text-lg font-semibold mb-4">Invitar Participantes</h3>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         <div>
-                            <label className="text-sm font-medium">Email</label>
-                            <input 
+                            <Label htmlFor="invite-email">Email</Label>
+                            <Input 
+                                id="invite-email"
                                 type="email" 
-                                className="w-full mt-1 p-2 border rounded-md"
                                 placeholder="email@ejemplo.com"
+                                className="mt-1"
                             />
                         </div>
                         <div>
-                            <label className="text-sm font-medium">Mensaje</label>
-                            <textarea 
-                                className="w-full mt-1 p-2 border rounded-md"
-                                rows={3}
+                            <Label htmlFor="invite-message">Mensaje</Label>
+                            <Textarea 
+                                id="invite-message"
                                 placeholder="Mensaje de invitación..."
+                                className="mt-1"
+                                rows={3}
                             />
                         </div>
-                        <Button className="w-full mt-4">Enviar Invitación</Button>
+                        <Button className="w-full mt-6">Enviar Invitación</Button>
                     </div>
                 </div>
             )
@@ -126,28 +142,38 @@ export function RightMenu({ className, onToggle }: RightMenuProps) {
             label: 'Recordatorio',
             icon: Bell,
             content: (
-                <div className="p-4">
+                <div className="p-4 space-y-4">
                     <h3 className="text-lg font-semibold mb-4">Configurar Recordatorio</h3>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         <div>
-                            <label className="text-sm font-medium">Tiempo antes del evento</label>
-                            <select className="w-full mt-1 p-2 border rounded-md">
-                                <option>5 minutos</option>
-                                <option>15 minutos</option>
-                                <option>30 minutos</option>
-                                <option>1 hora</option>
-                                <option>1 día</option>
-                            </select>
+                            <Label htmlFor="reminder-time">Tiempo antes del evento</Label>
+                            <Select>
+                                <SelectTrigger className="mt-1">
+                                    <SelectValue placeholder="Selecciona el tiempo" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="5">5 minutos</SelectItem>
+                                    <SelectItem value="15">15 minutos</SelectItem>
+                                    <SelectItem value="30">30 minutos</SelectItem>
+                                    <SelectItem value="60">1 hora</SelectItem>
+                                    <SelectItem value="1440">1 día</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div>
-                            <label className="text-sm font-medium">Tipo de notificación</label>
-                            <select className="w-full mt-1 p-2 border rounded-md">
-                                <option>Notificación push</option>
-                                <option>Email</option>
-                                <option>SMS</option>
-                            </select>
+                            <Label htmlFor="reminder-type">Tipo de notificación</Label>
+                            <Select>
+                                <SelectTrigger className="mt-1">
+                                    <SelectValue placeholder="Selecciona el tipo" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="push">Notificación push</SelectItem>
+                                    <SelectItem value="email">Email</SelectItem>
+                                    <SelectItem value="sms">SMS</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
-                        <Button className="w-full mt-4">Configurar</Button>
+                        <Button className="w-full mt-6">Configurar</Button>
                     </div>
                 </div>
             )
@@ -157,22 +183,22 @@ export function RightMenu({ className, onToggle }: RightMenuProps) {
             label: 'Configuración',
             icon: Settings,
             content: (
-                <div className="p-4">
+                <div className="p-4 space-y-4">
                     <h3 className="text-lg font-semibold mb-4">Configuración</h3>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <span className="text-sm">Notificaciones</span>
-                            <input type="checkbox" className="rounded" />
+                            <Label htmlFor="notifications">Notificaciones</Label>
+                            <Checkbox id="notifications" />
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm">Modo oscuro</span>
-                            <input type="checkbox" className="rounded" />
+                            <Label htmlFor="dark-mode">Modo oscuro</Label>
+                            <Checkbox id="dark-mode" />
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm">Sincronización</span>
-                            <input type="checkbox" className="rounded" defaultChecked />
+                            <Label htmlFor="sync">Sincronización</Label>
+                            <Checkbox id="sync" defaultChecked />
                         </div>
-                        <Button className="w-full mt-4">Guardar</Button>
+                        <Button className="w-full mt-6">Guardar</Button>
                     </div>
                 </div>
             )
@@ -196,11 +222,11 @@ export function RightMenu({ className, onToggle }: RightMenuProps) {
     return (
         <div className={`bg-sidebar border-l border-sidebar-border h-full flex ${className}`}>
             {/* Estructura expandible: siempre los iconos + contenido cuando está activo */}
-            <div className={`flex h-full transition-all duration-300 ${
+            <div className={`flex h-full transition-all duration-300 ease-in-out ${
                 activeOption ? 'w-96' : 'w-16'
             }`}>
                 {/* Iconos del menú - siempre visible */}
-                <div className="flex flex-col border-r border-sidebar-border w-16">
+                <div className="flex flex-col border-r border-sidebar-border w-16 bg-gradient-to-b from-sidebar to-sidebar/95">
                     <div className="flex flex-col p-2 space-y-2">
                         {menuOptions.map((option) => {
                             const Icon = option.icon;
@@ -210,10 +236,10 @@ export function RightMenu({ className, onToggle }: RightMenuProps) {
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => handleOptionClick(option.id)}
-                                    className={`h-10 w-10 ${
+                                    className={`h-10 w-10 transition-all duration-200 hover:scale-110 hover:shadow-md ${
                                         activeOption === option.id 
-                                            ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                                            : ''
+                                            ? 'bg-gradient-to-b from-sidebar-accent to-sidebar-accent/80 text-sidebar-accent-foreground shadow-md transform scale-105' 
+                                            : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                                     }`}
                                     title={option.label}
                                 >
@@ -227,23 +253,23 @@ export function RightMenu({ className, onToggle }: RightMenuProps) {
                 {/* Contenido - se muestra cuando hay una opción activa */}
                 {activeOption && (
                     <div className="flex-1 overflow-hidden">
-                        <div className="h-full flex flex-col">
-                            <div className="p-4 border-b border-sidebar-border">
+                        <div className="h-full flex flex-col bg-background/30 backdrop-blur-sm">
+                            <div className="p-4 border-b border-sidebar-border bg-gradient-to-r from-sidebar to-sidebar/95">
                                 <div className="flex items-center gap-2">
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         onClick={handleBackToIcons}
-                                        className="h-8 w-8"
+                                        className="h-8 w-8 hover:bg-sidebar-accent hover:scale-105 transition-all duration-200"
                                     >
                                         <ChevronLeft className="h-4 w-4" />
                                     </Button>
-                                    <h3 className="font-medium">
+                                    <h3 className="font-medium text-sidebar-foreground">
                                         {menuOptions.find(opt => opt.id === activeOption)?.label}
                                     </h3>
                                 </div>
                             </div>
-                            <div className="flex-1 overflow-y-auto">
+                            <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
                                 {menuOptions.find(opt => opt.id === activeOption)?.content}
                             </div>
                         </div>
