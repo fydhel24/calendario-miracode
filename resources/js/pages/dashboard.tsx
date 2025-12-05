@@ -1,7 +1,7 @@
 import CalendarLayout from '@/layouts/calendar-layout';
 import { dashboard } from '@/routes';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, usePage } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -10,9 +10,23 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Dashboard() {
+interface DashboardProps {
+    calendarios: any[];
+    selectedCalendarId?: number;
+}
+
+export default function Dashboard({
+    calendarios,
+    selectedCalendarId,
+}: DashboardProps) {
+    const { auth } = usePage<SharedData>().props;
+
     return (
-        <CalendarLayout breadcrumbs={breadcrumbs}>
+        <CalendarLayout
+            breadcrumbs={breadcrumbs}
+            calendarios={calendarios}
+            selectedCalendarId={selectedCalendarId}
+        >
             <Head title="Dashboard" />
         </CalendarLayout>
     );

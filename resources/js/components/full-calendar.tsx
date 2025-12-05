@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import FullCalendar from '@fullcalendar/react';
+import timeGridPlugin from '@fullcalendar/timegrid';
 
 interface EventInput {
     id: string;
@@ -12,36 +11,36 @@ interface EventInput {
     allDay?: boolean;
 }
 
+interface BackendEvent {
+    id: number;
+    titulo: string;
+    descripcion?: string;
+    fecha_inicio: string;
+    fecha_fin?: string;
+    color?: string;
+}
+
 interface FullCalendarComponentProps {
+    events?: BackendEvent[];
     onDateSelect?: (date: string) => void;
     onEventClick?: (eventId: string) => void;
 }
 
-export default function FullCalendarComponent({ 
-    onDateSelect, 
-    onEventClick 
+export default function FullCalendarComponent({
+    events = [],
+    onDateSelect,
+    onEventClick,
 }: FullCalendarComponentProps) {
-    const [events] = useState<EventInput[]>([
-        {
-            id: '1',
-            title: 'Reunión de equipo',
-            start: '2025-12-08T10:00:00',
-            end: '2025-12-08T11:00:00'
-        },
-        {
-            id: '2',
-            title: 'Presentación de proyecto',
-            start: '2025-12-10T14:00:00',
-            end: '2025-12-10T15:30:00'
-        },
-        {
-            id: '3',
-            title: 'Conferencia de trabajo',
-            start: '2025-12-15T09:00:00',
-            end: '2025-12-15T17:00:00',
-            allDay: true
-        }
-    ]);
+    const formattedEvents = useMemo(() => {
+        return events.map((event) => ({
+            id: event.id.toString(),
+            title: event.titulo,
+            start: event.fecha_inicio,
+            end: event.fecha_fin,
+            backgroundColor: event.color || '#2563eb',
+            borderColor: event.color || '#2563eb',
+        }));
+    }, [events]);
 
     const handleDateClick = (info: any) => {
         if (onDateSelect) {
@@ -56,13 +55,13 @@ export default function FullCalendarComponent({
     };
 
     return (
-        <div className="w-full h-full bg-background rounded-xl border border-border p-6">
+        <div className="h-full w-full rounded-xl border border-border bg-background p-6">
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 headerToolbar={{
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay',
                 }}
                 initialView="dayGridMonth"
                 editable={true}
@@ -70,7 +69,7 @@ export default function FullCalendarComponent({
                 selectMirror={true}
                 dayMaxEvents={true}
                 weekends={true}
-                events={events}
+                events={formattedEvents}
                 dateClick={handleDateClick}
                 eventClick={handleEventClick}
                 height="100%"
@@ -81,7 +80,7 @@ export default function FullCalendarComponent({
                     week: 'Semana',
                     day: 'Día',
                     prev: 'Anterior',
-                    next: 'Siguiente'
+                    next: 'Siguiente',
                 }}
                 eventDisplay="block"
                 eventBackgroundColor="#2563eb"
@@ -100,18 +99,18 @@ export default function FullCalendarComponent({
                 dayHeaderFormat={{
                     weekday: 'short',
                     day: 'numeric',
-                    omitCommas: true
+                    omitCommas: true,
                 }}
                 eventTimeFormat={{
                     hour: '2-digit',
                     minute: '2-digit',
-                    meridiem: 'short'
+                    meridiem: 'short',
                 }}
                 slotLabelFormat={{
                     hour: '2-digit',
                     minute: '2-digit',
                     omitZeroMinute: false,
-                    meridiem: 'short'
+                    meridiem: 'short',
                 }}
                 dayHeaderClassNames="bg-muted/50 text-muted-foreground font-medium"
                 dayCellClassNames="hover:bg-accent/50 cursor-pointer"

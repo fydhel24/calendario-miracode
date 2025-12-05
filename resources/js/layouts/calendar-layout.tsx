@@ -3,20 +3,48 @@ import FullCalendarComponent from '@/components/full-calendar';
 import { LeftSidebar } from '@/components/left-sidebar';
 import { RightMenu } from '@/components/right-menu';
 import { type BreadcrumbItem } from '@/types';
-import { Calendar, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { Calendar } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface CalendarLayoutProps {
     children?: React.ReactNode;
     breadcrumbs?: BreadcrumbItem[];
+    calendarios?: any[];
+    selectedCalendarId?: number;
 }
 
 export default function CalendarLayout({
     children,
     breadcrumbs = [],
+    calendarios = [],
+    selectedCalendarId,
 }: CalendarLayoutProps) {
     const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(true);
     const [isRightMenuExpanded, setIsRightMenuExpanded] = useState(false);
+    const [calendariosState, setCalendariosState] =
+        useState<any[]>(calendarios);
+    const [selectedCalendar, setSelectedCalendar] = useState<any>(null);
+    const [events, setEvents] = useState<any[]>([]);
+
+    useEffect(() => {
+        setCalendariosState(calendarios);
+    }, [calendarios]);
+
+    useEffect(() => {
+        if (calendariosState.length > 0) {
+            let calendarToSelect = calendariosState[0];
+            if (selectedCalendarId) {
+                const found = calendariosState.find(
+                    (c) => c.id === selectedCalendarId,
+                );
+                if (found) {
+                    calendarToSelect = found;
+                }
+            }
+            setSelectedCalendar(calendarToSelect);
+            setEvents(calendarToSelect.eventos || []);
+        }
+    }, [calendariosState, selectedCalendarId]);
 
     const toggleLeftSidebar = () => {
         setIsLeftSidebarCollapsed(!isLeftSidebarCollapsed);
@@ -24,6 +52,11 @@ export default function CalendarLayout({
 
     const handleRightMenuExpansionChange = (expanded: boolean) => {
         setIsRightMenuExpanded(expanded);
+    };
+
+    const handleCalendarSelect = (calendar: any) => {
+        setSelectedCalendar(calendar);
+        setEvents(calendar.eventos || []);
     };
 
     // Calculate dynamic widths
@@ -38,42 +71,70 @@ export default function CalendarLayout({
                 <div className="flex">
                     {/* Botón toggle cuando está colapsado */}
                     {isLeftSidebarCollapsed && (
-                        <div className="w-16 flex flex-col items-center justify-center bg-gradient-to-b from-sidebar to-sidebar/95 border-r border-sidebar-border shadow-lg">
+                        <div className="flex w-16 flex-col items-center justify-center border-r border-sidebar-border bg-gradient-to-b from-sidebar to-sidebar/95 shadow-lg">
                             <button
                                 onClick={toggleLeftSidebar}
-                                className="p-3 rounded-lg hover:bg-sidebar-accent transition-all duration-300 hover:scale-105 hover:shadow-md group"
+                                className="group rounded-lg p-3 transition-all duration-300 hover:scale-105 hover:bg-sidebar-accent hover:shadow-md"
                                 title="Mostrar navegación"
                             >
-                                <Calendar className="h-6 w-6 text-sidebar-foreground/80 group-hover:text-sidebar-accent-foreground transition-colors" />
+                                <Calendar className="h-6 w-6 text-sidebar-foreground/80 transition-colors group-hover:text-sidebar-accent-foreground" />
                             </button>
                         </div>
                     )}
-                    
+
                     {/* Sidebar izquierdo - Navegación */}
                     <div
                         className={`${isLeftSidebarCollapsed ? 'w-0' : 'w-64'} overflow-hidden transition-all duration-300 ease-in-out`}
                     >
-                        <LeftSidebar className="h-full bg-gradient-to-b from-sidebar to-sidebar/95 shadow-xl" isCollapsed={isLeftSidebarCollapsed} onToggle={toggleLeftSidebar} />
+                        <LeftSidebar
+                            className="h-full bg-gradient-to-b from-sidebar to-sidebar/95 shadow-xl"
+                            isCollapsed={isLeftSidebarCollapsed}
+                            onToggle={toggleLeftSidebar}
+                            calendarios={calendariosState}
+                            onCalendarSelect={handleCalendarSelect}
+                            onCalendarCreated={(newCalendar) => {
+                                setCalendariosState((prev) => [
+                                    newCalendar,
+                                    ...prev,
+                                ]);
+                                setSelectedCalendar(newCalendar);
+                                setEvents(newCalendar.eventos || []);
+                            }}
+                        />
                     </div>
                 </div>
 
                 {/* Área principal del calendario - se ajusta dinámicamente según el menú derecho */}
-                <div 
-                    className="transition-all duration-300 ease-in-out p-6"
+                <div
+                    className="p-6 transition-all duration-300 ease-in-out"
                     style={{
                         width: calendarWidth,
-                        maxWidth: '100%'
+                        maxWidth: '100%',
                     }}
                 >
-                    <div className="h-full w-full bg-background/50 backdrop-blur-sm rounded-2xl border border-border/50 shadow-2xl overflow-hidden">
-                        <FullCalendarComponent />
+                    {/* Header with calendar name */}
+                    {selectedCalendar && (
+                        <div className="mb-4">
+                            <h1 className="text-2xl font-bold text-foreground">
+                                {selectedCalendar.nombre}
+                            </h1>
+                            {selectedCalendar.descripcion && (
+                                <p className="mt-1 text-muted-foreground">
+                                    {selectedCalendar.descripcion}
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="h-full w-full overflow-hidden rounded-2xl border border-border/50 bg-background/50 shadow-2xl backdrop-blur-sm">
+                        <FullCalendarComponent events={events} />
                     </div>
                 </div>
 
                 {/* Menú de la derecha - Siempre visible con comportamiento expandible */}
-                <div className="border-l border-sidebar-border shadow-xl flex-shrink-0">
-                    <RightMenu 
-                        className="h-full bg-gradient-to-b from-sidebar to-sidebar/95" 
+                <div className="flex-shrink-0 border-l border-sidebar-border shadow-xl">
+                    <RightMenu
+                        className="h-full bg-gradient-to-b from-sidebar to-sidebar/95"
                         isExpanded={isRightMenuExpanded}
                         onExpansionChange={handleRightMenuExpansionChange}
                     />

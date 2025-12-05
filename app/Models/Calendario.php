@@ -18,4 +18,15 @@ class Calendario extends Model
         'template',
         'estado',
     ];
+
+    // Relaciones
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_calendarios')->withPivot('tipo_user')->withTimestamps();
+    }
+
+    public function eventos()
+    {
+        return $this->hasMany(Evento::class);
+    }
 }

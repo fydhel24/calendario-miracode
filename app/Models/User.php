@@ -49,4 +49,20 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
+
+    // Relaciones
+    public function calendarios()
+    {
+        return $this->belongsToMany(Calendario::class, 'user_calendarios')->withPivot('tipo_user')->withTimestamps();
+    }
+
+    public function eventos()
+    {
+        return $this->hasMany(Evento::class);
+    }
+
+    public function comentarios()
+    {
+        return $this->hasMany(Comentario::class);
+    }
 }

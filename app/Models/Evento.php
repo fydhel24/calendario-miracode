@@ -24,6 +24,11 @@ class Evento extends Model
         'calendario_id',
     ];
 
+    protected $casts = [
+        'fecha_inicio' => 'datetime',
+        'fecha_fin' => 'datetime',
+    ];
+
     // Relaciones
     public function user()
     {
@@ -33,5 +38,15 @@ class Evento extends Model
     public function calendario()
     {
         return $this->belongsTo(Calendario::class);
+    }
+
+    public function archivos()
+    {
+        return $this->hasMany(Archivo::class);
+    }
+
+    public function comentarios()
+    {
+        return $this->hasMany(Comentario::class);
     }
 }
