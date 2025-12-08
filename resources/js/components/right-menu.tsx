@@ -14,6 +14,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Bell, ChevronLeft, Clock, Plus, Settings, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { usePage } from '@inertiajs/react';
 
 interface MenuOption {
     id: string;
@@ -49,6 +50,7 @@ export function RightMenu({
     onEventDeleted,
     onModeChange,
 }: RightMenuProps) {
+    const { auth } = usePage().props as any;
     const [internalActiveOption, setInternalActiveOption] = useState<
         string | null
     >(null);
@@ -67,6 +69,16 @@ export function RightMenu({
             setInternalActiveOption(null);
         }
     }, [selectedEvent]);
+
+    // Fetch users for invite
+    useEffect(() => {
+        setLoadingUsers(true);
+        fetch('/users')
+            .then((response) => response.json())
+            .then((data) => setUsers(data))
+            .catch((error) => console.error('Error fetching users:', error))
+            .finally(() => setLoadingUsers(false));
+    }, []);
     const [eventForm, setEventForm] = useState({
         titulo: '',
         descripcion: '',
@@ -77,6 +89,8 @@ export function RightMenu({
         fecha_fin: '',
     });
     const [loading, setLoading] = useState(false);
+    const [users, setUsers] = useState<any[]>([]);
+    const [loadingUsers, setLoadingUsers] = useState(false);
 
     // Use internal state for active option
     const activeOption = internalActiveOption;
@@ -111,29 +125,72 @@ export function RightMenu({
                     <h3 className="mb-4 text-lg font-semibold">
                         Invitar Participantes
                     </h3>
-                    <div className="space-y-4">
+                    <form
+                        className="space-y-4"
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.target as HTMLFormElement);
+                            const user_id = formData.get('user_id') as string;
+                            const tipo_user = formData.get('tipo_user') as string;
+                            if (!user_id || !tipo_user) return;
+
+                            fetch(`/calendarios/${selectedCalendar?.id}/invite`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                                },
+                                body: JSON.stringify({ user_id: parseInt(user_id), tipo_user }),
+                            })
+                                .then((response) => {
+                                    if (response.ok) {
+                                        alert('Usuario agregado exitosamente');
+                                        (e.target as HTMLFormElement).reset();
+                                        // Reload to update members list
+                                        window.location.reload();
+                                    } else {
+                                        return response.json().then((data) => {
+                                            throw new Error(data.error || 'Error al agregar usuario');
+                                        });
+                                    }
+                                })
+                                .catch((error) => {
+                                    alert(error.message);
+                                });
+                        }}
+                    >
                         <div>
-                            <Label htmlFor="invite-email">Email</Label>
-                            <Input
-                                id="invite-email"
-                                type="email"
-                                placeholder="email@ejemplo.com"
-                                className="mt-1"
-                            />
+                            <Label htmlFor="invite-user">Usuario</Label>
+                            <Select name="user_id" required disabled={loadingUsers}>
+                                <SelectTrigger className="mt-1">
+                                    <SelectValue placeholder={loadingUsers ? "Cargando usuarios..." : "Selecciona un usuario"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {users.map((user) => (
+                                        <SelectItem key={user.id} value={user.id.toString()}>
+                                            {user.name} ({user.email})
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div>
-                            <Label htmlFor="invite-message">Mensaje</Label>
-                            <Textarea
-                                id="invite-message"
-                                placeholder="Mensaje de invitación..."
-                                className="mt-1"
-                                rows={3}
-                            />
+                            <Label htmlFor="invite-tipo">Rol</Label>
+                            <Select name="tipo_user" required>
+                                <SelectTrigger className="mt-1">
+                                    <SelectValue placeholder="Selecciona el rol" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="viewer">Espectador</SelectItem>
+                                    <SelectItem value="editor">Editor</SelectItem>
+                                    <SelectItem value="owner">Propietario</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
-                        <Button className="mt-6 w-full">
-                            Enviar Invitación
+                        <Button type="submit" className="mt-6 w-full" disabled={loadingUsers}>
+                            Agregar Usuario
                         </Button>
-                    </div>
+                    </form>
                 </div>
             ),
         },
@@ -186,6 +243,66 @@ export function RightMenu({
                             </Select>
                         </div>
                         <Button className="mt-6 w-full">Configurar</Button>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            id: 'members',
+            label: 'Miembros',
+            icon: Users,
+            content: (
+                <div className="space-y-4 p-4">
+                    <h3 className="mb-4 text-lg font-semibold">
+                        Miembros del Calendario
+                    </h3>
+                    <div className="space-y-3">
+                        {selectedCalendar?.users && selectedCalendar.users.length > 0 ? (
+                            selectedCalendar.users.map((user: any) => {
+                                const isCurrentUserOwner = selectedCalendar.users.some((u: any) => u.id === auth.user.id && u.pivot?.tipo_user === 'owner');
+                                return (
+                                    <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg">
+                                        <div>
+                                            <p className="font-medium">{user.name}</p>
+                                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                                                {user.pivot?.tipo_user || 'viewer'}
+                                            </span>
+                                            {isCurrentUserOwner && user.pivot?.tipo_user !== 'owner' && (
+                                                <Button
+                                                    variant="destructive"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        if (confirm(`¿Estás seguro de que quieres remover a ${user.name}?`)) {
+                                                            fetch(`/calendarios/${selectedCalendar.id}/remove-user/${user.id}`, {
+                                                                method: 'DELETE',
+                                                                headers: {
+                                                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                                                                },
+                                                            })
+                                                                .then(() => {
+                                                                    alert('Usuario removido');
+                                                                    // Reload or update
+                                                                    window.location.reload();
+                                                                })
+                                                                .catch((error) => {
+                                                                    console.error('Error removing user:', error);
+                                                                });
+                                                        }
+                                                    }}
+                                                >
+                                                    Remover
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <p className="text-muted-foreground">No hay miembros</p>
+                        )}
                     </div>
                 </div>
             ),

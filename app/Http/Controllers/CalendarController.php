@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Calendario;
 use App\Models\User;
 use App\Models\UserCalendario;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -89,19 +90,19 @@ class CalendarController extends Controller
         $this->authorize('invite', $calendario);
 
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'user_id' => 'required|exists:users,id',
             'tipo_user' => 'required|in:owner,editor,viewer',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::find($request->user_id);
 
         if ($calendario->users()->where('user_id', $user->id)->exists()) {
-            return back()->withErrors(['email' => 'El usuario ya está en el calendario.']);
+            return response()->json(['error' => 'El usuario ya está en el calendario.'], 422);
         }
 
         $calendario->users()->attach($user->id, ['tipo_user' => $request->tipo_user]);
 
-        return back()->with('success', 'Usuario invitado al calendario.');
+        return response()->json(['message' => 'Usuario agregado al calendario.']);
     }
 
     public function removeUser(Calendario $calendario, User $user)
@@ -118,5 +119,12 @@ class CalendarController extends Controller
         $calendario->users()->detach($user->id);
 
         return back()->with('success', 'Usuario removido del calendario.');
+    }
+
+    public function getUsers(): JsonResponse
+    {
+        $users = User::select('id', 'name', 'email')->get();
+
+        return response()->json($users);
     }
 }
