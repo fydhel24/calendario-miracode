@@ -15,7 +15,7 @@ class CalendarioPolicy
     public function update(User $user, Calendario $calendario): bool
     {
         $pivot = $calendario->users()->where('user_id', $user->id)->first();
-        return $pivot && in_array($pivot->pivot->tipo_user, ['owner', 'editor']);
+        return $pivot && $pivot->pivot->tipo_user === 'owner';
     }
 
     public function delete(User $user, Calendario $calendario): bool
@@ -27,7 +27,7 @@ class CalendarioPolicy
     public function invite(User $user, Calendario $calendario): bool
     {
         $pivot = $calendario->users()->where('user_id', $user->id)->first();
-        return $pivot && in_array($pivot->pivot->tipo_user, ['owner', 'editor']);
+        return $pivot && $pivot->pivot->tipo_user === 'owner';
     }
 
     public function manageUsers(User $user, Calendario $calendario): bool
@@ -39,6 +39,6 @@ class CalendarioPolicy
     public function createEvent(User $user, Calendario $calendario): bool
     {
         $pivot = $calendario->users()->where('user_id', $user->id)->first();
-        return $pivot && in_array($pivot->pivot->tipo_user, ['owner', 'editor']);
+        return $pivot && $pivot->pivot->tipo_user === 'owner';
     }
 }

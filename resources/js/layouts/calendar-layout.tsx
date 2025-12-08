@@ -5,6 +5,7 @@ import { RightMenu } from '@/components/right-menu';
 import { type BreadcrumbItem } from '@/types';
 import { Calendar } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { usePage } from '@inertiajs/react';
 
 interface CalendarLayoutProps {
     children?: React.ReactNode;
@@ -19,6 +20,7 @@ export default function CalendarLayout({
     calendarios = [],
     selectedCalendarId,
 }: CalendarLayoutProps) {
+    const { auth } = usePage().props as any;
     const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(true);
     const [isRightMenuExpanded, setIsRightMenuExpanded] = useState(false);
     const [calendariosState, setCalendariosState] =
@@ -133,6 +135,7 @@ export default function CalendarLayout({
                                     setEvents(updatedCalendar.eventos || []);
                                 }
                             }}
+                            auth={auth}
                         />
                     </div>
                 </div>
@@ -228,7 +231,9 @@ export default function CalendarLayout({
                                       }
                                     : prev,
                             );
+                            setSelectedEvent(null);
                         }}
+                        onDateClear={() => setSelectedDate(null)}
                     />
                 </div>
             </div>

@@ -35,6 +35,7 @@ interface RightMenuProps {
     onEventUpdated?: (event: any) => void;
     onEventDeleted?: (eventId: string) => void;
     onModeChange?: (mode: string | null) => void;
+    onDateClear?: () => void;
 }
 
 export function RightMenu({
@@ -49,11 +50,14 @@ export function RightMenu({
     onEventUpdated,
     onEventDeleted,
     onModeChange,
+    onDateClear,
 }: RightMenuProps) {
     const { auth } = usePage().props as any;
     const [internalActiveOption, setInternalActiveOption] = useState<
         string | null
     >(null);
+
+    const isOwner = selectedCalendar?.users?.some((u: any) => u.id === auth.user.id && u.pivot?.tipo_user === 'owner');
 
     // Auto-select new-event when date is selected
     useEffect(() => {
@@ -103,7 +107,7 @@ export function RightMenu({
             : activeOption !== null;
 
     const menuOptions: MenuOption[] = [
-        {
+        ...(isOwner ? [{
             id: 'new-event',
             label: 'Nuevo Evento',
             icon: Plus,
@@ -114,9 +118,118 @@ export function RightMenu({
                     onEventCreated={onEventCreated}
                 />
             ),
-        },
-        
+        }] : []),
         {
+            id: 'reminder',
+            label: 'Recordatorio',
+            icon: Bell,
+            content: (
+                <div className="space-y-4 p-4">
+                    <h3 className="mb-4 text-lg font-semibold">
+                        Configurar Recordatorio
+                    </h3>
+                    <div className="space-y-4">
+                        <div>
+                            <Label htmlFor="reminder-time">
+                                Tiempo antes del evento
+                            </Label>
+                            <Select>
+                                <SelectTrigger className="mt-1">
+                                    <SelectValue placeholder="Selecciona el tiempo" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="5">5 minutos</SelectItem>
+                                    <SelectItem value="15">
+                                        15 minutos
+                                    </SelectItem>
+                                    <SelectItem value="30">
+                                        30 minutos
+                                    </SelectItem>
+                                    <SelectItem value="60">1 hora</SelectItem>
+                                    <SelectItem value="1440">1 día</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div>
+                            <Label htmlFor="reminder-type">
+                                Tipo de notificación
+                            </Label>
+                            <Select>
+                                <SelectTrigger className="mt-1">
+                                    <SelectValue placeholder="Selecciona el tipo" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="push">
+                                        Notificación push
+                                    </SelectItem>
+                                    <SelectItem value="email">Email</SelectItem>
+                                    <SelectItem value="sms">SMS</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <Button className="mt-6 w-full">Configurar</Button>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            id: 'members',
+            label: 'Miembros',
+            icon: Users,
+            content: (
+                <div className="space-y-4 p-4">
+                    <h3 className="mb-4 text-lg font-semibold">
+                        Miembros del Calendario
+                    </h3>
+                    <div className="space-y-3">
+                        {selectedCalendar?.users && selectedCalendar.users.length > 0 ? (
+                            selectedCalendar.users.map((user: any) => (
+                                <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg">
+                                    <div>
+                                        <p className="font-medium">{user.name}</p>
+                                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                                            {user.pivot?.tipo_user || 'viewer'}
+                                        </span>
+                                        {isOwner && user.pivot?.tipo_user !== 'owner' && (
+                                            <Button
+                                                variant="destructive"
+                                                size="sm"
+                                                onClick={() => {
+                                                    if (confirm(`¿Estás seguro de que quieres remover a ${user.name}?`)) {
+                                                        fetch(`/calendarios/${selectedCalendar.id}/remove-user/${user.id}`, {
+                                                            method: 'DELETE',
+                                                            headers: {
+                                                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                                                            },
+                                                        })
+                                                            .then(() => {
+                                                                alert('Usuario removido');
+                                                                // Reload or update
+                                                                window.location.reload();
+                                                            })
+                                                            .catch((error) => {
+                                                                console.error('Error removing user:', error);
+                                                            });
+                                                    }
+                                                }}
+                                            >
+                                                Remover
+                                            </Button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-muted-foreground">No hay miembros</p>
+                        )}
+                    </div>
+                </div>
+            ),
+        },
+        ...(isOwner ? [{
             id: 'invite',
             label: 'Invitar',
             icon: Users,
@@ -193,120 +306,7 @@ export function RightMenu({
                     </form>
                 </div>
             ),
-        },
-        {
-            id: 'reminder',
-            label: 'Recordatorio',
-            icon: Bell,
-            content: (
-                <div className="space-y-4 p-4">
-                    <h3 className="mb-4 text-lg font-semibold">
-                        Configurar Recordatorio
-                    </h3>
-                    <div className="space-y-4">
-                        <div>
-                            <Label htmlFor="reminder-time">
-                                Tiempo antes del evento
-                            </Label>
-                            <Select>
-                                <SelectTrigger className="mt-1">
-                                    <SelectValue placeholder="Selecciona el tiempo" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="5">5 minutos</SelectItem>
-                                    <SelectItem value="15">
-                                        15 minutos
-                                    </SelectItem>
-                                    <SelectItem value="30">
-                                        30 minutos
-                                    </SelectItem>
-                                    <SelectItem value="60">1 hora</SelectItem>
-                                    <SelectItem value="1440">1 día</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div>
-                            <Label htmlFor="reminder-type">
-                                Tipo de notificación
-                            </Label>
-                            <Select>
-                                <SelectTrigger className="mt-1">
-                                    <SelectValue placeholder="Selecciona el tipo" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="push">
-                                        Notificación push
-                                    </SelectItem>
-                                    <SelectItem value="email">Email</SelectItem>
-                                    <SelectItem value="sms">SMS</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <Button className="mt-6 w-full">Configurar</Button>
-                    </div>
-                </div>
-            ),
-        },
-        {
-            id: 'members',
-            label: 'Miembros',
-            icon: Users,
-            content: (
-                <div className="space-y-4 p-4">
-                    <h3 className="mb-4 text-lg font-semibold">
-                        Miembros del Calendario
-                    </h3>
-                    <div className="space-y-3">
-                        {selectedCalendar?.users && selectedCalendar.users.length > 0 ? (
-                            selectedCalendar.users.map((user: any) => {
-                                const isCurrentUserOwner = selectedCalendar.users.some((u: any) => u.id === auth.user.id && u.pivot?.tipo_user === 'owner');
-                                return (
-                                    <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg">
-                                        <div>
-                                            <p className="font-medium">{user.name}</p>
-                                            <p className="text-sm text-muted-foreground">{user.email}</p>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                                                {user.pivot?.tipo_user || 'viewer'}
-                                            </span>
-                                            {isCurrentUserOwner && user.pivot?.tipo_user !== 'owner' && (
-                                                <Button
-                                                    variant="destructive"
-                                                    size="sm"
-                                                    onClick={() => {
-                                                        if (confirm(`¿Estás seguro de que quieres remover a ${user.name}?`)) {
-                                                            fetch(`/calendarios/${selectedCalendar.id}/remove-user/${user.id}`, {
-                                                                method: 'DELETE',
-                                                                headers: {
-                                                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                                                                },
-                                                            })
-                                                                .then(() => {
-                                                                    alert('Usuario removido');
-                                                                    // Reload or update
-                                                                    window.location.reload();
-                                                                })
-                                                                .catch((error) => {
-                                                                    console.error('Error removing user:', error);
-                                                                });
-                                                        }
-                                                    }}
-                                                >
-                                                    Remover
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })
-                        ) : (
-                            <p className="text-muted-foreground">No hay miembros</p>
-                        )}
-                    </div>
-                </div>
-            ),
-        },
+        }] : []),
         {
             id: 'settings',
             label: 'Configuración',
@@ -396,14 +396,93 @@ export function RightMenu({
                         <div className="flex h-full flex-col bg-background/30 backdrop-blur-sm">
                             {activeOption === 'edit-event' ? (
                                 // Mostrar formulario de edición
-                                <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
-                                    <EventEditForm
-                                        eventToEdit={selectedEvent}
-                                        selectedCalendar={selectedCalendar}
-                                        onEventUpdated={onEventUpdated}
-                                        onModeChange={setInternalActiveOption}
-                                    />
+                                <div className="flex-1 overflow-hidden">
+                                    <div className="border-b border-sidebar-border bg-gradient-to-r from-sidebar to-sidebar/95 p-4">
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                    setInternalActiveOption(null);
+                                                    onDateClear?.();
+                                                }}
+                                                className="h-8 w-8 transition-all duration-200 hover:scale-105 hover:bg-sidebar-accent"
+                                            >
+                                                <ChevronLeft className="h-4 w-4" />
+                                            </Button>
+                                            <h3 className="font-medium text-sidebar-foreground">
+                                                Editar Evento
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
+                                        <EventEditForm
+                                            eventToEdit={selectedEvent}
+                                            selectedCalendar={selectedCalendar}
+                                            onEventUpdated={onEventUpdated}
+                                            onModeChange={setInternalActiveOption}
+                                        />
+                                    </div>
                                 </div>
+                            ) : activeOption === 'new-event' ? (
+                                // Mostrar formulario de evento directamente cuando hay fecha seleccionada
+                                <div className="flex-1 overflow-hidden">
+                                    <div className="border-b border-sidebar-border bg-gradient-to-r from-sidebar to-sidebar/95 p-4">
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => setInternalActiveOption(null)}
+                                                className="h-8 w-8 transition-all duration-200 hover:scale-105 hover:bg-sidebar-accent"
+                                            >
+                                                <ChevronLeft className="h-4 w-4" />
+                                            </Button>
+                                            <h3 className="font-medium text-sidebar-foreground">
+                                                Nuevo Evento
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
+                                        <EventCreateForm
+                                            selectedDate={selectedDate}
+                                            selectedCalendar={selectedCalendar}
+                                            onEventCreated={onEventCreated}
+                                        />
+                                    </div>
+                                </div>
+                            ) : activeOption ? (
+                                <>
+                                    <div className="border-b border-sidebar-border bg-gradient-to-r from-sidebar to-sidebar/95 p-4">
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={handleBackToIcons}
+                                                className="h-8 w-8 transition-all duration-200 hover:scale-105 hover:bg-sidebar-accent"
+                                            >
+                                                <ChevronLeft className="h-4 w-4" />
+                                            </Button>
+                                            <h3 className="font-medium text-sidebar-foreground">
+                                                {
+                                                    menuOptions.find(
+                                                        (opt) =>
+                                                            opt.id ===
+                                                            activeOption,
+                                                    )?.label
+                                                }
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
+                                        {
+                                            menuOptions.find(
+                                                (opt) =>
+                                                    opt.id ===
+                                                    internalActiveOption,
+                                            )?.content
+                                        }
+                                    </div>
+                                </>
                             ) : selectedEvent ? (
                                 // Mostrar detalles del evento
                                 <div className="flex-1 overflow-y-auto bg-background/50 p-4 backdrop-blur-sm">
@@ -415,79 +494,81 @@ export function RightMenu({
                                                     Detalles del Evento
                                                 </h3>
                                             </div>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => {
-                                                        // Set to edit mode - show form with event data
-                                                        setInternalActiveOption(
-                                                            'edit-event',
-                                                        );
-                                                    }}
-                                                >
-                                                    Editar
-                                                </Button>
-                                                <Button
-                                                    variant="destructive"
-                                                    size="sm"
-                                                    onClick={() => {
-                                                        if (
-                                                            confirm(
-                                                                '¿Estás seguro de que quieres eliminar este evento?',
-                                                            )
-                                                        ) {
-                                                            // Delete event
-                                                            fetch(
-                                                                `/eventos/${selectedEvent.id}`,
-                                                                {
-                                                                    method: 'DELETE',
-                                                                    headers: {
-                                                                        'X-CSRF-TOKEN':
-                                                                            document
-                                                                                .querySelector(
-                                                                                    'meta[name="csrf-token"]',
-                                                                                )
-                                                                                ?.getAttribute(
-                                                                                    'content',
-                                                                                ) ||
-                                                                            '',
+                                            {isOwner && (
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            // Set to edit mode - show form with event data
+                                                            setInternalActiveOption(
+                                                                'edit-event',
+                                                            );
+                                                        }}
+                                                    >
+                                                        Editar
+                                                    </Button>
+                                                    <Button
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            if (
+                                                                confirm(
+                                                                    '¿Estás seguro de que quieres eliminar este evento?',
+                                                                )
+                                                            ) {
+                                                                // Delete event
+                                                                fetch(
+                                                                    `/eventos/${selectedEvent.id}`,
+                                                                    {
+                                                                        method: 'DELETE',
+                                                                        headers: {
+                                                                            'X-CSRF-TOKEN':
+                                                                                document
+                                                                                    .querySelector(
+                                                                                        'meta[name="csrf-token"]',
+                                                                                    )
+                                                                                    ?.getAttribute(
+                                                                                        'content',
+                                                                                    ) ||
+                                                                                '',
+                                                                        },
                                                                     },
-                                                                },
-                                                            )
-                                                                .then(() => {
-                                                                    // Remove from events
-                                                                    if (
-                                                                        onEventDeleted
-                                                                    )
-                                                                        onEventDeleted(
-                                                                            selectedEvent.id,
+                                                                )
+                                                                    .then(() => {
+                                                                        // Remove from events
+                                                                        if (
+                                                                            onEventDeleted
+                                                                        )
+                                                                            onEventDeleted(
+                                                                                selectedEvent.id,
+                                                                            );
+                                                                        // Close details
+                                                                        setInternalActiveOption(
+                                                                            null,
                                                                         );
-                                                                    // Close details
-                                                                    setInternalActiveOption(
-                                                                        null,
+                                                                        if (
+                                                                            onExpansionChange
+                                                                        )
+                                                                            onExpansionChange(
+                                                                                false,
+                                                                        );
+                                                                    })
+                                                                    .catch(
+                                                                        (error) => {
+                                                                            console.error(
+                                                                                'Error deleting event:',
+                                                                                error,
+                                                                            );
+                                                                        },
                                                                     );
-                                                                    if (
-                                                                        onExpansionChange
-                                                                    )
-                                                                        onExpansionChange(
-                                                                            false,
-                                                                        );
-                                                                })
-                                                                .catch(
-                                                                    (error) => {
-                                                                        console.error(
-                                                                            'Error deleting event:',
-                                                                            error,
-                                                                        );
-                                                                    },
-                                                                );
-                                                        }
-                                                    }}
-                                                >
-                                                    Eliminar
-                                                </Button>
-                                            </div>
+                                                            }
+                                                        }}
+                                                    >
+                                                        Eliminar
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="space-y-3">
                                             <div>
@@ -645,15 +726,6 @@ export function RightMenu({
                                             </form>
                                         </div>
                                     </div>
-                                </div>
-                            ) : selectedDate && activeOption === 'new-event' ? (
-                                // Mostrar formulario de evento directamente cuando hay fecha seleccionada
-                                <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
-                                    <EventCreateForm
-                                        selectedDate={selectedDate}
-                                        selectedCalendar={selectedCalendar}
-                                        onEventCreated={onEventCreated}
-                                    />
                                 </div>
                             ) : (
                                 <>

@@ -23,6 +23,7 @@ interface LeftSidebarProps {
     onCalendarSelect?: (calendar: any) => void;
     onCalendarCreated?: (calendar: any) => void;
     onCalendarUpdated?: (calendar: any) => void;
+    auth?: any;
 }
 
 export function LeftSidebar({
@@ -33,6 +34,7 @@ export function LeftSidebar({
     onCalendarSelect,
     onCalendarCreated,
     onCalendarUpdated,
+    auth,
 }: LeftSidebarProps) {
     const [isExpanded, setIsExpanded] = useState(true);
     const [editingCalendar, setEditingCalendar] = useState<any>(null);
@@ -102,56 +104,61 @@ export function LeftSidebar({
                                 />
                             </div>
                             <div className="space-y-1">
-                                {calendarios.map((calendario) => (
-                                    <div
-                                        key={calendario.id}
-                                        className="group flex items-center justify-between rounded-lg p-2 transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/50 hover:shadow-sm"
-                                    >
+                                {calendarios.map((calendario) => {
+                                    const isOwner = calendario.users?.some((u: any) => u.id === auth?.user?.id && u.pivot?.tipo_user === 'owner');
+                                    return (
                                         <div
-                                            onClick={() =>
-                                                onCalendarSelect &&
-                                                onCalendarSelect(calendario)
-                                            }
-                                            className="flex flex-1 cursor-pointer items-center gap-2 hover:text-sidebar-accent-foreground"
+                                            key={calendario.id}
+                                            className="group flex items-center justify-between rounded-lg p-2 transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/50 hover:shadow-sm"
                                         >
-                                            <Calendar className="h-4 w-4" />
-                                            <span className="truncate text-sm">
-                                                {calendario.nombre}
-                                            </span>
-                                        </div>
-                                        <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-6 w-6 hover:bg-sidebar-accent"
-                                                title="Editar calendario"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setEditingCalendar(
-                                                        calendario,
-                                                    );
-                                                    setEditModalOpen(true);
-                                                }}
+                                            <div
+                                                onClick={() =>
+                                                    onCalendarSelect &&
+                                                    onCalendarSelect(calendario)
+                                                }
+                                                className="flex flex-1 cursor-pointer items-center gap-2 hover:text-sidebar-accent-foreground"
                                             >
-                                                <Edit className="h-3 w-3" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-6 w-6 hover:bg-destructive hover:text-destructive-foreground"
-                                                title="Eliminar calendario"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    if (confirm('¿Estás seguro de que quieres eliminar este calendario?')) {
-                                                        router.delete(`/calendarios/${calendario.id}`);
-                                                    }
-                                                }}
-                                            >
-                                                <Trash2 className="h-3 w-3" />
-                                            </Button>
+                                                <Calendar className="h-4 w-4" />
+                                                <span className="truncate text-sm">
+                                                    {calendario.nombre}
+                                                </span>
+                                            </div>
+                                            {isOwner && (
+                                                <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-6 w-6 hover:bg-sidebar-accent"
+                                                        title="Editar calendario"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setEditingCalendar(
+                                                                calendario,
+                                                            );
+                                                            setEditModalOpen(true);
+                                                        }}
+                                                    >
+                                                        <Edit className="h-3 w-3" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-6 w-6 hover:bg-destructive hover:text-destructive-foreground"
+                                                        title="Eliminar calendario"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (confirm('¿Estás seguro de que quieres eliminar este calendario?')) {
+                                                                router.delete(`/calendarios/${calendario.id}`);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Trash2 className="h-3 w-3" />
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
 

@@ -15,12 +15,12 @@ class EventoPolicy
     public function update(User $user, Evento $evento): bool
     {
         $pivot = $evento->calendario->users()->where('user_id', $user->id)->first();
-        return $pivot && in_array($pivot->pivot->tipo_user, ['owner', 'editor']) || $evento->user_id === $user->id;
+        return $pivot && $pivot->pivot->tipo_user === 'owner';
     }
 
     public function delete(User $user, Evento $evento): bool
     {
         $pivot = $evento->calendario->users()->where('user_id', $user->id)->first();
-        return $pivot && in_array($pivot->pivot->tipo_user, ['owner', 'editor']) || $evento->user_id === $user->id;
+        return $pivot && $pivot->pivot->tipo_user === 'owner';
     }
 }
