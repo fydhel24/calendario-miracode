@@ -1,12 +1,11 @@
 import CalendarLayout from '@/layouts/calendar-layout';
-import { dashboard } from '@/routes';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard().url,
+        href: '/dashboard',
     },
 ];
 

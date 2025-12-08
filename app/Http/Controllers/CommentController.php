@@ -10,9 +10,10 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    public function store(Request $request, Calendario $calendario, Evento $evento)
+    public function store(Request $request, Evento $evento)
     {
-        $this->authorize('view', $calendario); // Ensure user can view the calendar
+        // $evento->load('calendario');
+        // $this->authorize('view', $evento);
 
         $request->validate([
             'contenido' => 'required|string',
@@ -23,10 +24,10 @@ class CommentController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        return back()->with('success', 'Comentario agregado.');
+        return response()->json($comentario->load('user'))->withHeaders(['X-Inertia' => false]);
     }
 
-    public function update(Request $request, Calendario $calendario, Evento $evento, Comentario $comentario)
+    public function update(Request $request, Evento $evento, Comentario $comentario)
     {
         $this->authorize('update', $comentario);
 
@@ -36,15 +37,15 @@ class CommentController extends Controller
 
         $comentario->update($request->only('contenido'));
 
-        return back()->with('success', 'Comentario actualizado.');
+        return response()->json($comentario)->withHeaders(['X-Inertia' => false]);
     }
 
-    public function destroy(Calendario $calendario, Evento $evento, Comentario $comentario)
+    public function destroy(Evento $evento, Comentario $comentario)
     {
         $this->authorize('delete', $comentario);
 
         $comentario->delete();
 
-        return back()->with('success', 'Comentario eliminado.');
+        return response()->json(['message' => 'Comentario eliminado'])->withHeaders(['X-Inertia' => false]);
     }
 }

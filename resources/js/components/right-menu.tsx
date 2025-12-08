@@ -1,4 +1,5 @@
-import { EventCreationForm } from '@/components/event-creation-form';
+import { EventCreateForm } from '@/components/event-create-form';
+import { EventEditForm } from '@/components/event-edit-form';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,7 @@ interface RightMenuProps {
     onEventCreated?: (event: any) => void;
     onEventUpdated?: (event: any) => void;
     onEventDeleted?: (eventId: string) => void;
+    onModeChange?: (mode: string | null) => void;
 }
 
 export function RightMenu({
@@ -45,6 +47,7 @@ export function RightMenu({
     onEventCreated,
     onEventUpdated,
     onEventDeleted,
+    onModeChange,
 }: RightMenuProps) {
     const [internalActiveOption, setInternalActiveOption] = useState<
         string | null
@@ -52,11 +55,11 @@ export function RightMenu({
 
     // Auto-select new-event when date is selected
     useEffect(() => {
-        if (selectedDate && !internalActiveOption) {
+        if (selectedDate) {
             setInternalActiveOption('new-event');
             if (onExpansionChange) onExpansionChange(true);
         }
-    }, [selectedDate, internalActiveOption, onExpansionChange]);
+    }, [selectedDate, onExpansionChange]);
 
     // Reset to details when event is selected
     useEffect(() => {
@@ -91,52 +94,14 @@ export function RightMenu({
             label: 'Nuevo Evento',
             icon: Plus,
             content: (
-                <EventCreationForm
+                <EventCreateForm
                     selectedDate={selectedDate ?? undefined}
                     selectedCalendar={selectedCalendar}
                     onEventCreated={onEventCreated}
                 />
             ),
         },
-        {
-            id: 'schedule',
-            label: 'Programar',
-            icon: Clock,
-            content: (
-                <div className="space-y-4 p-4">
-                    <h3 className="mb-4 text-lg font-semibold">
-                        Programar Tarea
-                    </h3>
-                    <div className="space-y-4">
-                        <div>
-                            <Label htmlFor="task-description">
-                                Descripción
-                            </Label>
-                            <Textarea
-                                id="task-description"
-                                placeholder="Describe la tarea..."
-                                className="mt-1"
-                                rows={3}
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="task-priority">Prioridad</Label>
-                            <Select>
-                                <SelectTrigger className="mt-1">
-                                    <SelectValue placeholder="Selecciona la prioridad" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="baja">Baja</SelectItem>
-                                    <SelectItem value="media">Media</SelectItem>
-                                    <SelectItem value="alta">Alta</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <Button className="mt-6 w-full">Programar</Button>
-                    </div>
-                </div>
-            ),
-        },
+        
         {
             id: 'invite',
             label: 'Invitar',
@@ -315,7 +280,7 @@ export function RightMenu({
                             {activeOption === 'edit-event' ? (
                                 // Mostrar formulario de edición
                                 <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
-                                    <EventCreationForm
+                                    <EventEditForm
                                         eventToEdit={selectedEvent}
                                         selectedCalendar={selectedCalendar}
                                         onEventUpdated={onEventUpdated}
@@ -476,12 +441,98 @@ export function RightMenu({
                                                 </div>
                                             )}
                                         </div>
+
+                                        {/* Comentarios - Estilo Chat */}
+                                        <div className="mt-6">
+                                            <Label className="text-sm font-medium mb-3 block">
+                                                Comentarios
+                                            </Label>
+                                            <div className="space-y-3 max-h-60 overflow-y-auto">
+                                                {selectedEvent.comentarios && selectedEvent.comentarios.length > 0 ? (
+                                                    selectedEvent.comentarios.map((comentario: any) => (
+                                                        <div key={comentario.id} className="flex gap-3">
+                                                            <div className="flex-shrink-0">
+                                                                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                                                                    <span className="text-xs font-medium text-primary">
+                                                                        {(comentario.user?.name || 'U').charAt(0).toUpperCase()}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2 mb-1">
+                                                                    <span className="text-sm font-medium">
+                                                                        {comentario.user?.name || 'Usuario'}
+                                                                    </span>
+                                                                    <span className="text-xs text-muted-foreground">
+                                                                        {new Date(comentario.created_at).toLocaleString()}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="bg-muted/50 rounded-lg px-3 py-2">
+                                                                    <p className="text-sm">{comentario.contenido}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <p className="text-sm text-muted-foreground text-center py-4">No hay comentarios aún.</p>
+                                                )}
+                                            </div>
+
+                                            {/* Formulario para agregar comentario */}
+                                            <form
+                                                className="mt-4"
+                                                onSubmit={(e) => {
+                                                    e.preventDefault();
+                                                    const formData = new FormData(e.target as HTMLFormElement);
+                                                    const contenido = formData.get('contenido') as string;
+                                                    if (!contenido.trim()) return;
+
+                                                    fetch(`/eventos/${selectedEvent.id}/comentarios`, {
+                                                        method: 'POST',
+                                                        headers: {
+                                                            'Content-Type': 'application/json',
+                                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                                                        },
+                                                        body: JSON.stringify({ contenido }),
+                                                    })
+                                                        .then((response) => response.json())
+                                                        .then((newComment) => {
+                                                            // Add to selectedEvent comentarios
+                                                            const updatedEvent = {
+                                                                ...selectedEvent,
+                                                                comentarios: [...(selectedEvent.comentarios || []), newComment],
+                                                            };
+                                                            // Update via callback if available
+                                                            if (onEventUpdated) {
+                                                                onEventUpdated(updatedEvent);
+                                                            }
+                                                            // Reset form
+                                                            (e.target as HTMLFormElement).reset();
+                                                        })
+                                                        .catch((error) => {
+                                                            console.error('Error adding comment:', error);
+                                                        });
+                                                }}
+                                            >
+                                                <div className="flex gap-2">
+                                                    <Input
+                                                        name="contenido"
+                                                        placeholder="Escribe un comentario..."
+                                                        className="flex-1"
+                                                        required
+                                                    />
+                                                    <Button type="submit" size="sm">
+                                                        <Plus className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             ) : selectedDate && activeOption === 'new-event' ? (
                                 // Mostrar formulario de evento directamente cuando hay fecha seleccionada
                                 <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
-                                    <EventCreationForm
+                                    <EventCreateForm
                                         selectedDate={selectedDate}
                                         selectedCalendar={selectedCalendar}
                                         onEventCreated={onEventCreated}

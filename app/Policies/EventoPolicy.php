@@ -9,7 +9,7 @@ class EventoPolicy
 {
     public function view(User $user, Evento $evento): bool
     {
-        return $evento->calendario->users()->where('user_id', $user->id)->exists();
+        return $evento->calendario && $evento->calendario->users()->where('user_id', $user->id)->exists();
     }
 
     public function update(User $user, Evento $evento): bool

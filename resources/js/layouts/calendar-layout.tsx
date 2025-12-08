@@ -207,10 +207,11 @@ export default function CalendarLayout({
                                                         : e,
                                                 )
                                               : [],
-                                      }
-                                    : prev,
-                            );
-                        }}
+                                                }
+                                              : prev,
+                                      );
+                                      setSelectedEvent(updatedEvent);
+                                  }}
                         onEventDeleted={(eventId) => {
                             setEvents((prev) =>
                                 prev.filter((e) => e.id !== eventId),

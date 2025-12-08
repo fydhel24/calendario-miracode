@@ -22,7 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('calendarios/{calendario}/users/{user}', [CalendarController::class, 'removeUser'])->name('calendarios.removeUser');
 
     Route::resource('calendarios.eventos', EventController::class)->shallow();
-    Route::resource('eventos.comentarios', CommentController::class)->shallow();
+    Route::resource('eventos.comentarios', CommentController::class);
     Route::resource('eventos.archivos', FileController::class)->shallow();
 });
 
