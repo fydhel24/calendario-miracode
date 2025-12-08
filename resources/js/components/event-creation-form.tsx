@@ -10,7 +10,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { router } from '@inertiajs/react';
 import { Calendar, Clock, MapPin, Palette, Tag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -62,9 +61,21 @@ export function EventCreationForm({
             (submitData as any).fecha_fin = null;
         }
 
-        router.post(`/calendarios/${selectedCalendar.id}/eventos`, submitData, {
-            onSuccess: (response) => {
-                onEventCreated?.(response);
+        const csrfToken = document
+            .querySelector('meta[name="csrf-token"]')
+            ?.getAttribute('content');
+
+        fetch(`/calendarios/${selectedCalendar.id}/eventos`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken || '',
+            },
+            body: JSON.stringify(submitData),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                onEventCreated?.(data);
                 // Reset form
                 setForm({
                     titulo: '',
@@ -72,17 +83,16 @@ export function EventCreationForm({
                     ubicacion: '',
                     prioridad: 'Alta',
                     color: '#2563eb',
-                    fecha_inicio: selectedDate || '',
+                    fecha_inicio: '',
                     fecha_fin: '',
                 });
-            },
-            onError: () => {
+                setIsAllDay(false);
                 setLoading(false);
-            },
-            onFinish: () => {
+            })
+            .catch((error) => {
+                console.error('Error:', error);
                 setLoading(false);
-            },
-        });
+            });
     };
 
     return (

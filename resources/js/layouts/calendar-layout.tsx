@@ -165,7 +165,17 @@ export default function CalendarLayout({
                         selectedDate={selectedDate}
                         selectedCalendar={selectedCalendar}
                         onEventCreated={(newEvent) => {
-                            setEvents(prev => [...prev, newEvent]);
+                            setEvents((prev) => [...prev, newEvent]);
+                            setSelectedCalendar((prev) =>
+                                prev
+                                    ? {
+                                          ...prev,
+                                          eventos: prev.eventos
+                                              ? [...prev.eventos, newEvent]
+                                              : [newEvent],
+                                      }
+                                    : prev,
+                            );
                         }}
                     />
                 </div>
