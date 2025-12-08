@@ -1,6 +1,6 @@
+import { EventCreationForm } from '@/components/event-creation-form';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { EventCreationForm } from '@/components/event-creation-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Bell, ChevronLeft, Clock, Plus, Settings, Users } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface MenuOption {
     id: string;
@@ -43,6 +43,14 @@ export function RightMenu({
     const [internalActiveOption, setInternalActiveOption] = useState<
         string | null
     >(null);
+
+    // Auto-select new-event when date is selected
+    useEffect(() => {
+        if (selectedDate && !internalActiveOption) {
+            setInternalActiveOption('new-event');
+            if (onExpansionChange) onExpansionChange(true);
+        }
+    }, [selectedDate, internalActiveOption, onExpansionChange]);
     const [eventForm, setEventForm] = useState({
         titulo: '',
         descripcion: '',
@@ -70,41 +78,11 @@ export function RightMenu({
             label: 'Nuevo Evento',
             icon: Plus,
             content: (
-                <div className="space-y-4 p-4">
-                    <h3 className="mb-4 text-lg font-semibold">
-                        Crear Nuevo Evento
-                    </h3>
-                    <div className="space-y-4">
-                        <div>
-                            <Label htmlFor="event-title">
-                                Título del Evento
-                            </Label>
-                            <Input
-                                id="event-title"
-                                type="text"
-                                placeholder="Escribe el título..."
-                                className="mt-1"
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="event-date">Fecha</Label>
-                            <Input
-                                id="event-date"
-                                type="date"
-                                className="mt-1"
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="event-time">Hora</Label>
-                            <Input
-                                id="event-time"
-                                type="time"
-                                className="mt-1"
-                            />
-                        </div>
-                        <Button className="mt-6 w-full">Crear Evento</Button>
-                    </div>
-                </div>
+                <EventCreationForm
+                    selectedDate={selectedDate ?? undefined}
+                    selectedCalendar={selectedCalendar}
+                    onEventCreated={onEventCreated}
+                />
             ),
         },
         {
@@ -317,38 +295,53 @@ export function RightMenu({
                     </div>
                 </div>
 
-                {/* Contenido - se muestra cuando hay una opción activa */}
+                {/* Contenido - se muestra cuando hay una opción activa o fecha seleccionada */}
                 {shouldShowExpandedContent && (
                     <div className="flex-1 overflow-hidden">
                         <div className="flex h-full flex-col bg-background/30 backdrop-blur-sm">
-                            <div className="border-b border-sidebar-border bg-gradient-to-r from-sidebar to-sidebar/95 p-4">
-                                <div className="flex items-center gap-2">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={handleBackToIcons}
-                                        className="h-8 w-8 transition-all duration-200 hover:scale-105 hover:bg-sidebar-accent"
-                                    >
-                                        <ChevronLeft className="h-4 w-4" />
-                                    </Button>
-                                    <h3 className="font-medium text-sidebar-foreground">
+                            {selectedDate && activeOption === 'new-event' ? (
+                                // Mostrar formulario de evento directamente cuando hay fecha seleccionada
+                                <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
+                                    <EventCreationForm
+                                        selectedDate={selectedDate}
+                                        selectedCalendar={selectedCalendar}
+                                        onEventCreated={onEventCreated}
+                                    />
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="border-b border-sidebar-border bg-gradient-to-r from-sidebar to-sidebar/95 p-4">
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={handleBackToIcons}
+                                                className="h-8 w-8 transition-all duration-200 hover:scale-105 hover:bg-sidebar-accent"
+                                            >
+                                                <ChevronLeft className="h-4 w-4" />
+                                            </Button>
+                                            <h3 className="font-medium text-sidebar-foreground">
+                                                {
+                                                    menuOptions.find(
+                                                        (opt) =>
+                                                            opt.id ===
+                                                            activeOption,
+                                                    )?.label
+                                                }
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
                                         {
                                             menuOptions.find(
                                                 (opt) =>
-                                                    opt.id === activeOption,
-                                            )?.label
+                                                    opt.id ===
+                                                    internalActiveOption,
+                                            )?.content
                                         }
-                                    </h3>
-                                </div>
-                            </div>
-                            <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
-                                {
-                                    menuOptions.find(
-                                        (opt) =>
-                                            opt.id === internalActiveOption,
-                                    )?.content
-                                }
-                            </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 )}
