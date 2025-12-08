@@ -65,4 +65,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comentario::class);
     }
+
+    public function eventosInvitados()
+    {
+        return $this->belongsToMany(Evento::class, 'evento_usuario')->withPivot('rol')->withTimestamps();
+    }
 }

@@ -49,4 +49,9 @@ class Evento extends Model
     {
         return $this->hasMany(Comentario::class);
     }
+
+    public function usuarios()
+    {
+        return $this->belongsToMany(User::class, 'evento_usuario')->withPivot('rol')->withTimestamps();
+    }
 }
