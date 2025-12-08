@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
@@ -28,25 +29,12 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
     });
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
-        try {
-            const csrfToken = document
-                .querySelector('meta[name="csrf-token"]')
-                ?.getAttribute('content');
-            const response = await fetch('/calendarios', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken || '',
-                },
-                body: JSON.stringify(form),
-            });
-
-            if (response.ok) {
-                const newCalendar = await response.json();
+        router.post('/calendarios', form, {
+            onSuccess: (response) => {
                 setOpen(false);
                 setForm({
                     nombre: '',
@@ -54,15 +42,15 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
                     template: '',
                     estado: 'activo',
                 });
-                onCalendarCreated?.(newCalendar);
-            } else {
-                console.error('Error creating calendar');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        } finally {
-            setLoading(false);
-        }
+                onCalendarCreated?.(response);
+            },
+            onError: () => {
+                setLoading(false);
+            },
+            onFinish: () => {
+                setLoading(false);
+            },
+        });
     };
 
     return (

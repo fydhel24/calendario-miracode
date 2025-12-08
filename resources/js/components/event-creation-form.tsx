@@ -32,26 +32,15 @@ export function EventCreationForm({ selectedDate, selectedCalendar, onEventCreat
         }
     }, [selectedDate]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedCalendar) return;
 
         setLoading(true);
 
-        try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            const response = await fetch(`/calendarios/${selectedCalendar.id}/eventos`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken || '',
-                },
-                body: JSON.stringify(form),
-            });
-
-            if (response.ok) {
-                const newEvent = await response.json();
-                onEventCreated?.(newEvent);
+        router.post(`/calendarios/${selectedCalendar.id}/eventos`, form, {
+            onSuccess: (response) => {
+                onEventCreated?.(response);
                 // Reset form
                 setForm({
                     titulo: '',
@@ -62,14 +51,14 @@ export function EventCreationForm({ selectedDate, selectedCalendar, onEventCreat
                     fecha_inicio: selectedDate,
                     fecha_fin: '',
                 });
-            } else {
-                console.error('Error creating event');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        } finally {
-            setLoading(false);
-        }
+            },
+            onError: () => {
+                setLoading(false);
+            },
+            onFinish: () => {
+                setLoading(false);
+            },
+        });
     };
 
     return (

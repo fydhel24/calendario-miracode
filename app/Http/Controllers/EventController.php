@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Calendario;
 use App\Models\Evento;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class EventController extends Controller
 {
+    use AuthorizesRequests;
     public function store(Request $request, Calendario $calendario)
     {
         $this->authorize('createEvent', $calendario);
@@ -35,7 +37,7 @@ class EventController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        return back()->with('success', 'Evento creado.');
+        return response()->json($evento->load('user'))->withHeaders(['X-Inertia' => false]);
     }
 
     public function update(Request $request, Calendario $calendario, Evento $evento)
