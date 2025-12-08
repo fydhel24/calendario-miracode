@@ -40,7 +40,7 @@ class EventController extends Controller
         return response()->json($evento->load('user'))->withHeaders(['X-Inertia' => false]);
     }
 
-    public function update(Request $request, Calendario $calendario, Evento $evento)
+    public function update(Request $request, Evento $evento)
     {
         $this->authorize('update', $evento);
 
@@ -64,15 +64,15 @@ class EventController extends Controller
             'fecha_fin'
         ]));
 
-        return back()->with('success', 'Evento actualizado.');
+        return response()->json($evento->load('user'))->withHeaders(['X-Inertia' => false]);
     }
 
-    public function destroy(Calendario $calendario, Evento $evento)
+    public function destroy(Evento $evento)
     {
         $this->authorize('delete', $evento);
 
         $evento->delete();
 
-        return back()->with('success', 'Evento eliminado.');
+        return response()->json(['message' => 'Evento eliminado'])->withHeaders(['X-Inertia' => false]);
     }
 }

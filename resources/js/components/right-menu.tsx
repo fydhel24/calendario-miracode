@@ -27,8 +27,11 @@ interface RightMenuProps {
     isExpanded?: boolean;
     onExpansionChange?: (expanded: boolean) => void;
     selectedDate?: string | null;
+    selectedEvent?: any;
     selectedCalendar?: any;
     onEventCreated?: (event: any) => void;
+    onEventUpdated?: (event: any) => void;
+    onEventDeleted?: (eventId: string) => void;
 }
 
 export function RightMenu({
@@ -37,8 +40,11 @@ export function RightMenu({
     isExpanded: externalIsExpanded,
     onExpansionChange,
     selectedDate,
+    selectedEvent,
     selectedCalendar,
     onEventCreated,
+    onEventUpdated,
+    onEventDeleted,
 }: RightMenuProps) {
     const [internalActiveOption, setInternalActiveOption] = useState<
         string | null
@@ -51,6 +57,13 @@ export function RightMenu({
             if (onExpansionChange) onExpansionChange(true);
         }
     }, [selectedDate, internalActiveOption, onExpansionChange]);
+
+    // Reset to details when event is selected
+    useEffect(() => {
+        if (selectedEvent) {
+            setInternalActiveOption(null);
+        }
+    }, [selectedEvent]);
     const [eventForm, setEventForm] = useState({
         titulo: '',
         descripcion: '',
@@ -295,11 +308,177 @@ export function RightMenu({
                     </div>
                 </div>
 
-                {/* Contenido - se muestra cuando hay una opción activa o fecha seleccionada */}
+                {/* Contenido - se muestra cuando hay una opción activa, fecha seleccionada o evento seleccionado */}
                 {shouldShowExpandedContent && (
                     <div className="flex-1 overflow-hidden">
                         <div className="flex h-full flex-col bg-background/30 backdrop-blur-sm">
-                            {selectedDate && activeOption === 'new-event' ? (
+                            {activeOption === 'edit-event' ? (
+                                // Mostrar formulario de edición
+                                <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
+                                    <EventCreationForm
+                                        eventToEdit={selectedEvent}
+                                        selectedCalendar={selectedCalendar}
+                                        onEventUpdated={onEventUpdated}
+                                        onModeChange={setInternalActiveOption}
+                                    />
+                                </div>
+                            ) : selectedEvent ? (
+                                // Mostrar detalles del evento
+                                <div className="flex-1 overflow-y-auto bg-background/50 p-4 backdrop-blur-sm">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="h-5 w-5 text-primary" />
+                                                <h3 className="text-lg font-semibold">
+                                                    Detalles del Evento
+                                                </h3>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        // Set to edit mode - show form with event data
+                                                        setInternalActiveOption(
+                                                            'edit-event',
+                                                        );
+                                                    }}
+                                                >
+                                                    Editar
+                                                </Button>
+                                                <Button
+                                                    variant="destructive"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        if (
+                                                            confirm(
+                                                                '¿Estás seguro de que quieres eliminar este evento?',
+                                                            )
+                                                        ) {
+                                                            // Delete event
+                                                            fetch(
+                                                                `/eventos/${selectedEvent.id}`,
+                                                                {
+                                                                    method: 'DELETE',
+                                                                    headers: {
+                                                                        'X-CSRF-TOKEN':
+                                                                            document
+                                                                                .querySelector(
+                                                                                    'meta[name="csrf-token"]',
+                                                                                )
+                                                                                ?.getAttribute(
+                                                                                    'content',
+                                                                                ) ||
+                                                                            '',
+                                                                    },
+                                                                },
+                                                            )
+                                                                .then(() => {
+                                                                    // Remove from events
+                                                                    if (
+                                                                        onEventDeleted
+                                                                    )
+                                                                        onEventDeleted(
+                                                                            selectedEvent.id,
+                                                                        );
+                                                                    // Close details
+                                                                    setInternalActiveOption(
+                                                                        null,
+                                                                    );
+                                                                    if (
+                                                                        onExpansionChange
+                                                                    )
+                                                                        onExpansionChange(
+                                                                            false,
+                                                                        );
+                                                                })
+                                                                .catch(
+                                                                    (error) => {
+                                                                        console.error(
+                                                                            'Error deleting event:',
+                                                                            error,
+                                                                        );
+                                                                    },
+                                                                );
+                                                        }
+                                                    }}
+                                                >
+                                                    Eliminar
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <Label className="text-sm font-medium">
+                                                    Título
+                                                </Label>
+                                                <p className="text-base">
+                                                    {selectedEvent.titulo}
+                                                </p>
+                                            </div>
+                                            {selectedEvent.descripcion && (
+                                                <div>
+                                                    <Label className="text-sm font-medium">
+                                                        Descripción
+                                                    </Label>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        {
+                                                            selectedEvent.descripcion
+                                                        }
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {selectedEvent.ubicacion && (
+                                                <div>
+                                                    <Label className="text-sm font-medium">
+                                                        Ubicación
+                                                    </Label>
+                                                    <p className="text-sm">
+                                                        {
+                                                            selectedEvent.ubicacion
+                                                        }
+                                                    </p>
+                                                </div>
+                                            )}
+                                            <div>
+                                                <Label className="text-sm font-medium">
+                                                    Fecha Inicio
+                                                </Label>
+                                                <p className="text-sm">
+                                                    {new Date(
+                                                        selectedEvent.fecha_inicio,
+                                                    ).toLocaleString()}
+                                                </p>
+                                            </div>
+                                            {selectedEvent.fecha_fin && (
+                                                <div>
+                                                    <Label className="text-sm font-medium">
+                                                        Fecha Fin
+                                                    </Label>
+                                                    <p className="text-sm">
+                                                        {new Date(
+                                                            selectedEvent.fecha_fin,
+                                                        ).toLocaleString()}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {selectedEvent.user && (
+                                                <div>
+                                                    <Label className="text-sm font-medium">
+                                                        Creado por
+                                                    </Label>
+                                                    <p className="text-sm">
+                                                        {
+                                                            selectedEvent.user
+                                                                .name
+                                                        }
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : selectedDate && activeOption === 'new-event' ? (
                                 // Mostrar formulario de evento directamente cuando hay fecha seleccionada
                                 <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
                                     <EventCreationForm

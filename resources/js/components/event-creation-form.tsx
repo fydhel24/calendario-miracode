@@ -17,12 +17,18 @@ interface EventCreationFormProps {
     selectedDate?: string | null;
     selectedCalendar?: any;
     onEventCreated?: (event: any) => void;
+    eventToEdit?: any;
+    onEventUpdated?: (event: any) => void;
+    onModeChange?: (mode: string | null) => void;
 }
 
 export function EventCreationForm({
     selectedDate,
     selectedCalendar,
     onEventCreated,
+    eventToEdit,
+    onEventUpdated,
+    onModeChange,
 }: EventCreationFormProps) {
     const [form, setForm] = useState({
         titulo: '',
@@ -33,22 +39,36 @@ export function EventCreationForm({
         fecha_inicio: '',
         fecha_fin: '',
     });
-    const [isAllDay, setIsAllDay] = useState(false);
+    const [isAllDay, setIsAllDay] = useState(true);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (selectedDate) {
-            const formattedDate = selectedDate.includes('T')
-                ? selectedDate
-                : selectedDate + 'T12:00';
+        if (eventToEdit) {
+            setForm({
+                titulo: eventToEdit.titulo || '',
+                descripcion: eventToEdit.descripcion || '',
+                ubicacion: eventToEdit.ubicacion || '',
+                prioridad: eventToEdit.prioridad || 'Alta',
+                color: eventToEdit.color || '#2563eb',
+                fecha_inicio: eventToEdit.fecha_inicio
+                    ? new Date(eventToEdit.fecha_inicio)
+                          .toISOString()
+                          .slice(0, 16)
+                    : '',
+                fecha_fin: eventToEdit.fecha_fin
+                    ? new Date(eventToEdit.fecha_fin).toISOString().slice(0, 16)
+                    : '',
+            });
+            setIsAllDay(!eventToEdit.fecha_fin); // If no end date, assume all day
+        } else if (selectedDate) {
+            const dateOnly = selectedDate.split('T')[0];
             setForm((prev) => ({
                 ...prev,
-                fecha_inicio: isAllDay
-                    ? selectedDate.split('T')[0]
-                    : formattedDate,
+                fecha_inicio: dateOnly + 'T09:30',
+                fecha_fin: dateOnly + 'T18:00',
             }));
         }
-    }, [selectedDate, isAllDay]);
+    }, [selectedDate, eventToEdit]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -65,8 +85,13 @@ export function EventCreationForm({
             .querySelector('meta[name="csrf-token"]')
             ?.getAttribute('content');
 
-        fetch(`/calendarios/${selectedCalendar.id}/eventos`, {
-            method: 'POST',
+        const method = eventToEdit ? 'PATCH' : 'POST';
+        const url = eventToEdit
+            ? `/eventos/${eventToEdit.id}`
+            : `/calendarios/${selectedCalendar.id}/eventos`;
+
+        fetch(url, {
+            method,
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': csrfToken || '',
@@ -75,18 +100,23 @@ export function EventCreationForm({
         })
             .then((response) => response.json())
             .then((data) => {
-                onEventCreated?.(data);
-                // Reset form
-                setForm({
-                    titulo: '',
-                    descripcion: '',
-                    ubicacion: '',
-                    prioridad: 'Alta',
-                    color: '#2563eb',
-                    fecha_inicio: '',
-                    fecha_fin: '',
-                });
-                setIsAllDay(false);
+                if (eventToEdit) {
+                    onEventUpdated?.(data);
+                    onModeChange?.(null); // Go back to details view
+                } else {
+                    onEventCreated?.(data);
+                    // Reset form
+                    setForm({
+                        titulo: '',
+                        descripcion: '',
+                        ubicacion: '',
+                        prioridad: 'Alta',
+                        color: '#2563eb',
+                        fecha_inicio: form.fecha_inicio,
+                        fecha_fin: form.fecha_fin,
+                    });
+                    // Keep isAllDay and dates
+                }
                 setLoading(false);
             })
             .catch((error) => {
@@ -164,7 +194,7 @@ export function EventCreationForm({
                         </Label>
                         <Input
                             id="fecha_inicio"
-                            type={isAllDay ? 'date' : 'datetime-local'}
+                            type="datetime-local"
                             value={form.fecha_inicio}
                             onChange={(e) =>
                                 setForm({
@@ -176,28 +206,26 @@ export function EventCreationForm({
                         />
                     </div>
 
-                    {/* Fecha Fin - only show if not all day */}
-                    {!isAllDay && (
-                        <div>
-                            <Label
-                                htmlFor="fecha_fin"
-                                className="text-xs text-muted-foreground"
-                            >
-                                Fin (Opcional)
-                            </Label>
-                            <Input
-                                id="fecha_fin"
-                                type="datetime-local"
-                                value={form.fecha_fin}
-                                onChange={(e) =>
-                                    setForm({
-                                        ...form,
-                                        fecha_fin: e.target.value,
-                                    })
-                                }
-                            />
-                        </div>
-                    )}
+                    {/* Fecha Fin */}
+                    <div>
+                        <Label
+                            htmlFor="fecha_fin"
+                            className="text-xs text-muted-foreground"
+                        >
+                            Fin (Opcional)
+                        </Label>
+                        <Input
+                            id="fecha_fin"
+                            type="datetime-local"
+                            value={form.fecha_fin}
+                            onChange={(e) =>
+                                setForm({
+                                    ...form,
+                                    fecha_fin: e.target.value,
+                                })
+                            }
+                        />
+                    </div>
                 </div>
 
                 {/* Ubicación */}
@@ -291,7 +319,13 @@ export function EventCreationForm({
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Creando...' : 'Crear Evento'}
+                    {loading
+                        ? eventToEdit
+                            ? 'Actualizando...'
+                            : 'Creando...'
+                        : eventToEdit
+                          ? 'Actualizar Evento'
+                          : 'Crear Evento'}
                 </Button>
             </form>
         </div>

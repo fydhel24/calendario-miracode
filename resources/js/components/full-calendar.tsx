@@ -2,6 +2,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import { useMemo } from 'react';
 
 interface EventInput {
     id: string;
@@ -83,6 +84,7 @@ export default function FullCalendarComponent({
                     next: 'Siguiente',
                 }}
                 eventDisplay="block"
+                displayEventTime={false}
                 eventBackgroundColor="#2563eb"
                 eventBorderColor="#2563eb"
                 eventTextColor="#ffffff"
@@ -100,11 +102,6 @@ export default function FullCalendarComponent({
                     weekday: 'short',
                     day: 'numeric',
                     omitCommas: true,
-                }}
-                eventTimeFormat={{
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    meridiem: 'short',
                 }}
                 slotLabelFormat={{
                     hour: '2-digit',

@@ -26,6 +26,7 @@ export default function CalendarLayout({
     const [selectedCalendar, setSelectedCalendar] = useState<any>(null);
     const [events, setEvents] = useState<any[]>([]);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [selectedEvent, setSelectedEvent] = useState<any>(null);
 
     useEffect(() => {
         setCalendariosState(calendarios);
@@ -63,7 +64,17 @@ export default function CalendarLayout({
 
     const handleDateSelect = (date: string) => {
         setSelectedDate(date);
+        setSelectedEvent(null); // Clear selected event
         setIsRightMenuExpanded(true); // Expand the right menu
+    };
+
+    const handleEventClick = (eventId: string) => {
+        const event = events.find((e) => e.id.toString() === eventId);
+        if (event) {
+            setSelectedEvent(event);
+            setSelectedDate(null); // Clear selected date
+            setIsRightMenuExpanded(true); // Expand the right menu
+        }
     };
 
     // Calculate dynamic widths
@@ -152,6 +163,7 @@ export default function CalendarLayout({
                         <FullCalendarComponent
                             events={events}
                             onDateSelect={handleDateSelect}
+                            onEventClick={handleEventClick}
                         />
                     </div>
                 </div>
@@ -163,6 +175,7 @@ export default function CalendarLayout({
                         isExpanded={isRightMenuExpanded}
                         onExpansionChange={handleRightMenuExpansionChange}
                         selectedDate={selectedDate}
+                        selectedEvent={selectedEvent}
                         selectedCalendar={selectedCalendar}
                         onEventCreated={(newEvent) => {
                             setEvents((prev) => [...prev, newEvent]);
@@ -173,6 +186,44 @@ export default function CalendarLayout({
                                           eventos: prev.eventos
                                               ? [...prev.eventos, newEvent]
                                               : [newEvent],
+                                      }
+                                    : prev,
+                            );
+                        }}
+                        onEventUpdated={(updatedEvent) => {
+                            setEvents((prev) =>
+                                prev.map((e) =>
+                                    e.id === updatedEvent.id ? updatedEvent : e,
+                                ),
+                            );
+                            setSelectedCalendar((prev) =>
+                                prev
+                                    ? {
+                                          ...prev,
+                                          eventos: prev.eventos
+                                              ? prev.eventos.map((e) =>
+                                                    e.id === updatedEvent.id
+                                                        ? updatedEvent
+                                                        : e,
+                                                )
+                                              : [],
+                                      }
+                                    : prev,
+                            );
+                        }}
+                        onEventDeleted={(eventId) => {
+                            setEvents((prev) =>
+                                prev.filter((e) => e.id !== eventId),
+                            );
+                            setSelectedCalendar((prev) =>
+                                prev
+                                    ? {
+                                          ...prev,
+                                          eventos: prev.eventos
+                                              ? prev.eventos.filter(
+                                                    (e) => e.id !== eventId,
+                                                )
+                                              : [],
                                       }
                                     : prev,
                             );
