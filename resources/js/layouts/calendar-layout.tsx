@@ -210,11 +210,11 @@ export default function CalendarLayout({
                                                         : e,
                                                 )
                                               : [],
-                                                }
-                                              : prev,
-                                      );
-                                      setSelectedEvent(updatedEvent);
-                                  }}
+                                        }
+                                    : prev,
+                            );
+                            setSelectedEvent(updatedEvent);
+                        }}
                         onEventDeleted={(eventId) => {
                             setEvents((prev) =>
                                 prev.filter((e) => e.id !== eventId),
@@ -232,6 +232,18 @@ export default function CalendarLayout({
                                     : prev,
                             );
                             setSelectedEvent(null);
+                        }}
+                        onCalendarUpdated={(updatedCalendar) => {
+                            setCalendariosState((prev) =>
+                                prev.map((c) =>
+                                    c.id === updatedCalendar.id
+                                        ? updatedCalendar
+                                        : c,
+                                ),
+                            );
+                            if (selectedCalendar?.id === updatedCalendar.id) {
+                                setSelectedCalendar(updatedCalendar);
+                            }
                         }}
                         onDateClear={() => setSelectedDate(null)}
                     />

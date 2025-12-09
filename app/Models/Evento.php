@@ -52,6 +52,6 @@ class Evento extends Model
 
     public function usuarios()
     {
-        return $this->belongsToMany(User::class, 'evento_usuario')->withPivot('rol')->withTimestamps();
+        return $this->belongsToMany(User::class, 'evento_usuario')->withPivot('rol')->withTimestamps()->wherePivotNull('deleted_at');
     }
 }

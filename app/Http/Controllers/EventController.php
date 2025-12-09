@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Calendario;
 use App\Models\Evento;
 use App\Models\EventoUsuario;
+use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -88,5 +89,37 @@ class EventController extends Controller
         $evento->delete();
 
         return response()->json(['message' => 'Evento eliminado'])->withHeaders(['X-Inertia' => false]);
+    }
+
+    public function removeUser(Evento $evento, User $user)
+    {
+        $this->authorize('update', $evento);
+
+        EventoUsuario::where('evento_id', $evento->id)->where('user_id', $user->id)->delete();
+
+        return response()->json(['message' => 'Usuario removido del evento'])->withHeaders(['X-Inertia' => false]);
+    }
+
+    public function addUser(Request $request, Evento $evento)
+    {
+        $this->authorize('update', $evento);
+
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        if ($evento->usuarios()->where('user_id', $user->id)->exists()) {
+            return response()->json(['error' => 'El usuario ya está invitado al evento.'], 422);
+        }
+
+        EventoUsuario::create([
+            'evento_id' => $evento->id,
+            'user_id' => $user->id,
+            'rol' => 'invitado',
+        ]);
+
+        return response()->json(['message' => 'Usuario agregado al evento.'])->withHeaders(['X-Inertia' => false]);
     }
 }

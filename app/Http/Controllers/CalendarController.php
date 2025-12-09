@@ -17,7 +17,7 @@ class CalendarController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $calendarios = $user->calendarios()->with('users', 'eventos.user', 'eventos.archivos', 'eventos.comentarios.user')->orderBy('created_at', 'desc')->get();
+        $calendarios = $user->calendarios()->with('users', 'eventos.user', 'eventos.archivos', 'eventos.comentarios.user', 'eventos.usuarios')->orderBy('created_at', 'desc')->get();
 
         $selectedCalendarId = session('selected_calendar_id');
         if ($selectedCalendarId) {
