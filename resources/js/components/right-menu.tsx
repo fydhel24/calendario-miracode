@@ -30,10 +30,12 @@ interface RightMenuProps {
     selectedDate?: string | null;
     selectedEvent?: any;
     selectedCalendar?: any;
+    calendarios?: any[];
     onEventCreated?: (event: any) => void;
     onEventUpdated?: (event: any) => void;
     onEventDeleted?: (eventId: string) => void;
     onCalendarUpdated?: (calendar: any) => void;
+    onCalendarSelect?: (calendar: any) => void;
     onModeChange?: (mode: string | null) => void;
     onDateClear?: () => void;
 }
@@ -46,10 +48,12 @@ export function RightMenu({
     selectedDate,
     selectedEvent,
     selectedCalendar,
+    calendarios = [],
     onEventCreated,
     onEventUpdated,
     onEventDeleted,
     onCalendarUpdated,
+    onCalendarSelect,
     onModeChange,
     onDateClear,
 }: RightMenuProps) {
@@ -128,17 +132,64 @@ export function RightMenu({
             : []),
         {
             id: 'reminder',
-            label: 'Recordatorio',
+            label: 'Notificaciones',
             icon: Bell,
-            content: (
-                <div className="space-y-4 p-4">
-                    <h3 className="mb-4 text-lg font-semibold">
-                        Configurar Recordatorio
-                    </h3>
-                    <div className="space-y-4">
+            content: (() => {
+                const notifications = [
+                    ...calendarios
+                        .filter(c => c.users?.some((u: any) => u.id === auth.user.id))
+                        .map(c => ({
+                            type: 'calendar',
+                            item: c,
+                            date: c.pivot?.created_at || c.created_at,
+                            message: `Agregado al calendario "${c.nombre}"`,
+                        })),
+                    ...calendarios
+                        .flatMap(c => c.eventos || [])
+                        .filter(e => e.usuarios?.some((u: any) => u.id === auth.user.id))
+                        .map(e => ({
+                            type: 'event',
+                            item: e,
+                            date: e.pivot?.created_at || e.created_at,
+                            message: `Invitado al evento "${e.titulo}" en calendario "${e.calendario?.nombre}"`,
+                        })),
+                ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+                return (
+                    <div className="space-y-4 p-4">
+                        <h3 className="mb-4 text-lg font-semibold">
+                            Notificaciones
+                        </h3>
+                        <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {notifications.length > 0 ? (
+                                notifications.map((notif, index) => (
+                                    <div
+                                        key={index}
+                                        className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                                        onClick={() => {
+                                            if (notif.type === 'calendar') {
+                                                onCalendarSelect?.(notif.item);
+                                            } else if (notif.type === 'event') {
+                                                onCalendarSelect?.(notif.item.calendario);
+                                                // Optionally set selectedEvent, but since no prop, just switch calendar
+                                            }
+                                        }}
+                                    >
+                                        <p className="text-sm">{notif.message}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {new Date(notif.date).toLocaleString()}
+                                        </p>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-sm text-muted-foreground">
+                                    No hay notificaciones
+                                </p>
+                            )}
+                        </div>
                     </div>
-                </div>
-            ),
+                );
+            })(),
         },
         {
             id: 'members',

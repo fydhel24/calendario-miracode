@@ -180,6 +180,7 @@ export default function CalendarLayout({
                         selectedDate={selectedDate}
                         selectedEvent={selectedEvent}
                         selectedCalendar={selectedCalendar}
+                        calendarios={calendariosState}
                         onEventCreated={(newEvent) => {
                             setEvents((prev) => [...prev, newEvent]);
                             setSelectedCalendar((prev) =>
@@ -245,6 +246,7 @@ export default function CalendarLayout({
                                 setSelectedCalendar(updatedCalendar);
                             }
                         }}
+                        onCalendarSelect={handleCalendarSelect}
                         onDateClear={() => setSelectedDate(null)}
                     />
                 </div>
