@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Calendario;
 use App\Models\Evento;
+use App\Models\EventoUsuario;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,7 +38,18 @@ class EventController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        return response()->json($evento->load('user'))->withHeaders(['X-Inertia' => false]);
+        // Invite selected users
+        if ($request->filled('users') && is_array($request->users)) {
+            foreach ($request->users as $userId) {
+                EventoUsuario::create([
+                    'evento_id' => $evento->id,
+                    'user_id' => $userId,
+                    'rol' => 'invitado',
+                ]);
+            }
+        }
+
+        return response()->json($evento->load('user', 'usuarios'))->withHeaders(['X-Inertia' => false]);
     }
 
     public function update(Request $request, Evento $evento)
@@ -52,6 +64,8 @@ class EventController extends Controller
             'color' => 'nullable|string',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
+            'users' => 'nullable|array',
+            'users.*' => 'exists:users,id',
         ]);
 
         $evento->update($request->only([

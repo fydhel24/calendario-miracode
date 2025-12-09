@@ -447,6 +447,7 @@ export function RightMenu({
                                             selectedDate={selectedDate}
                                             selectedCalendar={selectedCalendar}
                                             onEventCreated={onEventCreated}
+                                            auth={auth}
                                         />
                                     </div>
                                 </div>
