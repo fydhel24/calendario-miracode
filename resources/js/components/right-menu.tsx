@@ -524,7 +524,7 @@ export function RightMenu({
 
     return (
         <div
-            className={`flex h-full border-l border-sidebar-border bg-sidebar ${className}`}
+            className={`flex h-full border-l border-red-200/50 bg-gradient-to-b from-red-400 to-white shadow-xl ${className}`}
         >
             {/* Estructura expandible: siempre los iconos + contenido cuando está activo */}
             <div
@@ -533,7 +533,7 @@ export function RightMenu({
                 }`}
             >
                 {/* Iconos del menú - siempre visible */}
-                <div className="flex w-16 flex-col border-r border-sidebar-border bg-gradient-to-b from-sidebar to-sidebar/95">
+                <div className="flex w-16 flex-col border-r border-red-200/50 bg-gradient-to-b from-red-400 to-white">
                     <div className="flex flex-col space-y-2 p-2">
                         {menuOptions.map((option) => {
                             const Icon = option.icon;
