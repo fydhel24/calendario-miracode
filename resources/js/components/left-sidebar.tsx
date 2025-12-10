@@ -69,9 +69,9 @@ export function LeftSidebar({
 
     return (
         <div
-            className={`h-full border-r border-sidebar-border bg-sidebar ${className}`}
+            className={`flex flex-col h-full border-r border-sidebar-border bg-sidebar ${className}`}
         >
-            <div className="flex items-center justify-between border-b border-sidebar-border p-4">
+            <div className="flex items-center justify-between border-b border-sidebar-border p-4 flex-shrink-0">
                 <h3 className="text-sm font-medium">Navegación</h3>
                 <Button
                     variant="ghost"
@@ -87,7 +87,7 @@ export function LeftSidebar({
                 </Button>
             </div>
 
-            <div className="p-2">
+            <div className="flex-1 overflow-y-auto p-2">
                 {!isCollapsed && (
                     <div className="space-y-1">
                         {menuItems.map((item) => {
