@@ -12,7 +12,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { usePage } from '@inertiajs/react';
-import { Bell, ChevronLeft, Clock, Plus, Settings, Users } from 'lucide-react';
+import { Bell, ChevronLeft, Clock, Plus, Search, Settings, User, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface MenuOption {
@@ -20,6 +20,7 @@ interface MenuOption {
     label: string;
     icon: React.ComponentType<any>;
     content: React.ReactNode;
+    
 }
 
 interface RightMenuProps {
@@ -104,6 +105,7 @@ export function RightMenu({
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState<any[]>([]);
     const [loadingUsers, setLoadingUsers] = useState(false);
+    const [userSearch, setUserSearch] = useState('');
 
     // Use internal state for active option
     const activeOption = internalActiveOption;
@@ -379,6 +381,7 @@ export function RightMenu({
                                                 (
                                                     e.target as HTMLFormElement
                                                 ).reset();
+                                                setUserSearch('');
                                             } else {
                                                 return response
                                                     .json()
@@ -397,39 +400,139 @@ export function RightMenu({
                             >
                                 <div>
                                     <Label htmlFor="invite-user">Usuario</Label>
-                                    <Select
-                                        name="user_id"
-                                        required
-                                        disabled={loadingUsers}
-                                    >
-                                        <SelectTrigger className="mt-1">
-                                            <SelectValue
-                                                placeholder={
-                                                    loadingUsers
-                                                        ? 'Cargando usuarios...'
-                                                        : 'Selecciona un usuario'
+                                    {/* Search Input */}
+                                    <div className="relative mt-2">
+                                        <div className="relative">
+                                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
+                                            <Input
+                                                type="text"
+                                                placeholder="Buscar usuarios..."
+                                                value={userSearch}
+                                                onChange={(e) =>
+                                                    setUserSearch(
+                                                        e.target.value,
+                                                    )
                                                 }
+                                                className="pl-10"
+                                                disabled={loadingUsers}
                                             />
-                                        </SelectTrigger>
-                                        <SelectContent>
+                                        </div>
+                                    </div>
+
+                                    {/* User List - Only show when there are search results */}
+                                    {userSearch && (
+                                        <div className="mt-2 max-h-40 overflow-y-auto rounded-lg border border-border/50 bg-background/50">
                                             {users
                                                 .filter(
                                                     (u: any) =>
+                                                        u.id !==
+                                                            auth?.user?.id &&
+                                                        u.name
+                                                            .toLowerCase()
+                                                            .includes(
+                                                                userSearch.toLowerCase(),
+                                                            ) &&
                                                         !selectedCalendar?.users?.some(
                                                             (cu: any) =>
                                                                 cu.id === u.id,
                                                         ),
                                                 )
                                                 .map((user: any) => (
-                                                    <SelectItem
+                                                    <div
                                                         key={user.id}
-                                                        value={user.id.toString()}
+                                                        className="flex cursor-pointer items-center justify-between border-b border-border/20 p-2 last:border-b-0 hover:bg-muted/50"
+                                                        onClick={() => {
+                                                            // Set the selected user by updating form state
+                                                            const form =
+                                                                document.querySelector(
+                                                                    'form',
+                                                                ) as HTMLFormElement;
+                                                            if (form) {
+                                                                const userIdInput =
+                                                                    form.querySelector(
+                                                                        'input[name="user_id"]',
+                                                                    ) as HTMLInputElement;
+                                                                if (
+                                                                    userIdInput
+                                                                ) {
+                                                                    userIdInput.value =
+                                                                        user.id.toString();
+                                                                }
+                                                                setUserSearch(
+                                                                    user.name,
+                                                                ); // Show selected user name
+                                                            }
+                                                        }}
                                                     >
-                                                        {user.name}
-                                                    </SelectItem>
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-red-400 to-red-500">
+                                                                <User className="h-4 w-4 text-white" />
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-sm font-medium">
+                                                                    {user.name}
+                                                                </p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    {user.email}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                const form =
+                                                                    document.querySelector(
+                                                                        'form',
+                                                                    ) as HTMLFormElement;
+                                                                if (form) {
+                                                                    const userIdInput =
+                                                                        form.querySelector(
+                                                                            'input[name="user_id"]',
+                                                                        ) as HTMLInputElement;
+                                                                    if (
+                                                                        userIdInput
+                                                                    ) {
+                                                                        userIdInput.value =
+                                                                            user.id.toString();
+                                                                    }
+                                                                    setUserSearch(
+                                                                        user.name,
+                                                                    );
+                                                                }
+                                                            }}
+                                                        >
+                                                            <User className="h-3 w-3" />
+                                                        </Button>
+                                                    </div>
                                                 ))}
-                                        </SelectContent>
-                                    </Select>
+                                            {users.filter(
+                                                (u: any) =>
+                                                    u.id !== auth?.user?.id &&
+                                                    u.name
+                                                        .toLowerCase()
+                                                        .includes(
+                                                            userSearch.toLowerCase(),
+                                                        ) &&
+                                                    !selectedCalendar?.users?.some(
+                                                        (cu: any) =>
+                                                            cu.id === u.id,
+                                                    ),
+                                            ).length === 0 &&
+                                                userSearch && (
+                                                    <div className="p-4 text-center text-sm text-muted-foreground">
+                                                        No se encontraron
+                                                        usuarios
+                                                    </div>
+                                                )}
+                                        </div>
+                                    )}
+
+                                    {/* Hidden input for user_id */}
+                                    <input type="hidden" name="user_id" />
                                 </div>
                                 <div>
                                     <Label htmlFor="invite-tipo">Rol</Label>
