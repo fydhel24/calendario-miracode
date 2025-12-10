@@ -3,15 +3,16 @@ import FullCalendarComponent from '@/components/full-calendar';
 import { LeftSidebar } from '@/components/left-sidebar';
 import { RightMenu } from '@/components/right-menu';
 import { type BreadcrumbItem } from '@/types';
+import { usePage } from '@inertiajs/react';
 import { Calendar } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { usePage } from '@inertiajs/react';
 
 interface CalendarLayoutProps {
     children?: React.ReactNode;
     breadcrumbs?: BreadcrumbItem[];
     calendarios?: any[];
     selectedCalendarId?: number;
+    selectedCalendars?: any[];
 }
 
 export default function CalendarLayout({
@@ -19,13 +20,14 @@ export default function CalendarLayout({
     breadcrumbs = [],
     calendarios = [],
     selectedCalendarId,
+    selectedCalendars: propSelectedCalendars,
 }: CalendarLayoutProps) {
     const { auth } = usePage().props as any;
     const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(true);
     const [isRightMenuExpanded, setIsRightMenuExpanded] = useState(false);
     const [calendariosState, setCalendariosState] =
         useState<any[]>(calendarios);
-    const [selectedCalendar, setSelectedCalendar] = useState<any>(null);
+    const [selectedCalendars, setSelectedCalendars] = useState<any[]>([]);
     const [events, setEvents] = useState<any[]>([]);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -36,19 +38,26 @@ export default function CalendarLayout({
 
     useEffect(() => {
         if (calendariosState.length > 0) {
-            let calendarToSelect = calendariosState[0];
-            if (selectedCalendarId) {
-                const found = calendariosState.find(
-                    (c) => c.id === selectedCalendarId,
+            if (propSelectedCalendars && propSelectedCalendars.length > 0) {
+                setSelectedCalendars(propSelectedCalendars);
+                setEvents(
+                    propSelectedCalendars.flatMap((c) => c.eventos || []),
                 );
-                if (found) {
-                    calendarToSelect = found;
+            } else {
+                let calendarToSelect = calendariosState[0];
+                if (selectedCalendarId) {
+                    const found = calendariosState.find(
+                        (c) => c.id === selectedCalendarId,
+                    );
+                    if (found) {
+                        calendarToSelect = found;
+                    }
                 }
+                setSelectedCalendars([calendarToSelect]);
+                setEvents(calendarToSelect.eventos || []);
             }
-            setSelectedCalendar(calendarToSelect);
-            setEvents(calendarToSelect.eventos || []);
         }
-    }, [calendariosState, selectedCalendarId]);
+    }, [calendariosState, selectedCalendarId, propSelectedCalendars]);
 
     const toggleLeftSidebar = () => {
         setIsLeftSidebarCollapsed(!isLeftSidebarCollapsed);
@@ -59,9 +68,15 @@ export default function CalendarLayout({
     };
 
     const handleCalendarSelect = (calendar: any) => {
-        setSelectedCalendar(calendar);
+        setSelectedCalendars([calendar]);
         setEvents(calendar.eventos || []);
         setSelectedDate(null); // Reset selected date when changing calendar
+    };
+
+    const handleCalendarsSelect = (calendars: any[]) => {
+        setSelectedCalendars(calendars);
+        setEvents(calendars.flatMap((c) => c.eventos || []));
+        setSelectedDate(null);
     };
 
     const handleDateSelect = (date: string) => {
@@ -112,12 +127,13 @@ export default function CalendarLayout({
                             onToggle={toggleLeftSidebar}
                             calendarios={calendariosState}
                             onCalendarSelect={handleCalendarSelect}
+                            onCalendarsSelect={handleCalendarsSelect}
                             onCalendarCreated={(newCalendar) => {
                                 setCalendariosState((prev) => [
                                     newCalendar,
                                     ...prev,
                                 ]);
-                                setSelectedCalendar(newCalendar);
+                                setSelectedCalendars([newCalendar]);
                                 setEvents(newCalendar.eventos || []);
                             }}
                             onCalendarUpdated={(updatedCalendar) => {
@@ -129,10 +145,22 @@ export default function CalendarLayout({
                                     ),
                                 );
                                 if (
-                                    selectedCalendar?.id === updatedCalendar.id
+                                    selectedCalendars.some(
+                                        (c) => c.id === updatedCalendar.id,
+                                    )
                                 ) {
-                                    setSelectedCalendar(updatedCalendar);
-                                    setEvents(updatedCalendar.eventos || []);
+                                    setSelectedCalendars((prev) =>
+                                        prev.map((c) =>
+                                            c.id === updatedCalendar.id
+                                                ? updatedCalendar
+                                                : c,
+                                        ),
+                                    );
+                                    setEvents(
+                                        selectedCalendars.flatMap(
+                                            (c) => c.eventos || [],
+                                        ),
+                                    );
                                 }
                             }}
                             auth={auth}
@@ -149,14 +177,24 @@ export default function CalendarLayout({
                     }}
                 >
                     {/* Header with calendar name */}
-                    {selectedCalendar && (
+                    {selectedCalendars.length > 0 && (
                         <div className="mb-4">
                             <h1 className="text-2xl font-bold text-foreground">
-                                {selectedCalendar.nombre}
+                                {selectedCalendars.length === 1
+                                    ? selectedCalendars[0].nombre
+                                    : 'Calendarios Combinados'}
                             </h1>
-                            {selectedCalendar.descripcion && (
+                            {selectedCalendars.length === 1 &&
+                                selectedCalendars[0].descripcion && (
+                                    <p className="mt-1 text-muted-foreground">
+                                        {selectedCalendars[0].descripcion}
+                                    </p>
+                                )}
+                            {selectedCalendars.length > 1 && (
                                 <p className="mt-1 text-muted-foreground">
-                                    {selectedCalendar.descripcion}
+                                    {selectedCalendars
+                                        .map((c) => c.nombre)
+                                        .join(', ')}
                                 </p>
                             )}
                         </div>
@@ -179,19 +217,21 @@ export default function CalendarLayout({
                         onExpansionChange={handleRightMenuExpansionChange}
                         selectedDate={selectedDate}
                         selectedEvent={selectedEvent}
-                        selectedCalendar={selectedCalendar}
+                        selectedCalendars={selectedCalendars}
                         calendarios={calendariosState}
                         onEventCreated={(newEvent) => {
                             setEvents((prev) => [...prev, newEvent]);
-                            setSelectedCalendar((prev) =>
-                                prev
-                                    ? {
-                                          ...prev,
-                                          eventos: prev.eventos
-                                              ? [...prev.eventos, newEvent]
-                                              : [newEvent],
-                                      }
-                                    : prev,
+                            setSelectedCalendars((prev) =>
+                                prev.map((cal) =>
+                                    cal.id === newEvent.calendario_id
+                                        ? {
+                                              ...cal,
+                                              eventos: cal.eventos
+                                                  ? [...cal.eventos, newEvent]
+                                                  : [newEvent],
+                                          }
+                                        : cal,
+                                ),
                             );
                         }}
                         onEventUpdated={(updatedEvent) => {
@@ -200,19 +240,21 @@ export default function CalendarLayout({
                                     e.id === updatedEvent.id ? updatedEvent : e,
                                 ),
                             );
-                            setSelectedCalendar((prev) =>
-                                prev
-                                    ? {
-                                          ...prev,
-                                          eventos: prev.eventos
-                                              ? prev.eventos.map((e) =>
-                                                    e.id === updatedEvent.id
-                                                        ? updatedEvent
-                                                        : e,
-                                                )
-                                              : [],
-                                        }
-                                    : prev,
+                            setSelectedCalendars((prev) =>
+                                prev.map((cal) =>
+                                    cal.id === updatedEvent.calendario_id
+                                        ? {
+                                              ...cal,
+                                              eventos: cal.eventos
+                                                  ? cal.eventos.map((e) =>
+                                                        e.id === updatedEvent.id
+                                                            ? updatedEvent
+                                                            : e,
+                                                    )
+                                                  : [],
+                                          }
+                                        : cal,
+                                ),
                             );
                             setSelectedEvent(updatedEvent);
                         }}
@@ -220,17 +262,15 @@ export default function CalendarLayout({
                             setEvents((prev) =>
                                 prev.filter((e) => e.id !== eventId),
                             );
-                            setSelectedCalendar((prev) =>
-                                prev
-                                    ? {
-                                          ...prev,
-                                          eventos: prev.eventos
-                                              ? prev.eventos.filter(
-                                                    (e) => e.id !== eventId,
-                                                )
-                                              : [],
-                                      }
-                                    : prev,
+                            setSelectedCalendars((prev) =>
+                                prev.map((cal) => ({
+                                    ...cal,
+                                    eventos: cal.eventos
+                                        ? cal.eventos.filter(
+                                              (e) => e.id !== eventId,
+                                          )
+                                        : [],
+                                })),
                             );
                             setSelectedEvent(null);
                         }}

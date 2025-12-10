@@ -29,7 +29,7 @@ interface RightMenuProps {
     onExpansionChange?: (expanded: boolean) => void;
     selectedDate?: string | null;
     selectedEvent?: any;
-    selectedCalendar?: any;
+    selectedCalendars?: any[];
     calendarios?: any[];
     onEventCreated?: (event: any) => void;
     onEventUpdated?: (event: any) => void;
@@ -47,7 +47,7 @@ export function RightMenu({
     onExpansionChange,
     selectedDate,
     selectedEvent,
-    selectedCalendar,
+    selectedCalendars = [],
     calendarios = [],
     onEventCreated,
     onEventUpdated,
@@ -61,6 +61,8 @@ export function RightMenu({
     const [internalActiveOption, setInternalActiveOption] = useState<
         string | null
     >(null);
+
+    const selectedCalendar = selectedCalendars[0]; // Use first for now
 
     const isOwner = selectedCalendar?.users?.some(
         (u: any) => u.id === auth.user.id && u.pivot?.tipo_user === 'owner',
@@ -423,7 +425,7 @@ export function RightMenu({
                                                         key={user.id}
                                                         value={user.id.toString()}
                                                     >
-                                                        {user.name} 
+                                                        {user.name}
                                                     </SelectItem>
                                                 ))}
                                         </SelectContent>

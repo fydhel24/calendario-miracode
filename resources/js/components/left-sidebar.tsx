@@ -1,6 +1,7 @@
 import CreateCalendarModal from '@/components/create-calendar-modal';
 import EditCalendarModal from '@/components/edit-calendar-modal';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { router } from '@inertiajs/react';
 import {
     Calendar,
@@ -21,6 +22,7 @@ interface LeftSidebarProps {
     onToggle: () => void;
     calendarios?: any[];
     onCalendarSelect?: (calendar: any) => void;
+    onCalendarsSelect?: (calendars: any[]) => void;
     onCalendarCreated?: (calendar: any) => void;
     onCalendarUpdated?: (calendar: any) => void;
     auth?: any;
@@ -32,6 +34,7 @@ export function LeftSidebar({
     onToggle,
     calendarios = [],
     onCalendarSelect,
+    onCalendarsSelect,
     onCalendarCreated,
     onCalendarUpdated,
     auth,
@@ -39,6 +42,7 @@ export function LeftSidebar({
     const [isExpanded, setIsExpanded] = useState(true);
     const [editingCalendar, setEditingCalendar] = useState<any>(null);
     const [editModalOpen, setEditModalOpen] = useState(false);
+    const [selectAll, setSelectAll] = useState(false);
 
     const menuItems = [
         { id: 'home', label: 'Inicio', icon: Home, active: false },
@@ -102,6 +106,35 @@ export function LeftSidebar({
                                 <CreateCalendarModal
                                     onCalendarCreated={onCalendarCreated}
                                 />
+                            </div>
+                            <div className="mb-2 flex items-center gap-2">
+                                <Checkbox
+                                    id="select-all"
+                                    checked={selectAll}
+                                    onCheckedChange={(checked) => {
+                                        setSelectAll(!!checked);
+                                        if (checked) {
+                                            const allCalendars =
+                                                calendarios.filter(
+                                                    (calendario) =>
+                                                        calendario.users?.some(
+                                                            (u: any) =>
+                                                                u.id ===
+                                                                auth?.user?.id,
+                                                        ),
+                                                );
+                                            onCalendarsSelect?.(allCalendars);
+                                        } else {
+                                            onCalendarsSelect?.([]);
+                                        }
+                                    }}
+                                />
+                                <label
+                                    htmlFor="select-all"
+                                    className="text-xs font-medium text-sidebar-foreground/80"
+                                >
+                                    Seleccionar Todos
+                                </label>
                             </div>
 
                             {/* Mis Calendarios */}
