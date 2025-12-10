@@ -14,7 +14,7 @@ import {
     Trash2,
     Users,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface LeftSidebarProps {
     className?: string;
@@ -42,7 +42,21 @@ export function LeftSidebar({
     const [isExpanded, setIsExpanded] = useState(true);
     const [editingCalendar, setEditingCalendar] = useState<any>(null);
     const [editModalOpen, setEditModalOpen] = useState(false);
-    const [selectAll, setSelectAll] = useState(false);
+    const [selectedCalendarIds, setSelectedCalendarIds] = useState<number[]>(
+        [],
+    );
+    const selectAll =
+        selectedCalendarIds.length ===
+            calendarios.filter((c) =>
+                c.users?.some((u: any) => u.id === auth?.user?.id),
+            ).length && selectedCalendarIds.length > 0;
+
+    useEffect(() => {
+        const selectedCalendars = calendarios.filter((c) =>
+            selectedCalendarIds.includes(c.id),
+        );
+        onCalendarsSelect?.(selectedCalendars);
+    }, [selectedCalendarIds, calendarios, onCalendarsSelect]);
 
     const menuItems = [
         { id: 'home', label: 'Inicio', icon: Home, active: false },
@@ -112,20 +126,19 @@ export function LeftSidebar({
                                     id="select-all"
                                     checked={selectAll}
                                     onCheckedChange={(checked) => {
-                                        setSelectAll(!!checked);
                                         if (checked) {
-                                            const allCalendars =
-                                                calendarios.filter(
-                                                    (calendario) =>
-                                                        calendario.users?.some(
-                                                            (u: any) =>
-                                                                u.id ===
-                                                                auth?.user?.id,
-                                                        ),
-                                                );
-                                            onCalendarsSelect?.(allCalendars);
+                                            const allIds = calendarios
+                                                .filter((calendario) =>
+                                                    calendario.users?.some(
+                                                        (u: any) =>
+                                                            u.id ===
+                                                            auth?.user?.id,
+                                                    ),
+                                                )
+                                                .map((c) => c.id);
+                                            setSelectedCalendarIds(allIds);
                                         } else {
-                                            onCalendarsSelect?.([]);
+                                            setSelectedCalendarIds([]);
                                         }
                                     }}
                                 />
@@ -157,19 +170,49 @@ export function LeftSidebar({
                                                 key={calendario.id}
                                                 className="group flex items-center justify-between rounded-lg p-2 transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/50 hover:shadow-sm"
                                             >
-                                                <div
-                                                    onClick={() =>
-                                                        onCalendarSelect &&
-                                                        onCalendarSelect(
-                                                            calendario,
-                                                        )
-                                                    }
-                                                    className="flex flex-1 cursor-pointer items-center gap-2 hover:text-sidebar-accent-foreground"
-                                                >
-                                                    <Calendar className="h-4 w-4" />
-                                                    <span className="truncate text-sm">
-                                                        {calendario.nombre}
-                                                    </span>
+                                                <div className="flex flex-1 items-center gap-2">
+                                                    <Checkbox
+                                                        checked={selectedCalendarIds.includes(
+                                                            calendario.id,
+                                                        )}
+                                                        onCheckedChange={(
+                                                            checked,
+                                                        ) => {
+                                                            if (checked) {
+                                                                setSelectedCalendarIds(
+                                                                    (prev) => [
+                                                                        ...prev,
+                                                                        calendario.id,
+                                                                    ],
+                                                                );
+                                                            } else {
+                                                                setSelectedCalendarIds(
+                                                                    (prev) =>
+                                                                        prev.filter(
+                                                                            (
+                                                                                id,
+                                                                            ) =>
+                                                                                id !==
+                                                                                calendario.id,
+                                                                        ),
+                                                                );
+                                                            }
+                                                        }}
+                                                    />
+                                                    <div
+                                                        onClick={() =>
+                                                            onCalendarSelect &&
+                                                            onCalendarSelect(
+                                                                calendario,
+                                                            )
+                                                        }
+                                                        className="flex flex-1 cursor-pointer items-center gap-2 hover:text-sidebar-accent-foreground"
+                                                    >
+                                                        <Calendar className="h-4 w-4" />
+                                                        <span className="truncate text-sm">
+                                                            {calendario.nombre}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                                                     <Button
@@ -235,19 +278,31 @@ export function LeftSidebar({
                                                 key={calendario.id}
                                                 className="group flex items-center justify-between rounded-lg p-2 transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/50 hover:shadow-sm"
                                             >
-                                                <div
-                                                    onClick={() =>
-                                                        onCalendarSelect &&
-                                                        onCalendarSelect(
-                                                            calendario,
-                                                        )
-                                                    }
-                                                    className="flex flex-1 cursor-pointer items-center gap-2 hover:text-sidebar-accent-foreground"
-                                                >
-                                                    <Calendar className="h-4 w-4" />
-                                                    <span className="truncate text-sm">
-                                                        {calendario.nombre}
-                                                    </span>
+                                                <div className="flex flex-1 items-center gap-2">
+                                                    <Checkbox
+                                                        checked={selectedCalendarIds.includes(calendario.id)}
+                                                        onCheckedChange={(checked) => {
+                                                            if (checked) {
+                                                                setSelectedCalendarIds(prev => [...prev, calendario.id]);
+                                                            } else {
+                                                                setSelectedCalendarIds(prev => prev.filter(id => id !== calendario.id));
+                                                            }
+                                                        }}
+                                                    />
+                                                    <div
+                                                        onClick={() =>
+                                                            onCalendarSelect &&
+                                                            onCalendarSelect(
+                                                                calendario,
+                                                            )
+                                                        }
+                                                        className="flex flex-1 cursor-pointer items-center gap-2 hover:text-sidebar-accent-foreground"
+                                                    >
+                                                        <Calendar className="h-4 w-4" />
+                                                        <span className="truncate text-sm">
+                                                            {calendario.nombre}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
