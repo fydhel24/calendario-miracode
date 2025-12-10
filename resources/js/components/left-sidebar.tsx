@@ -1,6 +1,7 @@
 import CreateCalendarModal from '@/components/create-calendar-modal';
 import EditCalendarModal from '@/components/edit-calendar-modal';
 import { Button } from '@/components/ui/button';
+import { router } from '@inertiajs/react';
 import {
     Calendar,
     ChevronDown,
@@ -12,7 +13,6 @@ import {
     Trash2,
     Users,
 } from 'lucide-react';
-import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
 interface LeftSidebarProps {
@@ -103,27 +103,41 @@ export function LeftSidebar({
                                     onCalendarCreated={onCalendarCreated}
                                 />
                             </div>
-                            <div className="space-y-1">
-                                {calendarios.map((calendario) => {
-                                    const isOwner = calendario.users?.some((u: any) => u.id === auth?.user?.id && u.pivot?.tipo_user === 'owner');
-                                    return (
-                                        <div
-                                            key={calendario.id}
-                                            className="group flex items-center justify-between rounded-lg p-2 transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/50 hover:shadow-sm"
-                                        >
+
+                            {/* Mis Calendarios */}
+                            <div className="mb-4">
+                                <h5 className="mb-2 text-xs font-medium text-sidebar-foreground/60">
+                                    Mis Calendarios
+                                </h5>
+                                <div className="space-y-1">
+                                    {calendarios
+                                        .filter((calendario) =>
+                                            calendario.users?.some(
+                                                (u: any) =>
+                                                    u.id === auth?.user?.id &&
+                                                    u.pivot?.tipo_user ===
+                                                        'owner',
+                                            ),
+                                        )
+                                        .map((calendario) => (
                                             <div
-                                                onClick={() =>
-                                                    onCalendarSelect &&
-                                                    onCalendarSelect(calendario)
-                                                }
-                                                className="flex flex-1 cursor-pointer items-center gap-2 hover:text-sidebar-accent-foreground"
+                                                key={calendario.id}
+                                                className="group flex items-center justify-between rounded-lg p-2 transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/50 hover:shadow-sm"
                                             >
-                                                <Calendar className="h-4 w-4" />
-                                                <span className="truncate text-sm">
-                                                    {calendario.nombre}
-                                                </span>
-                                            </div>
-                                            {isOwner && (
+                                                <div
+                                                    onClick={() =>
+                                                        onCalendarSelect &&
+                                                        onCalendarSelect(
+                                                            calendario,
+                                                        )
+                                                    }
+                                                    className="flex flex-1 cursor-pointer items-center gap-2 hover:text-sidebar-accent-foreground"
+                                                >
+                                                    <Calendar className="h-4 w-4" />
+                                                    <span className="truncate text-sm">
+                                                        {calendario.nombre}
+                                                    </span>
+                                                </div>
                                                 <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                                                     <Button
                                                         variant="ghost"
@@ -135,7 +149,9 @@ export function LeftSidebar({
                                                             setEditingCalendar(
                                                                 calendario,
                                                             );
-                                                            setEditModalOpen(true);
+                                                            setEditModalOpen(
+                                                                true,
+                                                            );
                                                         }}
                                                     >
                                                         <Edit className="h-3 w-3" />
@@ -147,18 +163,62 @@ export function LeftSidebar({
                                                         title="Eliminar calendario"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            if (confirm('¿Estás seguro de que quieres eliminar este calendario?')) {
-                                                                router.delete(`/calendarios/${calendario.id}`);
+                                                            if (
+                                                                confirm(
+                                                                    '¿Estás seguro de que quieres eliminar este calendario?',
+                                                                )
+                                                            ) {
+                                                                router.delete(
+                                                                    `/calendarios/${calendario.id}`,
+                                                                );
                                                             }
                                                         }}
                                                     >
                                                         <Trash2 className="h-3 w-3" />
                                                     </Button>
                                                 </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
+                                            </div>
+                                        ))}
+                                </div>
+                            </div>
+
+                            {/* Calendarios Invitados */}
+                            <div>
+                                <h5 className="mb-2 text-xs font-medium text-sidebar-foreground/60">
+                                    Calendarios Invitados
+                                </h5>
+                                <div className="space-y-1">
+                                    {calendarios
+                                        .filter((calendario) =>
+                                            calendario.users?.some(
+                                                (u: any) =>
+                                                    u.id === auth?.user?.id &&
+                                                    u.pivot?.tipo_user !==
+                                                        'owner',
+                                            ),
+                                        )
+                                        .map((calendario) => (
+                                            <div
+                                                key={calendario.id}
+                                                className="group flex items-center justify-between rounded-lg p-2 transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/50 hover:shadow-sm"
+                                            >
+                                                <div
+                                                    onClick={() =>
+                                                        onCalendarSelect &&
+                                                        onCalendarSelect(
+                                                            calendario,
+                                                        )
+                                                    }
+                                                    className="flex flex-1 cursor-pointer items-center gap-2 hover:text-sidebar-accent-foreground"
+                                                >
+                                                    <Calendar className="h-4 w-4" />
+                                                    <span className="truncate text-sm">
+                                                        {calendario.nombre}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                </div>
                             </div>
                         </div>
 
