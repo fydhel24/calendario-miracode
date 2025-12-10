@@ -505,10 +505,11 @@ export function RightMenu({
     ];
 
     const handleOptionClick = (optionId: string) => {
+        // If clicking the same option that's already active, don't collapse it
+        // This prevents collapsing when the option was auto-selected from selectedDate
         if (internalActiveOption === optionId) {
-            // Si ya está seleccionado, deseleccionar para volver a vista de iconos
-            setInternalActiveOption(null);
-            if (onExpansionChange) onExpansionChange(false);
+            // Keep it expanded - don't do anything
+            return;
         } else {
             // Si no está seleccionado, mostrar contenido
             setInternalActiveOption(optionId);
