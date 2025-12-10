@@ -94,6 +94,7 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
                             </Label>
                             <Textarea
                                 id="descripcion"
+                                placeholder="Opcional"
                                 value={form.descripcion}
                                 onChange={(e) =>
                                     setForm({
@@ -105,24 +106,11 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
                                 rows={3}
                             />
                         </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="template" className="text-right">
-                                Plantilla
-                            </Label>
-                            <Input
-                                id="template"
-                                value={form.template}
-                                onChange={(e) =>
-                                    setForm({
-                                        ...form,
-                                        template: e.target.value,
-                                    })
-                                }
-                                className="col-span-3"
-                                placeholder="Opcional"
-                            />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
+
+                        <div
+                            className="grid grid-cols-4 items-center gap-4"
+                            style={{ display: 'none' }}
+                        >
                             <Label htmlFor="estado" className="text-right">
                                 Estado
                             </Label>

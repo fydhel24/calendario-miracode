@@ -116,10 +116,11 @@ function EditCalendarModal({
                                     })
                                 }
                                 className="col-span-3"
+                                placeholder='Opcional'
                                 rows={3}
                             />
                         </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
+                        <div className="grid grid-cols-4 items-center gap-4" style={{ display: 'none' }}>
                             <Label htmlFor="template" className="text-right">
                                 Plantilla
                             </Label>
@@ -136,7 +137,7 @@ function EditCalendarModal({
                                 placeholder="Opcional"
                             />
                         </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
+                        <div className="grid grid-cols-4 items-center gap-4" style={{ display: 'none' }}>
                             <Label htmlFor="estado" className="text-right">
                                 Estado
                             </Label>

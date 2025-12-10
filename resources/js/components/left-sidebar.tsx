@@ -59,8 +59,6 @@ export function LeftSidebar({
     }, [selectedCalendarIds, calendarios, onCalendarsSelect]);
 
     const menuItems = [
-        { id: 'home', label: 'Inicio', icon: Home, active: false },
-        { id: 'users', label: 'Usuarios', icon: Users, active: false },
         {
             id: 'settings',
             label: 'Configuración',
