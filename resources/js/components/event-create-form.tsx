@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Search, User, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface EventCreateFormProps {
@@ -30,6 +30,7 @@ export function EventCreateForm({
     const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
     const [allUsers, setAllUsers] = useState<any[]>([]);
+    const [userSearch, setUserSearch] = useState('');
 
     useEffect(() => {
         if (selectedDate) {
@@ -84,6 +85,7 @@ export function EventCreateForm({
                         : '',
                 });
                 setSelectedUsers([]);
+                setUserSearch('');
             })
             .catch((error) => {
                 console.error('Error creating event:', error);
@@ -158,40 +160,129 @@ export function EventCreateForm({
                     />
                 </div>
                 <div>
-                    <Label>Agregar Usuarios (Opcional)</Label>
-                    <div className="mt-2 space-y-2">
-                        {allUsers.filter((u: any) => u.id !== auth?.user?.id).map((user: any) => (
-                            <div
-                                key={user.id}
-                                className="flex items-center space-x-2"
-                            >
-                                <Checkbox
-                                    id={`user-${user.id}`}
-                                    checked={selectedUsers.includes(user.id)}
-                                    onCheckedChange={(checked) => {
-                                        if (checked) {
+                    <Label>Invitar Usuarios (Opcional)</Label>
+
+                    {/* Selected Users Display */}
+                    {selectedUsers.length > 0 && (
+                        <div className="mt-2 mb-3">
+                            <Label className="mb-2 block text-sm text-muted-foreground">
+                                Usuarios Invitados:
+                            </Label>
+                            <div className="flex flex-wrap gap-2">
+                                {selectedUsers.map((userId) => {
+                                    const user = allUsers.find(
+                                        (u: any) => u.id === userId,
+                                    );
+                                    return user ? (
+                                        <div
+                                            key={userId}
+                                            className="flex items-center gap-1 rounded-full border border-red-200 bg-gradient-to-r from-red-100 to-red-50 px-2 py-1 text-xs text-red-700"
+                                        >
+                                            <User className="h-3 w-3" />
+                                            <span>{user.name}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setSelectedUsers(
+                                                        selectedUsers.filter(
+                                                            (id) =>
+                                                                id !== userId,
+                                                        ),
+                                                    )
+                                                }
+                                                className="ml-1 rounded-full p-0.5 hover:bg-red-200"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        </div>
+                                    ) : null;
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Search Input */}
+                    <div className="relative mt-2">
+                        <div className="relative">
+                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
+                            <Input
+                                type="text"
+                                placeholder="Buscar usuarios..."
+                                value={userSearch}
+                                onChange={(e) => setUserSearch(e.target.value)}
+                                className="pl-10"
+                            />
+                        </div>
+                    </div>
+
+                    {/* User List - Only show when there are search results */}
+                    {userSearch && (
+                        <div className="mt-2 max-h-40 overflow-y-auto rounded-lg border border-border/50 bg-background/50">
+                            {allUsers
+                                .filter(
+                                    (u: any) =>
+                                        u.id !== auth?.user?.id &&
+                                        u.name
+                                            .toLowerCase()
+                                            .includes(userSearch.toLowerCase()) &&
+                                        !selectedUsers.includes(u.id),
+                                )
+                                .map((user: any) => (
+                                    <div
+                                        key={user.id}
+                                        className="flex cursor-pointer items-center justify-between border-b border-border/20 p-2 last:border-b-0 hover:bg-muted/50"
+                                        onClick={() =>
                                             setSelectedUsers([
                                                 ...selectedUsers,
                                                 user.id,
-                                            ]);
-                                        } else {
-                                            setSelectedUsers(
-                                                selectedUsers.filter(
-                                                    (id) => id !== user.id,
-                                                ),
-                                            );
+                                            ])
                                         }
-                                    }}
-                                />
-                                <Label
-                                    htmlFor={`user-${user.id}`}
-                                    className="text-sm"
-                                >
-                                    {user.name}
-                                </Label>
-                            </div>
-                        ))}
-                    </div>
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-red-400 to-red-500">
+                                                <User className="h-4 w-4 text-white" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium">
+                                                    {user.name}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {user.email}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedUsers([
+                                                    ...selectedUsers,
+                                                    user.id,
+                                                ]);
+                                            }}
+                                        >
+                                            <User className="h-3 w-3" />
+                                        </Button>
+                                    </div>
+                                ))}
+                            {allUsers.filter(
+                                (u: any) =>
+                                    u.id !== auth?.user?.id &&
+                                    u.name
+                                        .toLowerCase()
+                                        .includes(userSearch.toLowerCase()) &&
+                                    !selectedUsers.includes(u.id),
+                            ).length === 0 &&
+                                userSearch && (
+                                    <div className="p-4 text-center text-sm text-muted-foreground">
+                                        No se encontraron usuarios
+                                    </div>
+                                )}
+                        </div>
+                    )}
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? 'Creando...' : 'Crear Evento'}
