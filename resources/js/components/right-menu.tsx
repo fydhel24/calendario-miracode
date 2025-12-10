@@ -137,47 +137,60 @@ export function RightMenu({
             content: (() => {
                 const notifications = [
                     ...calendarios
-                        .filter(c => c.users?.some((u: any) => u.id === auth.user.id))
-                        .map(c => ({
+                        .filter((c) =>
+                            c.users?.some((u: any) => u.id === auth.user.id),
+                        )
+                        .map((c) => ({
                             type: 'calendar',
                             item: c,
                             date: c.pivot?.created_at || c.created_at,
                             message: `Agregado al calendario "${c.nombre}"`,
                         })),
                     ...calendarios
-                        .flatMap(c => c.eventos || [])
-                        .filter(e => e.usuarios?.some((u: any) => u.id === auth.user.id))
-                        .map(e => ({
+                        .flatMap((c) => c.eventos || [])
+                        .filter((e) =>
+                            e.usuarios?.some((u: any) => u.id === auth.user.id),
+                        )
+                        .map((e) => ({
                             type: 'event',
                             item: e,
                             date: e.pivot?.created_at || e.created_at,
                             message: `Invitado al evento "${e.titulo}" en calendario "${e.calendario?.nombre}"`,
                         })),
-                ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                ].sort(
+                    (a, b) =>
+                        new Date(b.date).getTime() - new Date(a.date).getTime(),
+                );
 
                 return (
                     <div className="space-y-4 p-4">
                         <h3 className="mb-4 text-lg font-semibold">
                             Notificaciones
                         </h3>
-                        <div className="space-y-2 max-h-96 overflow-y-auto">
+                        <div className="max-h-96 space-y-2 overflow-y-auto">
                             {notifications.length > 0 ? (
                                 notifications.map((notif, index) => (
                                     <div
                                         key={index}
-                                        className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                                        className="cursor-pointer rounded-lg border p-3 transition-colors hover:bg-muted/50"
                                         onClick={() => {
                                             if (notif.type === 'calendar') {
                                                 onCalendarSelect?.(notif.item);
                                             } else if (notif.type === 'event') {
-                                                onCalendarSelect?.(notif.item.calendario);
+                                                onCalendarSelect?.(
+                                                    notif.item.calendario,
+                                                );
                                                 // Optionally set selectedEvent, but since no prop, just switch calendar
                                             }
                                         }}
                                     >
-                                        <p className="text-sm">{notif.message}</p>
+                                        <p className="text-sm">
+                                            {notif.message}
+                                        </p>
                                         <p className="text-xs text-muted-foreground">
-                                            {new Date(notif.date).toLocaleString()}
+                                            {new Date(
+                                                notif.date,
+                                            ).toLocaleString()}
                                         </p>
                                     </div>
                                 ))
@@ -211,9 +224,6 @@ export function RightMenu({
                                     <div>
                                         <p className="font-medium">
                                             {user.name}
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            {user.email}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -250,11 +260,24 @@ export function RightMenu({
                                                                 },
                                                             )
                                                                 .then(() => {
-                                                                    alert(
-                                                                        'Usuario removido',
-                                                                    );
-                                                                    // Reload or update
-                                                                    window.location.reload();
+                                                                    // Update selectedCalendar in real-time
+                                                                    const updatedCalendar =
+                                                                        {
+                                                                            ...selectedCalendar,
+                                                                            users: selectedCalendar.users.filter(
+                                                                                (
+                                                                                    u,
+                                                                                ) =>
+                                                                                    u.id !==
+                                                                                    user.id,
+                                                                            ),
+                                                                        };
+                                                                    if (
+                                                                        onCalendarUpdated
+                                                                    )
+                                                                        onCalendarUpdated(
+                                                                            updatedCalendar,
+                                                                        );
                                                                 })
                                                                 .catch(
                                                                     (error) => {
@@ -279,183 +302,204 @@ export function RightMenu({
                             </p>
                         )}
                     </div>
-                    
+
+                    {isOwner && (
+                        <div className="border-t pt-4">
+                            <h4 className="text-md mb-3 font-semibold">
+                                Invitar Participantes
+                            </h4>
+                            <form
+                                className="space-y-4"
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const formData = new FormData(
+                                        e.target as HTMLFormElement,
+                                    );
+                                    const user_id = formData.get(
+                                        'user_id',
+                                    ) as string;
+                                    const tipo_user = formData.get(
+                                        'tipo_user',
+                                    ) as string;
+                                    if (!user_id || !tipo_user) return;
+
+                                    fetch(
+                                        `/calendarios/${selectedCalendar?.id}/invite`,
+                                        {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type':
+                                                    'application/json',
+                                                'X-CSRF-TOKEN':
+                                                    document
+                                                        .querySelector(
+                                                            'meta[name="csrf-token"]',
+                                                        )
+                                                        ?.getAttribute(
+                                                            'content',
+                                                        ) || '',
+                                            },
+                                            body: JSON.stringify({
+                                                user_id: parseInt(user_id),
+                                                tipo_user,
+                                            }),
+                                        },
+                                    )
+                                        .then((response) => {
+                                            if (response.ok) {
+                                                // Update selectedCalendar in real-time
+                                                const invitedUser = users.find(
+                                                    (u: any) =>
+                                                        u.id.toString() ===
+                                                        user_id,
+                                                );
+                                                if (
+                                                    invitedUser &&
+                                                    onCalendarUpdated
+                                                ) {
+                                                    const updatedCalendar = {
+                                                        ...selectedCalendar,
+                                                        users: [
+                                                            ...(selectedCalendar.users ||
+                                                                []),
+                                                            {
+                                                                ...invitedUser,
+                                                                pivot: {
+                                                                    tipo_user,
+                                                                },
+                                                            },
+                                                        ],
+                                                    };
+                                                    onCalendarUpdated(
+                                                        updatedCalendar,
+                                                    );
+                                                }
+                                                (
+                                                    e.target as HTMLFormElement
+                                                ).reset();
+                                            } else {
+                                                return response
+                                                    .json()
+                                                    .then((data) => {
+                                                        throw new Error(
+                                                            data.error ||
+                                                                'Error al agregar usuario',
+                                                        );
+                                                    });
+                                            }
+                                        })
+                                        .catch((error) => {
+                                            alert(error.message);
+                                        });
+                                }}
+                            >
+                                <div>
+                                    <Label htmlFor="invite-user">Usuario</Label>
+                                    <Select
+                                        name="user_id"
+                                        required
+                                        disabled={loadingUsers}
+                                    >
+                                        <SelectTrigger className="mt-1">
+                                            <SelectValue
+                                                placeholder={
+                                                    loadingUsers
+                                                        ? 'Cargando usuarios...'
+                                                        : 'Selecciona un usuario'
+                                                }
+                                            />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {users
+                                                .filter(
+                                                    (u: any) =>
+                                                        !selectedCalendar?.users?.some(
+                                                            (cu: any) =>
+                                                                cu.id === u.id,
+                                                        ),
+                                                )
+                                                .map((user: any) => (
+                                                    <SelectItem
+                                                        key={user.id}
+                                                        value={user.id.toString()}
+                                                    >
+                                                        {user.name} 
+                                                    </SelectItem>
+                                                ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <Label htmlFor="invite-tipo">Rol</Label>
+                                    <Select name="tipo_user" required>
+                                        <SelectTrigger className="mt-1">
+                                            <SelectValue placeholder="Selecciona el rol" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="viewer">
+                                                Espectador
+                                            </SelectItem>
+                                            <SelectItem value="editor">
+                                                Editor
+                                            </SelectItem>
+                                            <SelectItem value="owner">
+                                                Propietario
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <Button
+                                    type="submit"
+                                    className="mt-6 w-full"
+                                    disabled={loadingUsers}
+                                >
+                                    Agregar Usuario
+                                </Button>
+                            </form>
+                        </div>
+                    )}
                 </div>
             ),
         },
         ...(isOwner
             ? [
                   {
-                      id: 'invite',
-                      label: 'Invitar',
-                      icon: Users,
+                      id: 'settings',
+                      label: 'Configuración',
+                      icon: Settings,
                       content: (
                           <div className="space-y-4 p-4">
                               <h3 className="mb-4 text-lg font-semibold">
-                                  Invitar Participantes
+                                  Configuración
                               </h3>
-                              <form
-                                  className="space-y-4"
-                                  onSubmit={(e) => {
-                                      e.preventDefault();
-                                      const formData = new FormData(
-                                          e.target as HTMLFormElement,
-                                      );
-                                      const user_id = formData.get(
-                                          'user_id',
-                                      ) as string;
-                                      const tipo_user = formData.get(
-                                          'tipo_user',
-                                      ) as string;
-                                      if (!user_id || !tipo_user) return;
-
-                                      fetch(
-                                          `/calendarios/${selectedCalendar?.id}/invite`,
-                                          {
-                                              method: 'POST',
-                                              headers: {
-                                                  'Content-Type':
-                                                      'application/json',
-                                                  'X-CSRF-TOKEN':
-                                                      document
-                                                          .querySelector(
-                                                              'meta[name="csrf-token"]',
-                                                          )
-                                                          ?.getAttribute(
-                                                              'content',
-                                                          ) || '',
-                                              },
-                                              body: JSON.stringify({
-                                                  user_id: parseInt(user_id),
-                                                  tipo_user,
-                                              }),
-                                          },
-                                      )
-                                          .then((response) => {
-                                              if (response.ok) {
-                                                  alert(
-                                                      'Usuario agregado exitosamente',
-                                                  );
-                                                  (
-                                                      e.target as HTMLFormElement
-                                                  ).reset();
-                                                  // Reload to update members list
-                                                  // Update selectedEvent in real-time
-                                                  const invitedUser = users.find(u => u.id.toString() === user_id);
-                                                  if (invitedUser && onEventUpdated) {
-                                                      const updatedEvent = {
-                                                          ...selectedEvent,
-                                                          usuarios: [...(selectedEvent.usuarios || []), invitedUser]
-                                                      };
-                                                      onEventUpdated(updatedEvent);
-                                                  }
-                                              } else {
-                                                  return response
-                                                      .json()
-                                                      .then((data) => {
-                                                          throw new Error(
-                                                              data.error ||
-                                                                  'Error al agregar usuario',
-                                                          );
-                                                      });
-                                              }
-                                          })
-                                          .catch((error) => {
-                                              alert(error.message);
-                                          });
-                                  }}
-                              >
-                                  <div>
-                                      <Label htmlFor="invite-user">
-                                          Usuario
+                              <div className="space-y-4">
+                                  <div className="flex items-center justify-between">
+                                      <Label htmlFor="notifications">
+                                          Notificaciones
                                       </Label>
-                                      <Select
-                                          name="user_id"
-                                          required
-                                          disabled={loadingUsers}
-                                      >
-                                          <SelectTrigger className="mt-1">
-                                              <SelectValue
-                                                  placeholder={
-                                                      loadingUsers
-                                                          ? 'Cargando usuarios...'
-                                                          : 'Selecciona un usuario'
-                                                  }
-                                              />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                              {users.map((user) => (
-                                                  <SelectItem
-                                                      key={user.id}
-                                                      value={user.id.toString()}
-                                                  >
-                                                      {user.name} ({user.email})
-                                                  </SelectItem>
-                                              ))}
-                                          </SelectContent>
-                                      </Select>
+                                      <Checkbox id="notifications" />
                                   </div>
-                                  <div>
-                                      <Label htmlFor="invite-tipo">Rol</Label>
-                                      <Select name="tipo_user" required>
-                                          <SelectTrigger className="mt-1">
-                                              <SelectValue placeholder="Selecciona el rol" />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                              <SelectItem value="viewer">
-                                                  Espectador
-                                              </SelectItem>
-                                              <SelectItem value="editor">
-                                                  Editor
-                                              </SelectItem>
-                                              <SelectItem value="owner">
-                                                  Propietario
-                                              </SelectItem>
-                                          </SelectContent>
-                                      </Select>
+                                  <div className="flex items-center justify-between">
+                                      <Label htmlFor="dark-mode">
+                                          Modo oscuro
+                                      </Label>
+                                      <Checkbox id="dark-mode" />
                                   </div>
-                                  <Button
-                                      type="submit"
-                                      className="mt-6 w-full"
-                                      disabled={loadingUsers}
-                                  >
-                                      Agregar Usuario
+                                  <div className="flex items-center justify-between">
+                                      <Label htmlFor="sync">
+                                          Sincronización
+                                      </Label>
+                                      <Checkbox id="sync" defaultChecked />
+                                  </div>
+                                  <Button className="mt-6 w-full">
+                                      Guardar
                                   </Button>
-                              </form>
+                              </div>
                           </div>
                       ),
                   },
               ]
             : []),
-        {
-            id: 'settings',
-            label: 'Configuración',
-            icon: Settings,
-            content: (
-                <div className="space-y-4 p-4">
-                    <h3 className="mb-4 text-lg font-semibold">
-                        Configuración
-                    </h3>
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="notifications">
-                                Notificaciones
-                            </Label>
-                            <Checkbox id="notifications" />
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="dark-mode">Modo oscuro</Label>
-                            <Checkbox id="dark-mode" />
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="sync">Sincronización</Label>
-                            <Checkbox id="sync" defaultChecked />
-                        </div>
-                        <Button className="mt-6 w-full">Guardar</Button>
-                    </div>
-                </div>
-            ),
-        },
     ];
 
     const handleOptionClick = (optionId: string) => {
@@ -827,11 +871,24 @@ export function RightMenu({
                                                                                             .then(
                                                                                                 () => {
                                                                                                     // Update selectedEvent in real-time
-                                                                                                    const updatedEvent = {
-                                                                                                        ...selectedEvent,
-                                                                                                        usuarios: selectedEvent.usuarios.filter(u => u.id !== usuario.id)
-                                                                                                    };
-                                                                                                    if (onEventUpdated) onEventUpdated(updatedEvent);
+                                                                                                    const updatedEvent =
+                                                                                                        {
+                                                                                                            ...selectedEvent,
+                                                                                                            usuarios:
+                                                                                                                selectedEvent.usuarios.filter(
+                                                                                                                    (
+                                                                                                                        u,
+                                                                                                                    ) =>
+                                                                                                                        u.id !==
+                                                                                                                        usuario.id,
+                                                                                                                ),
+                                                                                                        };
+                                                                                                    if (
+                                                                                                        onEventUpdated
+                                                                                                    )
+                                                                                                        onEventUpdated(
+                                                                                                            updatedEvent,
+                                                                                                        );
                                                                                                 },
                                                                                             )
                                                                                             .catch(
@@ -919,13 +976,31 @@ export function RightMenu({
                                                                                 e.target as HTMLFormElement
                                                                             ).reset();
                                                                             // Update selectedEvent in real-time
-                                                                            const invitedUser = users.find(u => u.id.toString() === user_id);
-                                                                            if (invitedUser && onEventUpdated) {
-                                                                                const updatedEvent = {
-                                                                                    ...selectedEvent,
-                                                                                    usuarios: [...(selectedEvent.usuarios || []), invitedUser]
-                                                                                };
-                                                                                onEventUpdated(updatedEvent);
+                                                                            const invitedUser =
+                                                                                users.find(
+                                                                                    (
+                                                                                        u,
+                                                                                    ) =>
+                                                                                        u.id.toString() ===
+                                                                                        user_id,
+                                                                                );
+                                                                            if (
+                                                                                invitedUser &&
+                                                                                onEventUpdated
+                                                                            ) {
+                                                                                const updatedEvent =
+                                                                                    {
+                                                                                        ...selectedEvent,
+                                                                                        usuarios:
+                                                                                            [
+                                                                                                ...(selectedEvent.usuarios ||
+                                                                                                    []),
+                                                                                                invitedUser,
+                                                                                            ],
+                                                                                    };
+                                                                                onEventUpdated(
+                                                                                    updatedEvent,
+                                                                                );
                                                                             }
                                                                         } else {
                                                                             return response
@@ -960,51 +1035,52 @@ export function RightMenu({
                                                                     loadingUsers
                                                                 }
                                                             >
-                                                            <SelectTrigger>
-                                                                <SelectValue
-                                                                    placeholder={
-                                                                        loadingUsers
-                                                                            ? 'Cargando usuarios...'
-                                                                            : 'Selecciona un usuario'
-                                                                    }
-                                                                />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {selectedCalendar?.users
-                                                                    ?.filter(
-                                                                        (
-                                                                            user,
-                                                                        ) =>
-                                                                            !selectedEvent.usuarios?.some(
-                                                                                (
-                                                                                    u: any,
-                                                                                ) =>
-                                                                                    u.id ===
-                                                                                    user.id,
+                                                                <SelectTrigger>
+                                                                    <SelectValue
+                                                                        placeholder={
+                                                                            loadingUsers
+                                                                                ? 'Cargando usuarios...'
+                                                                                : 'Selecciona un usuario'
+                                                                        }
+                                                                    />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    {selectedCalendar?.users
+                                                                        ?.filter(
+                                                                            (
+                                                                                user,
+                                                                            ) =>
+                                                                                !selectedEvent.usuarios?.some(
+                                                                                    (
+                                                                                        u: any,
+                                                                                    ) =>
+                                                                                        u.id ===
+                                                                                        user.id,
+                                                                                ),
+                                                                        )
+                                                                        .map(
+                                                                            (
+                                                                                user,
+                                                                            ) => (
+                                                                                <SelectItem
+                                                                                    key={
+                                                                                        user.id
+                                                                                    }
+                                                                                    value={user.id.toString()}
+                                                                                >
+                                                                                    {
+                                                                                        user.name
+                                                                                    }{' '}
+                                                                                    (
+                                                                                    {
+                                                                                        user.email
+                                                                                    }
+
+                                                                                    )
+                                                                                </SelectItem>
                                                                             ),
-                                                                    )
-                                                                    .map(
-                                                                        (
-                                                                            user,
-                                                                        ) => (
-                                                                            <SelectItem
-                                                                                key={
-                                                                                    user.id
-                                                                                }
-                                                                                value={user.id.toString()}
-                                                                            >
-                                                                                {
-                                                                                    user.name
-                                                                                }{' '}
-                                                                                (
-                                                                                {
-                                                                                    user.email
-                                                                                }
-                                                                                )
-                                                                            </SelectItem>
-                                                                        ),
-                                                                    )}
-                                                            </SelectContent>
+                                                                        )}
+                                                                </SelectContent>
                                                             </Select>
                                                         </div>
                                                         <Button
