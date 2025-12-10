@@ -101,18 +101,18 @@ export default function CalendarLayout({
 
     return (
         <AppShell variant="sidebar">
-            <div className="relative flex h-screen overflow-hidden bg-gradient-to-br from-background to-muted/20">
-                {/* Sidebar izquierdo - Navegación */}
-                <div className="flex">
+            <div className="relative flex h-screen overflow-hidden bg-gradient-to-br from-background via-background/95 to-muted/10">
+                {/* Sidebar izquierdo - Navegación - Hidden on mobile, overlay on tablet */}
+                <div className="hidden lg:flex">
                     {/* Botón toggle cuando está colapsado */}
                     {isLeftSidebarCollapsed && (
-                        <div className="flex w-16 flex-col items-center justify-center border-r border-sidebar-border bg-gradient-to-b from-sidebar to-sidebar/95 shadow-lg">
+                        <div className="flex w-16 flex-col items-center justify-center border-r border-sidebar-border/50 bg-gradient-to-b from-sidebar to-sidebar/95 shadow-xl">
                             <button
                                 onClick={toggleLeftSidebar}
-                                className="group rounded-lg p-3 transition-all duration-300 hover:scale-105 hover:bg-sidebar-accent hover:shadow-md"
+                                className="group rounded-xl p-3 transition-all duration-300 hover:scale-110 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/90 hover:shadow-lg"
                                 title="Mostrar navegación"
                             >
-                                <Calendar className="h-6 w-6 text-sidebar-foreground/80 transition-colors group-hover:text-sidebar-accent-foreground" />
+                                <Calendar className="h-6 w-6 text-sidebar-foreground/80 transition-colors group-hover:text-sidebar-accent-foreground drop-shadow-sm" />
                             </button>
                         </div>
                     )}
@@ -169,38 +169,57 @@ export default function CalendarLayout({
                 </div>
 
                 {/* Área principal del calendario - se ajusta dinámicamente según el menú derecho */}
-                <div
-                    className="p-6 transition-all duration-300 ease-in-out"
-                    style={{
-                        width: calendarWidth,
-                        maxWidth: '100%',
-                    }}
-                >
+                <div className="min-w-0 flex-1 p-2 transition-all duration-300 ease-in-out sm:p-4 lg:p-6">
+                    {/* Mobile/Tablet header with controls */}
+                    <div className="mb-3 flex items-center justify-between sm:mb-6 lg:hidden">
+                        <button
+                            onClick={toggleLeftSidebar}
+                            className="group rounded-xl bg-gradient-to-r from-sidebar to-sidebar/90 p-3 shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl hover:from-sidebar-accent hover:to-sidebar-accent/90"
+                            title="Mostrar navegación"
+                        >
+                            <Calendar className="h-5 w-5 text-sidebar-foreground transition-colors group-hover:text-sidebar-accent-foreground" />
+                        </button>
+                        <button
+                            onClick={() =>
+                                setIsRightMenuExpanded(!isRightMenuExpanded)
+                            }
+                            className="group rounded-xl bg-gradient-to-r from-sidebar to-sidebar/90 p-3 shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl hover:from-sidebar-accent hover:to-sidebar-accent/90"
+                            title="Mostrar menú"
+                        >
+                            <Calendar className="h-5 w-5 text-sidebar-foreground transition-colors group-hover:text-sidebar-accent-foreground" />
+                        </button>
+                    </div>
+
                     {/* Header with calendar name */}
                     {selectedCalendars.length > 0 && (
-                        <div className="mb-4">
-                            <h1 className="text-2xl font-bold text-foreground">
-                                {selectedCalendars.length === 1
-                                    ? selectedCalendars[0].nombre
-                                    : 'Calendarios Combinados'}
-                            </h1>
-                            {selectedCalendars.length === 1 &&
-                                selectedCalendars[0].descripcion && (
-                                    <p className="mt-1 text-muted-foreground">
-                                        {selectedCalendars[0].descripcion}
-                                    </p>
-                                )}
-                            {selectedCalendars.length > 1 && (
-                                <p className="mt-1 text-muted-foreground">
-                                    {selectedCalendars
-                                        .map((c) => c.nombre)
-                                        .join(', ')}
-                                </p>
-                            )}
+                        <div className="mb-3 sm:mb-6">
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-1 rounded-full bg-gradient-to-b from-primary to-primary/60"></div>
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="truncate text-xl font-bold text-foreground sm:text-2xl lg:text-3xl bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+                                        {selectedCalendars.length === 1
+                                            ? selectedCalendars[0].nombre
+                                            : 'Calendarios Combinados'}
+                                    </h1>
+                                    {selectedCalendars.length === 1 &&
+                                        selectedCalendars[0].descripcion && (
+                                            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground/80 font-medium">
+                                                {selectedCalendars[0].descripcion}
+                                            </p>
+                                        )}
+                                    {selectedCalendars.length > 1 && (
+                                        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground/80 font-medium">
+                                            {selectedCalendars
+                                                .map((c) => c.nombre)
+                                                .join(' • ')}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     )}
 
-                    <div className="h-full w-full overflow-hidden rounded-2xl border border-border/50 bg-background/50 shadow-2xl backdrop-blur-sm">
+                    <div className="h-full w-full overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-br from-background/80 via-background/90 to-background shadow-2xl backdrop-blur-md sm:rounded-3xl">
                         <FullCalendarComponent
                             events={events}
                             onDateSelect={handleDateSelect}
@@ -209,8 +228,8 @@ export default function CalendarLayout({
                     </div>
                 </div>
 
-                {/* Menú de la derecha - Siempre visible con comportamiento expandible */}
-                <div className="flex-shrink-0 border-l border-sidebar-border shadow-xl">
+                {/* Menú de la derecha - Hidden on mobile/tablet, overlay on larger screens */}
+                <div className="hidden flex-shrink-0 border-l border-sidebar-border shadow-xl xl:flex">
                     <RightMenu
                         className="h-full bg-gradient-to-b from-sidebar to-sidebar/95"
                         isExpanded={isRightMenuExpanded}
@@ -246,7 +265,7 @@ export default function CalendarLayout({
                                         ? {
                                               ...cal,
                                               eventos: cal.eventos
-                                                  ? cal.eventos.map((e) =>
+                                                  ? cal.eventos.map((e: any) =>
                                                         e.id === updatedEvent.id
                                                             ? updatedEvent
                                                             : e,
@@ -267,7 +286,7 @@ export default function CalendarLayout({
                                     ...cal,
                                     eventos: cal.eventos
                                         ? cal.eventos.filter(
-                                              (e) => e.id !== eventId,
+                                              (e: any) => e.id !== eventId,
                                           )
                                         : [],
                                 })),
@@ -282,14 +301,192 @@ export default function CalendarLayout({
                                         : c,
                                 ),
                             );
-                            if (selectedCalendar?.id === updatedCalendar.id) {
-                                setSelectedCalendar(updatedCalendar);
+                            if (
+                                selectedCalendars.some(
+                                    (c) => c.id === updatedCalendar.id,
+                                )
+                            ) {
+                                setSelectedCalendars((prev) =>
+                                    prev.map((c) =>
+                                        c.id === updatedCalendar.id
+                                            ? updatedCalendar
+                                            : c,
+                                    ),
+                                );
                             }
                         }}
                         onCalendarSelect={handleCalendarSelect}
                         onDateClear={() => setSelectedDate(null)}
                     />
                 </div>
+
+                {/* Mobile Right Menu Overlay */}
+                {isRightMenuExpanded && (
+                    <div
+                        className="fixed inset-0 z-50 bg-black/50 xl:hidden"
+                        onClick={() => setIsRightMenuExpanded(false)}
+                    >
+                        <div
+                            className="absolute top-0 right-0 h-full w-full max-w-sm bg-background shadow-xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <RightMenu
+                                className="h-full"
+                                isExpanded={true}
+                                onExpansionChange={setIsRightMenuExpanded}
+                                selectedDate={selectedDate}
+                                selectedEvent={selectedEvent}
+                                selectedCalendars={selectedCalendars}
+                                calendarios={calendariosState}
+                                onEventCreated={(newEvent) => {
+                                    setEvents((prev) => [...prev, newEvent]);
+                                    setSelectedCalendars((prev) =>
+                                        prev.map((cal) =>
+                                            cal.id === newEvent.calendario_id
+                                                ? {
+                                                      ...cal,
+                                                      eventos: cal.eventos
+                                                          ? [
+                                                                ...cal.eventos,
+                                                                newEvent,
+                                                            ]
+                                                          : [newEvent],
+                                                  }
+                                                : cal,
+                                        ),
+                                    );
+                                }}
+                                onEventUpdated={(updatedEvent) => {
+                                    setEvents((prev) =>
+                                        prev.map((e: any) =>
+                                            e.id === updatedEvent.id
+                                                ? updatedEvent
+                                                : e,
+                                        ),
+                                    );
+                                    setSelectedCalendars((prev) =>
+                                        prev.map((cal) =>
+                                            cal.id ===
+                                            updatedEvent.calendario_id
+                                                ? {
+                                                      ...cal,
+                                                      eventos: cal.eventos
+                                                          ? cal.eventos.map(
+                                                                (e: any) =>
+                                                                    e.id ===
+                                                                    updatedEvent.id
+                                                                        ? updatedEvent
+                                                                        : e,
+                                                            )
+                                                          : [],
+                                                  }
+                                                : cal,
+                                        ),
+                                    );
+                                    setSelectedEvent(updatedEvent);
+                                }}
+                                onEventDeleted={(eventId) => {
+                                    setEvents((prev) =>
+                                        prev.filter((e) => e.id !== eventId),
+                                    );
+                                    setSelectedCalendars((prev) =>
+                                        prev.map((cal) => ({
+                                            ...cal,
+                                            eventos: cal.eventos
+                                                ? cal.eventos.filter(
+                                                      (e: any) => e.id !== eventId,
+                                                  )
+                                                : [],
+                                        })),
+                                    );
+                                    setSelectedEvent(null);
+                                }}
+                                onCalendarUpdated={(updatedCalendar) => {
+                                    setCalendariosState((prev) =>
+                                        prev.map((c) =>
+                                            c.id === updatedCalendar.id
+                                                ? updatedCalendar
+                                                : c,
+                                        ),
+                                    );
+                                    if (
+                                        selectedCalendars.some(
+                                            (c) => c.id === updatedCalendar.id,
+                                        )
+                                    ) {
+                                        setSelectedCalendars((prev) =>
+                                            prev.map((c) =>
+                                                c.id === updatedCalendar.id
+                                                    ? updatedCalendar
+                                                    : c,
+                                            ),
+                                        );
+                                    }
+                                }}
+                                onCalendarSelect={handleCalendarSelect}
+                                onDateClear={() => setSelectedDate(null)}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Mobile Left Sidebar Overlay */}
+                {!isLeftSidebarCollapsed && (
+                    <div
+                        className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+                        onClick={toggleLeftSidebar}
+                    >
+                        <div
+                            className="absolute top-0 left-0 h-full w-full max-w-sm bg-background shadow-xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <LeftSidebar
+                                className="h-full"
+                                isCollapsed={false}
+                                onToggle={toggleLeftSidebar}
+                                calendarios={calendariosState}
+                                onCalendarSelect={handleCalendarSelect}
+                                onCalendarsSelect={handleCalendarsSelect}
+                                onCalendarCreated={(newCalendar) => {
+                                    setCalendariosState((prev) => [
+                                        newCalendar,
+                                        ...prev,
+                                    ]);
+                                    setSelectedCalendars([newCalendar]);
+                                    setEvents(newCalendar.eventos || []);
+                                }}
+                                onCalendarUpdated={(updatedCalendar) => {
+                                    setCalendariosState((prev) =>
+                                        prev.map((c) =>
+                                            c.id === updatedCalendar.id
+                                                ? updatedCalendar
+                                                : c,
+                                        ),
+                                    );
+                                    if (
+                                        selectedCalendars.some(
+                                            (c) => c.id === updatedCalendar.id,
+                                        )
+                                    ) {
+                                        setSelectedCalendars((prev) =>
+                                            prev.map((c) =>
+                                                c.id === updatedCalendar.id
+                                                    ? updatedCalendar
+                                                    : c,
+                                            ),
+                                        );
+                                        setEvents(
+                                            selectedCalendars.flatMap(
+                                                (c) => c.eventos || [],
+                                            ),
+                                        );
+                                    }
+                                }}
+                                auth={auth}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
         </AppShell>
     );

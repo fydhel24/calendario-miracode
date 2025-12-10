@@ -9,10 +9,8 @@ import {
     ChevronRight,
     Edit,
     HelpCircle,
-    Home,
     Settings,
     Trash2,
-    Users,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -69,15 +67,20 @@ export function LeftSidebar({
 
     return (
         <div
-            className={`flex flex-col h-full border-r border-sidebar-border bg-sidebar ${className}`}
+            className={`flex h-full flex-col border-r border-sidebar-border/50 bg-gradient-to-b from-sidebar to-sidebar/95 shadow-xl ${className}`}
         >
-            <div className="flex items-center justify-between border-b border-sidebar-border p-4 flex-shrink-0">
-                <h3 className="text-sm font-medium">Navegación</h3>
+            <div className="flex flex-shrink-0 items-center justify-between border-b border-sidebar-border/30 bg-gradient-to-r from-sidebar/90 to-sidebar p-4">
+                <div className="flex items-center gap-2">
+                    <div className="h-6 w-1 rounded-full bg-gradient-to-b from-primary to-primary/60"></div>
+                    <h3 className="text-sm font-semibold text-sidebar-foreground">
+                        Navegación
+                    </h3>
+                </div>
                 <Button
                     variant="ghost"
                     size="icon"
                     onClick={onToggle}
-                    className="h-8 w-8 transition-all duration-200 hover:scale-105 hover:bg-sidebar-accent"
+                    className="h-8 w-8 transition-all duration-200 hover:scale-110 hover:bg-sidebar-accent hover:shadow-md"
                 >
                     {isCollapsed ? (
                         <ChevronRight className="h-4 w-4" />
@@ -110,9 +113,9 @@ export function LeftSidebar({
                         })}
 
                         {/* Calendarios */}
-                        <div className="border-t border-sidebar-border pt-4">
-                            <div className="mb-2 flex items-center justify-between">
-                                <h4 className="text-xs font-medium text-sidebar-foreground/80">
+                        <div className="border-t border-sidebar-border/30 pt-4">
+                            <div className="mb-3 flex items-center justify-between">
+                                <h4 className="text-xs font-semibold tracking-wide text-sidebar-foreground/90 uppercase">
                                     Calendarios
                                 </h4>
                                 <CreateCalendarModal
@@ -166,7 +169,7 @@ export function LeftSidebar({
                                         .map((calendario) => (
                                             <div
                                                 key={calendario.id}
-                                                className="group flex items-center justify-between rounded-lg p-2 transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/50 hover:shadow-sm"
+                                                className="group flex items-center justify-between rounded-xl p-2.5 transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/60 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-sidebar-border/30"
                                             >
                                                 <div className="flex flex-1 items-center gap-2">
                                                     <Checkbox
@@ -274,16 +277,34 @@ export function LeftSidebar({
                                         .map((calendario) => (
                                             <div
                                                 key={calendario.id}
-                                                className="group flex items-center justify-between rounded-lg p-2 transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/50 hover:shadow-sm"
+                                                className="group flex items-center justify-between rounded-xl p-2.5 transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/60 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-sidebar-border/30"
                                             >
                                                 <div className="flex flex-1 items-center gap-2">
                                                     <Checkbox
-                                                        checked={selectedCalendarIds.includes(calendario.id)}
-                                                        onCheckedChange={(checked) => {
+                                                        checked={selectedCalendarIds.includes(
+                                                            calendario.id,
+                                                        )}
+                                                        onCheckedChange={(
+                                                            checked,
+                                                        ) => {
                                                             if (checked) {
-                                                                setSelectedCalendarIds(prev => [...prev, calendario.id]);
+                                                                setSelectedCalendarIds(
+                                                                    (prev) => [
+                                                                        ...prev,
+                                                                        calendario.id,
+                                                                    ],
+                                                                );
                                                             } else {
-                                                                setSelectedCalendarIds(prev => prev.filter(id => id !== calendario.id));
+                                                                setSelectedCalendarIds(
+                                                                    (prev) =>
+                                                                        prev.filter(
+                                                                            (
+                                                                                id,
+                                                                            ) =>
+                                                                                id !==
+                                                                                calendario.id,
+                                                                        ),
+                                                                );
                                                             }
                                                         }}
                                                     />
@@ -308,14 +329,14 @@ export function LeftSidebar({
                             </div>
                         </div>
 
-                        <div className="border-t border-sidebar-border pt-4">
+                        <div className="border-t border-sidebar-border/30 pt-4">
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-8 w-full justify-start gap-2 transition-all duration-200 hover:scale-105 hover:bg-sidebar-accent"
+                                className="h-9 w-full justify-start gap-2 transition-all duration-200 hover:scale-105 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/80 hover:shadow-md rounded-lg"
                             >
                                 <HelpCircle className="h-4 w-4" />
-                                <span className="text-sm">Ayuda</span>
+                                <span className="text-sm font-medium">Ayuda</span>
                             </Button>
                         </div>
                     </div>

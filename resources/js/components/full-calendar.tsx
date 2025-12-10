@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/use-mobile';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
@@ -32,6 +33,8 @@ export default function FullCalendarComponent({
     onDateSelect,
     onEventClick,
 }: FullCalendarComponentProps) {
+    const isMobile = useIsMobile();
+
     const formattedEvents = useMemo(() => {
         return events.map((event) => ({
             id: event.id.toString(),
@@ -56,13 +59,15 @@ export default function FullCalendarComponent({
     };
 
     return (
-        <div className="h-full w-full rounded-xl border border-border bg-background p-6">
+        <div className="h-full w-full rounded-2xl border border-border/50 bg-gradient-to-br from-background via-background to-background/95 p-4 shadow-2xl backdrop-blur-sm md:p-6">
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 headerToolbar={{
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay',
+                    right: isMobile
+                        ? 'dayGridMonth'
+                        : 'dayGridMonth,timeGridWeek,timeGridDay',
                 }}
                 initialView="dayGridMonth"
                 editable={true}
@@ -85,7 +90,7 @@ export default function FullCalendarComponent({
                 }}
                 eventDisplay="block"
                 displayEventTime={false}
-                eventBackgroundColor="#2563eb"
+                eventBackgroundColor="#3b82f6"
                 eventBorderColor="#2563eb"
                 eventTextColor="#ffffff"
                 allDayText="Todo el día"
@@ -109,9 +114,9 @@ export default function FullCalendarComponent({
                     omitZeroMinute: false,
                     meridiem: 'short',
                 }}
-                dayHeaderClassNames="bg-muted/50 text-muted-foreground font-medium"
-                dayCellClassNames="hover:bg-accent/50 cursor-pointer"
-                eventClassNames="cursor-pointer hover:opacity-80"
+                dayHeaderClassNames="bg-gradient-to-r from-muted/30 to-muted/50 text-muted-foreground font-semibold"
+                dayCellClassNames="hover:bg-primary/5 cursor-pointer transition-colors duration-200"
+                eventClassNames="cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all duration-200 shadow-sm"
             />
         </div>
     );
