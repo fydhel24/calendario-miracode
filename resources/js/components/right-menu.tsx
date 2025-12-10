@@ -215,7 +215,7 @@ export function RightMenu({
                     <h3 className="mb-4 text-lg font-semibold">
                         Miembros del Calendario
                     </h3>
-                    <div className="space-y-3">
+                    <div className="max-h-96 space-y-3 overflow-y-auto">
                         {selectedCalendar?.users &&
                         selectedCalendar.users.length > 0 ? (
                             selectedCalendar.users.map((user: any) => (
