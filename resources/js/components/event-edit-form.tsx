@@ -95,7 +95,7 @@ export function EventEditForm({
                     />
                 </div>
                 <div>
-                    <Label htmlFor="descripcion">Descripción</Label>
+                    <Label htmlFor="descripcion">Descripción (Opcional)</Label>
                     <Textarea
                         id="descripcion"
                         value={form.descripcion}
@@ -104,28 +104,6 @@ export function EventEditForm({
                         }
                         placeholder="Descripción del evento"
                         rows={3}
-                    />
-                </div>
-                <div>
-                    <Label htmlFor="ubicacion">Ubicación</Label>
-                    <Input
-                        id="ubicacion"
-                        value={form.ubicacion}
-                        onChange={(e) =>
-                            setForm({ ...form, ubicacion: e.target.value })
-                        }
-                        placeholder="Ubicación"
-                    />
-                </div>
-                <div>
-                    <Label htmlFor="prioridad">Prioridad</Label>
-                    <Input
-                        id="prioridad"
-                        value={form.prioridad}
-                        onChange={(e) =>
-                            setForm({ ...form, prioridad: e.target.value })
-                        }
-                        placeholder="Prioridad"
                     />
                 </div>
                 <div>

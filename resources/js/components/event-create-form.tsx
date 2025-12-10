@@ -110,7 +110,7 @@ export function EventCreateForm({
                     />
                 </div>
                 <div>
-                    <Label htmlFor="descripcion">Descripción</Label>
+                    <Label htmlFor="descripcion">Descripción(Opcional)</Label>
                     <Textarea
                         id="descripcion"
                         value={form.descripcion}
@@ -122,29 +122,7 @@ export function EventCreateForm({
                     />
                 </div>
                 <div>
-                    <Label htmlFor="ubicacion">Ubicación</Label>
-                    <Input
-                        id="ubicacion"
-                        value={form.ubicacion}
-                        onChange={(e) =>
-                            setForm({ ...form, ubicacion: e.target.value })
-                        }
-                        placeholder="Ubicación"
-                    />
-                </div>
-                <div>
-                    <Label htmlFor="prioridad">Prioridad</Label>
-                    <Input
-                        id="prioridad"
-                        value={form.prioridad}
-                        onChange={(e) =>
-                            setForm({ ...form, prioridad: e.target.value })
-                        }
-                        placeholder="Prioridad"
-                    />
-                </div>
-                <div>
-                    <Label htmlFor="color">Color</Label>
+                    <Label htmlFor="color">Escoje Color</Label>
                     <Input
                         id="color"
                         type="color"
@@ -180,7 +158,7 @@ export function EventCreateForm({
                     />
                 </div>
                 <div>
-                    <Label>Invitar Usuarios</Label>
+                    <Label>Agregar Usuarios (Opcional)</Label>
                     <div className="mt-2 space-y-2">
                         {allUsers.filter((u: any) => u.id !== auth?.user?.id).map((user: any) => (
                             <div
@@ -209,7 +187,7 @@ export function EventCreateForm({
                                     htmlFor={`user-${user.id}`}
                                     className="text-sm"
                                 >
-                                    {user.name} ({user.email})
+                                    {user.name}
                                 </Label>
                             </div>
                         ))}

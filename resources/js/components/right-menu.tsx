@@ -861,7 +861,7 @@ export function RightMenu({
                                             {isOwner && (
                                                 <div>
                                                     <Label className="text-sm font-medium">
-                                                        Invitar Usuario
+                                                        Agregar Usuario
                                                     </Label>
                                                     <form
                                                         className="mt-2 flex flex-col gap-2 sm:flex-row"
