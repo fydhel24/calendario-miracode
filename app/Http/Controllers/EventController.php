@@ -50,7 +50,7 @@ class EventController extends Controller
             }
         }
 
-        return response()->json($evento->load('user', 'usuarios'))->withHeaders(['X-Inertia' => false]);
+        return response()->json($evento->load('user', 'usuarios', 'calendario'))->withHeaders(['X-Inertia' => false]);
     }
 
     public function update(Request $request, Evento $evento)
@@ -79,7 +79,7 @@ class EventController extends Controller
             'fecha_fin'
         ]));
 
-        return response()->json($evento->load('user'))->withHeaders(['X-Inertia' => false]);
+        return response()->json($evento->load('user', 'calendario'))->withHeaders(['X-Inertia' => false]);
     }
 
     public function destroy(Evento $evento)

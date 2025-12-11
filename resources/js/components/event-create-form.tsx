@@ -1,3 +1,4 @@
+import { DescriptionModal } from '@/components/description-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,8 +9,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Search, User, X } from 'lucide-react';
+import { FileText, Search, User, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface EventCreateFormProps {
@@ -39,6 +39,7 @@ export function EventCreateForm({
     const [loading, setLoading] = useState(false);
     const [allUsers, setAllUsers] = useState<any[]>([]);
     const [userSearch, setUserSearch] = useState('');
+    const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
 
     // Set default calendar when calendars change
     useEffect(() => {
@@ -154,18 +155,25 @@ export function EventCreateForm({
                 </div>
                 <div>
                     <Label htmlFor="descripcion">Descripción(Opcional)</Label>
-                    <Textarea
-                        id="descripcion"
-                        value={form.descripcion}
-                        onChange={(e) =>
-                            setForm({
-                                ...form,
-                                descripcion: e.target.value,
-                            })
-                        }
-                        placeholder="Descripción del evento"
-                        rows={3}
-                    />
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsDescriptionModalOpen(true)}
+                        className="w-full justify-start text-left font-normal"
+                    >
+                        <FileText className="mr-2 h-4 w-4" />
+                        {form.descripcion ? (
+                            <span className="truncate">
+                                {form.descripcion.length > 50
+                                    ? `${form.descripcion.substring(0, 50)}...`
+                                    : form.descripcion}
+                            </span>
+                        ) : (
+                            <span className="text-muted-foreground">
+                                Haz clic para agregar una descripción
+                            </span>
+                        )}
+                    </Button>
                 </div>
                 <div>
                     <Label htmlFor="color">Escoje Color</Label>
@@ -337,6 +345,16 @@ export function EventCreateForm({
                     {loading ? 'Creando...' : 'Crear Evento'}
                 </Button>
             </form>
+
+            <DescriptionModal
+                isOpen={isDescriptionModalOpen}
+                onClose={() => setIsDescriptionModalOpen(false)}
+                description={form.descripcion}
+                onDescriptionChange={(newDescription: string) =>
+                    setForm({ ...form, descripcion: newDescription })
+                }
+                title="Agregar Descripción del Evento"
+            />
         </div>
     );
 }

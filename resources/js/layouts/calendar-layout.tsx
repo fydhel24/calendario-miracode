@@ -149,18 +149,20 @@ export default function CalendarLayout({
                                         (c) => c.id === updatedCalendar.id,
                                     )
                                 ) {
-                                    setSelectedCalendars((prev) =>
-                                        prev.map((c) =>
+                                    setSelectedCalendars((prev) => {
+                                        const updated = prev.map((c) =>
                                             c.id === updatedCalendar.id
                                                 ? updatedCalendar
                                                 : c,
-                                        ),
-                                    );
-                                    setEvents(
-                                        selectedCalendars.flatMap(
-                                            (c) => c.eventos || [],
-                                        ),
-                                    );
+                                        );
+                                        // Update events with the new selectedCalendars
+                                        setEvents(
+                                            updated.flatMap(
+                                                (c) => c.eventos || [],
+                                            ),
+                                        );
+                                        return updated;
+                                    });
                                 }
                             }}
                             auth={auth}
@@ -472,18 +474,20 @@ export default function CalendarLayout({
                                             (c) => c.id === updatedCalendar.id,
                                         )
                                     ) {
-                                        setSelectedCalendars((prev) =>
-                                            prev.map((c) =>
+                                        setSelectedCalendars((prev) => {
+                                            const updated = prev.map((c) =>
                                                 c.id === updatedCalendar.id
                                                     ? updatedCalendar
                                                     : c,
-                                            ),
-                                        );
-                                        setEvents(
-                                            selectedCalendars.flatMap(
-                                                (c) => c.eventos || [],
-                                            ),
-                                        );
+                                            );
+                                            // Update events with the new selectedCalendars
+                                            setEvents(
+                                                updated.flatMap(
+                                                    (c) => c.eventos || [],
+                                                ),
+                                            );
+                                            return updated;
+                                        });
                                     }
                                 }}
                                 auth={auth}

@@ -1,7 +1,8 @@
+import { DescriptionModal } from '@/components/description-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { FileText } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface EventEditFormProps {
@@ -27,6 +28,7 @@ export function EventEditForm({
         fecha_fin: '',
     });
     const [loading, setLoading] = useState(false);
+    const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
 
     useEffect(() => {
         if (eventToEdit) {
@@ -96,15 +98,25 @@ export function EventEditForm({
                 </div>
                 <div>
                     <Label htmlFor="descripcion">Descripción (Opcional)</Label>
-                    <Textarea
-                        id="descripcion"
-                        value={form.descripcion}
-                        onChange={(e) =>
-                            setForm({ ...form, descripcion: e.target.value })
-                        }
-                        placeholder="Descripción del evento"
-                        rows={3}
-                    />
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsDescriptionModalOpen(true)}
+                        className="w-full justify-start text-left font-normal"
+                    >
+                        <FileText className="mr-2 h-4 w-4" />
+                        {form.descripcion ? (
+                            <span className="truncate">
+                                {form.descripcion.length > 50
+                                    ? `${form.descripcion.substring(0, 50)}...`
+                                    : form.descripcion}
+                            </span>
+                        ) : (
+                            <span className="text-muted-foreground">
+                                Haz clic para editar la descripción
+                            </span>
+                        )}
+                    </Button>
                 </div>
                 <div>
                     <Label htmlFor="color">Color</Label>
@@ -155,6 +167,16 @@ export function EventEditForm({
                     </Button>
                 </div>
             </form>
+
+            <DescriptionModal
+                isOpen={isDescriptionModalOpen}
+                onClose={() => setIsDescriptionModalOpen(false)}
+                description={form.descripcion}
+                onDescriptionChange={(newDescription: string) =>
+                    setForm({ ...form, descripcion: newDescription })
+                }
+                title="Editar Descripción del Evento"
+            />
         </div>
     );
 }
