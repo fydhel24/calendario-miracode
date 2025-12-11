@@ -3,7 +3,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 interface EventInput {
     id: string;
@@ -34,6 +34,7 @@ export default function FullCalendarComponent({
     onEventClick,
 }: FullCalendarComponentProps) {
     const isMobile = useIsMobile();
+    const calendarRef = useRef<any>(null);
 
     const formattedEvents = useMemo(() => {
         return events.map((event) => ({
@@ -45,6 +46,23 @@ export default function FullCalendarComponent({
             borderColor: event.color || '#2563eb',
         }));
     }, [events]);
+
+    useEffect(() => {
+        const resizeObserver = new ResizeObserver(() => {
+            if (calendarRef.current) {
+                calendarRef.current.getApi().updateSize();
+            }
+        });
+        const container = document.querySelector('.full-calendar-container');
+        if (container) {
+            resizeObserver.observe(container);
+        }
+        return () => {
+            if (container) {
+                resizeObserver.unobserve(container);
+            }
+        };
+    }, []);
 
     const handleDateClick = (info: any) => {
         if (onDateSelect) {
@@ -59,8 +77,9 @@ export default function FullCalendarComponent({
     };
 
     return (
-        <div className="h-full w-full rounded-2xl border border-red-200/50 bg-white p-4 shadow-2xl backdrop-blur-sm md:p-6">
+        <div className="full-calendar-container h-full w-full rounded-2xl border border-red-200/50 bg-white p-4 shadow-2xl backdrop-blur-sm md:p-6">
             <FullCalendar
+                ref={calendarRef}
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 headerToolbar={{
                     left: 'prev,next today',
@@ -101,7 +120,6 @@ export default function FullCalendarComponent({
                 slotMinTime="06:00:00"
                 slotMaxTime="22:00:00"
                 expandRows={true}
-                aspectRatio={1.35}
                 contentHeight="auto"
                 dayHeaderFormat={{
                     weekday: 'short',
@@ -117,6 +135,7 @@ export default function FullCalendarComponent({
                 dayHeaderClassNames="bg-muted/30 text-muted-foreground font-semibold"
                 dayCellClassNames="hover:bg-primary/5 cursor-pointer transition-colors duration-200"
                 eventClassNames="cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all duration-200 shadow-sm"
+                windowResizeDelay={0}
             />
         </div>
     );
