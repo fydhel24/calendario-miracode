@@ -1,3 +1,4 @@
+import AppearanceToggleDropdown from '@/components/appearance-dropdown';
 import CreateCalendarModal from '@/components/create-calendar-modal';
 import EditCalendarModal from '@/components/edit-calendar-modal';
 import { Button } from '@/components/ui/button';
@@ -105,6 +106,11 @@ export function LeftSidebar({
                                 </div>
                             );
                         })}
+
+                        {/* Appearance Toggle */}
+                        <div className="flex justify-center py-2">
+                            <AppearanceToggleDropdown />
+                        </div>
 
                         {/* Calendarios */}
                         <div className="border-t border-sidebar-border/30 pt-4">
