@@ -10,6 +10,7 @@ interface EventInput {
     title: string;
     start: string;
     end?: string;
+    
     allDay?: boolean;
 }
 

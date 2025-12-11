@@ -134,7 +134,7 @@ export default function CalendarLayout({
 
                     {/* Sidebar izquierdo - Navegación */}
                     <div
-                        className={`${isLeftSidebarCollapsed ? 'w-0' : 'w-64'} overflow-hidden transition-all duration-300 ease-in-out`}
+                        className={`${isLeftSidebarCollapsed ? 'w-0' : 'w-64'} overflow-hidden transition-all duration-250 ease-in-out`}
                     >
                         <LeftSidebar
                             className="h-full bg-white shadow-xl"
