@@ -18,6 +18,22 @@
                     }
                 }
             })();
+
+            // Refresh CSRF token on Inertia navigation
+            document.addEventListener('inertia:navigate', () => {
+                const token = document.querySelector('meta[name="csrf-token"]');
+                if (token) {
+                    fetch('/csrf-token', {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    }).then(response => response.json()).then(data => {
+                        token.setAttribute('content', data.token);
+                    }).catch(() => {
+                        // Ignore errors
+                    });
+                }
+            });
         </script>
 
         {{-- Inline style to set the HTML background color based on our theme in app.css --}}

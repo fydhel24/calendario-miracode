@@ -154,7 +154,7 @@ export function EventCreateForm({
                     />
                 </div>
                 <div>
-                    <Label htmlFor="descripcion">Descripción(Opcional)</Label>
+                    <Label htmlFor="descripcion">Nota(Opcional)</Label>
                     <Button
                         type="button"
                         variant="outline"
@@ -206,6 +206,7 @@ export function EventCreateForm({
                         Fecha y Hora de Fin (Opcional)
                     </Label>
                     <Input
+                    
                         id="fecha_fin"
                         type="datetime-local"
                         value={form.fecha_fin}
