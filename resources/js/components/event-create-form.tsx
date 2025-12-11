@@ -1,23 +1,31 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Search, User, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface EventCreateFormProps {
     selectedDate?: string | null;
-    selectedCalendar?: any;
+    selectedCalendars?: any[];
     onEventCreated?: (event: any) => void;
     auth?: any;
 }
 
 export function EventCreateForm({
     selectedDate,
-    selectedCalendar,
+    selectedCalendars = [],
     onEventCreated,
     auth,
 }: EventCreateFormProps) {
+    const [selectedCalendarId, setSelectedCalendarId] = useState<string>('');
     const [form, setForm] = useState({
         titulo: '',
         descripcion: '',
@@ -31,6 +39,13 @@ export function EventCreateForm({
     const [loading, setLoading] = useState(false);
     const [allUsers, setAllUsers] = useState<any[]>([]);
     const [userSearch, setUserSearch] = useState('');
+
+    // Set default calendar when calendars change
+    useEffect(() => {
+        if (selectedCalendars.length > 0 && !selectedCalendarId) {
+            setSelectedCalendarId(selectedCalendars[0].id.toString());
+        }
+    }, [selectedCalendars, selectedCalendarId]);
 
     useEffect(() => {
         if (selectedDate) {
@@ -52,6 +67,9 @@ export function EventCreateForm({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        const selectedCalendar = selectedCalendars.find(
+            (c) => c.id.toString() === selectedCalendarId,
+        );
         if (!selectedCalendar) return;
 
         setLoading(true);
@@ -97,8 +115,31 @@ export function EventCreateForm({
 
     return (
         <div className="space-y-4 p-4">
-            <h3 className="mb-4 text-lg font-semibold">Crear Nuevo Evento</h3>
+            <h3 className="text-lg font-semibold">Crear Nuevo Evento</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
+                {selectedCalendars.length > 1 && (
+                    <div>
+                        <Label htmlFor="calendar">Seleccionar Calendario</Label>
+                        <Select
+                            value={selectedCalendarId}
+                            onValueChange={setSelectedCalendarId}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecciona un calendario" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {selectedCalendars.map((calendar) => (
+                                    <SelectItem
+                                        key={calendar.id}
+                                        value={calendar.id.toString()}
+                                    >
+                                        {calendar.nombre}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
                 <div>
                     <Label htmlFor="titulo">Título</Label>
                     <Input
@@ -117,7 +158,10 @@ export function EventCreateForm({
                         id="descripcion"
                         value={form.descripcion}
                         onChange={(e) =>
-                            setForm({ ...form, descripcion: e.target.value })
+                            setForm({
+                                ...form,
+                                descripcion: e.target.value,
+                            })
                         }
                         placeholder="Descripción del evento"
                         rows={3}
@@ -141,7 +185,10 @@ export function EventCreateForm({
                         type="datetime-local"
                         value={form.fecha_inicio}
                         onChange={(e) =>
-                            setForm({ ...form, fecha_inicio: e.target.value })
+                            setForm({
+                                ...form,
+                                fecha_inicio: e.target.value,
+                            })
                         }
                         required
                     />
@@ -224,7 +271,9 @@ export function EventCreateForm({
                                         u.id !== auth?.user?.id &&
                                         u.name
                                             .toLowerCase()
-                                            .includes(userSearch.toLowerCase()) &&
+                                            .includes(
+                                                userSearch.toLowerCase(),
+                                            ) &&
                                         !selectedUsers.includes(u.id),
                                 )
                                 .map((user: any) => (

@@ -12,7 +12,16 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { usePage } from '@inertiajs/react';
-import { Bell, ChevronLeft, Clock, Plus, Search, Settings, User, Users } from 'lucide-react';
+import {
+    Bell,
+    ChevronLeft,
+    Clock,
+    Plus,
+    Search,
+    Settings,
+    User,
+    Users,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface MenuOption {
@@ -20,7 +29,6 @@ interface MenuOption {
     label: string;
     icon: React.ComponentType<any>;
     content: React.ReactNode;
-    
 }
 
 interface RightMenuProps {
@@ -65,8 +73,10 @@ export function RightMenu({
 
     const selectedCalendar = selectedCalendars[0]; // Use first for now
 
-    const isOwner = selectedCalendar?.users?.some(
-        (u: any) => u.id === auth.user.id && u.pivot?.tipo_user === 'owner',
+    const isOwner = selectedCalendars.some((calendar) =>
+        calendar?.users?.some(
+            (u: any) => u.id === auth.user.id && u.pivot?.tipo_user === 'owner',
+        ),
     );
 
     // Auto-select new-event when date is selected
@@ -127,8 +137,9 @@ export function RightMenu({
                       content: (
                           <EventCreateForm
                               selectedDate={selectedDate ?? undefined}
-                              selectedCalendar={selectedCalendar}
+                              selectedCalendars={selectedCalendars}
                               onEventCreated={onEventCreated}
+                              auth={auth}
                           />
                       ),
                   },
@@ -723,7 +734,9 @@ export function RightMenu({
                                     <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
                                         <EventCreateForm
                                             selectedDate={selectedDate}
-                                            selectedCalendar={selectedCalendar}
+                                            selectedCalendars={
+                                                selectedCalendars
+                                            }
                                             onEventCreated={onEventCreated}
                                             auth={auth}
                                         />
@@ -929,7 +942,7 @@ export function RightMenu({
                                                         <Label className="text-sm font-medium">
                                                             Usuarios Invitados
                                                         </Label>
-                                                        <div className="mt-1 flex flex-wrap gap-2">
+                                                        <div className="mt-1 space-y-2">
                                                             {selectedEvent.usuarios.map(
                                                                 (
                                                                     usuario: any,
@@ -938,18 +951,30 @@ export function RightMenu({
                                                                         key={
                                                                             usuario.id
                                                                         }
-                                                                        className="flex items-center gap-2 rounded bg-muted px-2 py-1 text-sm"
+                                                                        className="flex items-center justify-between rounded-lg border p-2"
                                                                     >
-                                                                        <span>
-                                                                            {
-                                                                                usuario.name
-                                                                            }
-                                                                        </span>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-red-400 to-red-500">
+                                                                                <User className="h-4 w-4 text-white" />
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="text-sm font-medium">
+                                                                                    {
+                                                                                        usuario.name
+                                                                                    }
+                                                                                </p>
+                                                                                <p className="text-xs text-muted-foreground">
+                                                                                    {
+                                                                                        usuario.email
+                                                                                    }
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
                                                                         {isOwner && (
                                                                             <Button
                                                                                 variant="ghost"
                                                                                 size="sm"
-                                                                                className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                                                                                className="h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
                                                                                 onClick={() => {
                                                                                     if (
                                                                                         confirm(
@@ -1027,7 +1052,7 @@ export function RightMenu({
                                                         Agregar Usuario
                                                     </Label>
                                                     <form
-                                                        className="mt-2 flex flex-col gap-2 sm:flex-row"
+                                                        className="mt-2"
                                                         onSubmit={(e) => {
                                                             e.preventDefault();
                                                             const formData =
@@ -1075,17 +1100,11 @@ export function RightMenu({
                                                                         if (
                                                                             response.ok
                                                                         ) {
-                                                                            alert(
-                                                                                'Usuario invitado exitosamente',
-                                                                            );
-                                                                            (
-                                                                                e.target as HTMLFormElement
-                                                                            ).reset();
                                                                             // Update selectedEvent in real-time
                                                                             const invitedUser =
                                                                                 users.find(
                                                                                     (
-                                                                                        u,
+                                                                                        u: any,
                                                                                     ) =>
                                                                                         u.id.toString() ===
                                                                                         user_id,
@@ -1108,6 +1127,12 @@ export function RightMenu({
                                                                                     updatedEvent,
                                                                                 );
                                                                             }
+                                                                            (
+                                                                                e.target as HTMLFormElement
+                                                                            ).reset();
+                                                                            setUserSearch(
+                                                                                '',
+                                                                            );
                                                                         } else {
                                                                             return response
                                                                                 .json()
@@ -1133,71 +1158,191 @@ export function RightMenu({
                                                                 );
                                                         }}
                                                     >
-                                                        <div className="flex-1">
-                                                            <Select
-                                                                name="user_id"
-                                                                required
-                                                                disabled={
-                                                                    loadingUsers
-                                                                }
-                                                            >
-                                                                <SelectTrigger>
-                                                                    <SelectValue
-                                                                        placeholder={
-                                                                            loadingUsers
-                                                                                ? 'Cargando usuarios...'
-                                                                                : 'Selecciona un usuario'
-                                                                        }
-                                                                    />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    {selectedCalendar?.users
-                                                                        ?.filter(
-                                                                            (
-                                                                                user,
-                                                                            ) =>
-                                                                                !selectedEvent.usuarios?.some(
-                                                                                    (
-                                                                                        u: any,
-                                                                                    ) =>
-                                                                                        u.id ===
-                                                                                        user.id,
-                                                                                ),
+                                                        {/* Search Input */}
+                                                        <div className="relative mt-2">
+                                                            <div className="relative">
+                                                                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
+                                                                <Input
+                                                                    type="text"
+                                                                    placeholder="Buscar usuarios del calendario..."
+                                                                    value={
+                                                                        userSearch
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        setUserSearch(
+                                                                            e
+                                                                                .target
+                                                                                .value,
                                                                         )
-                                                                        .map(
-                                                                            (
-                                                                                user,
-                                                                            ) => (
-                                                                                <SelectItem
-                                                                                    key={
-                                                                                        user.id
-                                                                                    }
-                                                                                    value={user.id.toString()}
-                                                                                >
-                                                                                    {
-                                                                                        user.name
-                                                                                    }{' '}
-                                                                                    (
-                                                                                    {
-                                                                                        user.email
-                                                                                    }
-
-                                                                                    )
-                                                                                </SelectItem>
-                                                                            ),
-                                                                        )}
-                                                                </SelectContent>
-                                                            </Select>
+                                                                    }
+                                                                    className="pl-10"
+                                                                    disabled={
+                                                                        loadingUsers
+                                                                    }
+                                                                />
+                                                            </div>
                                                         </div>
+
+                                                        {/* User List - Only show when there are search results */}
+                                                        {userSearch && (
+                                                            <div className="mt-2 max-h-40 overflow-y-auto rounded-lg border border-border/50 bg-background/50">
+                                                                {selectedCalendar?.users
+                                                                    .filter(
+                                                                        (
+                                                                            u: any,
+                                                                        ) =>
+                                                                            u.id !==
+                                                                                auth
+                                                                                    ?.user
+                                                                                    ?.id &&
+                                                                            u.name
+                                                                                .toLowerCase()
+                                                                                .includes(
+                                                                                    userSearch.toLowerCase(),
+                                                                                ) &&
+                                                                            !selectedEvent.usuarios?.some(
+                                                                                (
+                                                                                    eu: any,
+                                                                                ) =>
+                                                                                    eu.id ===
+                                                                                    u.id,
+                                                                            ),
+                                                                    )
+                                                                    .map(
+                                                                        (
+                                                                            user: any,
+                                                                        ) => (
+                                                                            <div
+                                                                                key={
+                                                                                    user.id
+                                                                                }
+                                                                                className="flex cursor-pointer items-center justify-between border-b border-border/20 p-2 last:border-b-0 hover:bg-muted/50"
+                                                                                onClick={() => {
+                                                                                    // Set the selected user by updating form state
+                                                                                    const form =
+                                                                                        document.querySelector(
+                                                                                            'form',
+                                                                                        ) as HTMLFormElement;
+                                                                                    if (
+                                                                                        form
+                                                                                    ) {
+                                                                                        const userIdInput =
+                                                                                            form.querySelector(
+                                                                                                'input[name="user_id"]',
+                                                                                            ) as HTMLInputElement;
+                                                                                        if (
+                                                                                            userIdInput
+                                                                                        ) {
+                                                                                            userIdInput.value =
+                                                                                                user.id.toString();
+                                                                                        }
+                                                                                        setUserSearch(
+                                                                                            user.name,
+                                                                                        ); // Show selected user name
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-red-400 to-red-500">
+                                                                                        <User className="h-4 w-4 text-white" />
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        <p className="text-sm font-medium">
+                                                                                            {
+                                                                                                user.name
+                                                                                            }
+                                                                                        </p>
+                                                                                        <p className="text-xs text-muted-foreground">
+                                                                                            {
+                                                                                                user.email
+                                                                                            }
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <Button
+                                                                                    type="button"
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                                                                                    onClick={(
+                                                                                        e,
+                                                                                    ) => {
+                                                                                        e.stopPropagation();
+                                                                                        const form =
+                                                                                            document.querySelector(
+                                                                                                'form',
+                                                                                            ) as HTMLFormElement;
+                                                                                        if (
+                                                                                            form
+                                                                                        ) {
+                                                                                            const userIdInput =
+                                                                                                form.querySelector(
+                                                                                                    'input[name="user_id"]',
+                                                                                                ) as HTMLInputElement;
+                                                                                            if (
+                                                                                                userIdInput
+                                                                                            ) {
+                                                                                                userIdInput.value =
+                                                                                                    user.id.toString();
+                                                                                            }
+                                                                                            setUserSearch(
+                                                                                                user.name,
+                                                                                            );
+                                                                                        }
+                                                                                    }}
+                                                                                >
+                                                                                    <User className="h-3 w-3" />
+                                                                                </Button>
+                                                                            </div>
+                                                                        ),
+                                                                    )}
+                                                                {selectedCalendar?.users.filter(
+                                                                    (u: any) =>
+                                                                        u.id !==
+                                                                            auth
+                                                                                ?.user
+                                                                                ?.id &&
+                                                                        u.name
+                                                                            .toLowerCase()
+                                                                            .includes(
+                                                                                userSearch.toLowerCase(),
+                                                                            ) &&
+                                                                        !selectedEvent.usuarios?.some(
+                                                                            (
+                                                                                eu: any,
+                                                                            ) =>
+                                                                                eu.id ===
+                                                                                u.id,
+                                                                        ),
+                                                                ).length ===
+                                                                    0 &&
+                                                                    userSearch && (
+                                                                        <div className="p-4 text-center text-sm text-muted-foreground">
+                                                                            No
+                                                                            se
+                                                                            encontraron
+                                                                            usuarios
+                                                                        </div>
+                                                                    )}
+                                                            </div>
+                                                        )}
+
+                                                        {/* Hidden input for user_id */}
+                                                        <input
+                                                            type="hidden"
+                                                            name="user_id"
+                                                        />
                                                         <Button
                                                             type="submit"
-                                                            size="sm"
+                                                            className="mt-2 w-full"
                                                             disabled={
-                                                                loadingUsers
+                                                                loadingUsers ||
+                                                                !userSearch
                                                             }
-                                                            className="w-full sm:w-auto"
                                                         >
-                                                            Invitar
+                                                            Invitar Usuario
                                                         </Button>
                                                     </form>
                                                 </div>
