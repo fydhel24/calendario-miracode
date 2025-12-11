@@ -67,11 +67,11 @@ export function LeftSidebar({
 
     return (
         <div
-            className={`flex h-full flex-col border-r border-red-200/50 bg-gradient-to-b from-red-400 to-white shadow-xl ${className}`}
+            className={`flex h-full flex-col border-r border-red-200/50 bg-white shadow-xl ${className}`}
         >
-            <div className="flex flex-shrink-0 items-center justify-between border-b border-sidebar-border/30 bg-gradient-to-r from-sidebar/90 to-sidebar p-4">
+            <div className="flex flex-shrink-0 items-center justify-between border-b border-sidebar-border/30 bg-sidebar p-4">
                 <div className="flex items-center gap-2">
-                    <div className="h-6 w-1 rounded-full bg-gradient-to-b from-primary to-primary/60"></div>
+                    <div className="h-6 w-1 rounded-full bg-primary"></div>
                     <h3 className="text-sm font-semibold text-sidebar-foreground">
                         Navegación
                     </h3>
@@ -100,8 +100,8 @@ export function LeftSidebar({
                                     key={item.id}
                                     className={`flex cursor-pointer items-center gap-2 rounded-lg p-2 transition-all duration-200 ${
                                         item.active
-                                            ? 'scale-[1.02] transform bg-gradient-to-r from-sidebar-accent to-sidebar-accent/80 text-sidebar-accent-foreground shadow-md'
-                                            : 'hover:scale-[1.01] hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/50 hover:text-sidebar-accent-foreground hover:shadow-sm'
+                                            ? 'scale-[1.02] transform bg-sidebar-accent text-sidebar-accent-foreground shadow-md'
+                                            : 'hover:scale-[1.01] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm'
                                     }`}
                                 >
                                     <Icon className="h-4 w-4" />
@@ -169,7 +169,7 @@ export function LeftSidebar({
                                         .map((calendario) => (
                                             <div
                                                 key={calendario.id}
-                                                className="group flex items-center justify-between rounded-xl border border-transparent p-2.5 transition-all duration-200 hover:scale-[1.02] hover:border-sidebar-border/30 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/60 hover:shadow-md"
+                                                className="group flex items-center justify-between rounded-xl border border-transparent p-2.5 transition-all duration-200 hover:scale-[1.02] hover:border-sidebar-border/30 hover:bg-sidebar-accent hover:shadow-md"
                                             >
                                                 <div className="flex flex-1 items-center gap-2">
                                                     <Checkbox
@@ -277,7 +277,7 @@ export function LeftSidebar({
                                         .map((calendario) => (
                                             <div
                                                 key={calendario.id}
-                                                className="group flex items-center justify-between rounded-xl border border-transparent p-2.5 transition-all duration-200 hover:scale-[1.02] hover:border-sidebar-border/30 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/60 hover:shadow-md"
+                                                className="group flex items-center justify-between rounded-xl border border-transparent p-2.5 transition-all duration-200 hover:scale-[1.02] hover:border-sidebar-border/30 hover:bg-sidebar-accent hover:shadow-md"
                                             >
                                                 <div className="flex flex-1 items-center gap-2">
                                                     <Checkbox
@@ -333,7 +333,7 @@ export function LeftSidebar({
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-9 w-full justify-start gap-2 rounded-lg transition-all duration-200 hover:scale-105 hover:bg-gradient-to-r hover:from-sidebar-accent hover:to-sidebar-accent/80 hover:shadow-md"
+                                className="h-9 w-full justify-start gap-2 rounded-lg transition-all duration-200 hover:scale-105 hover:bg-sidebar-accent hover:shadow-md"
                             >
                                 <HelpCircle className="h-4 w-4" />
                                 <span className="text-sm font-medium">
@@ -355,7 +355,7 @@ export function LeftSidebar({
                                     size="icon"
                                     className={`h-10 w-full transition-all duration-200 hover:scale-110 ${
                                         item.active
-                                            ? 'bg-gradient-to-b from-sidebar-accent to-sidebar-accent/80 text-sidebar-accent-foreground shadow-md'
+                                            ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-md'
                                             : 'hover:bg-sidebar-accent hover:shadow-sm'
                                     }`}
                                     title={item.label}

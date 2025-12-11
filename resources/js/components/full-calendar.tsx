@@ -59,7 +59,7 @@ export default function FullCalendarComponent({
     };
 
     return (
-        <div className="h-full w-full rounded-2xl border border-red-200/50 bg-gradient-to-br from-red-400/80 via-red-200/90 to-white/95 p-4 shadow-2xl backdrop-blur-sm md:p-6">
+        <div className="h-full w-full rounded-2xl border border-red-200/50 bg-white p-4 shadow-2xl backdrop-blur-sm md:p-6">
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 headerToolbar={{
@@ -114,7 +114,7 @@ export default function FullCalendarComponent({
                     omitZeroMinute: false,
                     meridiem: 'short',
                 }}
-                dayHeaderClassNames="bg-gradient-to-r from-muted/30 to-muted/50 text-muted-foreground font-semibold"
+                dayHeaderClassNames="bg-muted/30 text-muted-foreground font-semibold"
                 dayCellClassNames="hover:bg-primary/5 cursor-pointer transition-colors duration-200"
                 eventClassNames="cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all duration-200 shadow-sm"
             />

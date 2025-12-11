@@ -206,7 +206,6 @@ export function EventCreateForm({
                         Fecha y Hora de Fin (Opcional)
                     </Label>
                     <Input
-                    
                         id="fecha_fin"
                         type="datetime-local"
                         value={form.fecha_fin}
@@ -232,7 +231,7 @@ export function EventCreateForm({
                                     return user ? (
                                         <div
                                             key={userId}
-                                            className="flex items-center gap-1 rounded-full border border-red-200 bg-gradient-to-r from-red-100 to-red-50 px-2 py-1 text-xs text-red-700"
+                                            className="flex items-center gap-1 rounded-full border border-red-200 bg-red-100 px-2 py-1 text-xs text-red-700"
                                         >
                                             <User className="h-3 w-3" />
                                             <span>{user.name}</span>
@@ -297,7 +296,7 @@ export function EventCreateForm({
                                         }
                                     >
                                         <div className="flex items-center gap-2">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-red-400 to-red-500">
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-400">
                                                 <User className="h-4 w-4 text-white" />
                                             </div>
                                             <div>

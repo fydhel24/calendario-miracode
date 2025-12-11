@@ -476,7 +476,7 @@ export function RightMenu({
                                                         }}
                                                     >
                                                         <div className="flex items-center gap-2">
-                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-red-400 to-red-500">
+                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-400">
                                                                 <User className="h-4 w-4 text-white" />
                                                             </div>
                                                             <div>
@@ -638,7 +638,7 @@ export function RightMenu({
 
     return (
         <div
-            className={`flex h-full border-l border-red-200/50 bg-gradient-to-b from-red-400 to-white shadow-xl ${className}`}
+            className={`flex h-full border-l border-red-200/50 bg-white shadow-xl ${className}`}
         >
             {/* Estructura expandible: siempre los iconos + contenido cuando está activo */}
             <div
@@ -647,7 +647,7 @@ export function RightMenu({
                 }`}
             >
                 {/* Iconos del menú - siempre visible */}
-                <div className="flex w-16 flex-col border-r border-red-200/50 bg-gradient-to-b from-red-400 to-white">
+                <div className="flex w-16 flex-col border-r border-red-200/50 bg-white">
                     <div className="flex flex-col space-y-2 p-2">
                         {menuOptions.map((option) => {
                             const Icon = option.icon;
@@ -659,7 +659,7 @@ export function RightMenu({
                                     onClick={() => handleOptionClick(option.id)}
                                     className={`h-10 w-10 transition-all duration-200 hover:scale-110 hover:shadow-md ${
                                         activeOption === option.id
-                                            ? 'scale-105 transform bg-gradient-to-b from-sidebar-accent to-sidebar-accent/80 text-sidebar-accent-foreground shadow-md'
+                                            ? 'scale-105 transform bg-sidebar-accent text-sidebar-accent-foreground shadow-md'
                                             : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                                     }`}
                                     title={option.label}
@@ -678,7 +678,7 @@ export function RightMenu({
                             {activeOption === 'edit-event' ? (
                                 // Mostrar formulario de edición
                                 <div className="flex-1 overflow-hidden">
-                                    <div className="border-b border-sidebar-border bg-gradient-to-r from-sidebar to-sidebar/95 p-4">
+                                    <div className="border-b border-sidebar-border bg-sidebar p-4">
                                         <div className="flex items-center gap-2">
                                             <Button
                                                 variant="ghost"
@@ -712,7 +712,7 @@ export function RightMenu({
                             ) : activeOption === 'new-event' ? (
                                 // Mostrar formulario de evento directamente cuando hay fecha seleccionada
                                 <div className="flex-1 overflow-hidden">
-                                    <div className="border-b border-sidebar-border bg-gradient-to-r from-sidebar to-sidebar/95 p-4">
+                                    <div className="border-b border-sidebar-border bg-sidebar p-4">
                                         <div className="flex items-center gap-2">
                                             <Button
                                                 variant="ghost"
@@ -744,7 +744,7 @@ export function RightMenu({
                                 </div>
                             ) : activeOption ? (
                                 <>
-                                    <div className="border-b border-sidebar-border bg-gradient-to-r from-sidebar to-sidebar/95 p-4">
+                                    <div className="border-b border-sidebar-border bg-sidebar p-4">
                                         <div className="flex items-center gap-2">
                                             <Button
                                                 variant="ghost"
@@ -954,7 +954,7 @@ export function RightMenu({
                                                                         className="flex items-center justify-between rounded-lg border p-2"
                                                                     >
                                                                         <div className="flex items-center gap-2">
-                                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-red-400 to-red-500">
+                                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-400">
                                                                                 <User className="h-4 w-4 text-white" />
                                                                             </div>
                                                                             <div>
@@ -1245,7 +1245,7 @@ export function RightMenu({
                                                                                 }}
                                                                             >
                                                                                 <div className="flex items-center gap-2">
-                                                                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-red-400 to-red-500">
+                                                                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-400">
                                                                                         <User className="h-4 w-4 text-white" />
                                                                                     </div>
                                                                                     <div>
@@ -1507,7 +1507,7 @@ export function RightMenu({
                                 </div>
                             ) : (
                                 <>
-                                    <div className="border-b border-sidebar-border bg-gradient-to-r from-sidebar to-sidebar/95 p-4">
+                                    <div className="border-b border-sidebar-border bg-sidebar p-4">
                                         <div className="flex items-center gap-2">
                                             <Button
                                                 variant="ghost"
