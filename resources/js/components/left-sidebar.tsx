@@ -12,7 +12,7 @@ import {
     Settings,
     Trash2,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 interface LeftSidebarProps {
     className?: string;
@@ -24,6 +24,8 @@ interface LeftSidebarProps {
     onCalendarCreated?: (calendar: any) => void;
     onCalendarUpdated?: (calendar: any) => void;
     auth?: any;
+    selectedCalendarIds?: number[];
+    onCalendarIdsChange?: (ids: number[]) => void;
 }
 
 export function LeftSidebar({
@@ -36,25 +38,17 @@ export function LeftSidebar({
     onCalendarCreated,
     onCalendarUpdated,
     auth,
+    selectedCalendarIds = [],
+    onCalendarIdsChange,
 }: LeftSidebarProps) {
     const [isExpanded, setIsExpanded] = useState(true);
     const [editingCalendar, setEditingCalendar] = useState<any>(null);
     const [editModalOpen, setEditModalOpen] = useState(false);
-    const [selectedCalendarIds, setSelectedCalendarIds] = useState<number[]>(
-        [],
-    );
     const selectAll =
         selectedCalendarIds.length ===
             calendarios.filter((c) =>
                 c.users?.some((u: any) => u.id === auth?.user?.id),
             ).length && selectedCalendarIds.length > 0;
-
-    useEffect(() => {
-        const selectedCalendars = calendarios.filter((c) =>
-            selectedCalendarIds.includes(c.id),
-        );
-        onCalendarsSelect?.(selectedCalendars);
-    }, [selectedCalendarIds, calendarios, onCalendarsSelect]);
 
     const menuItems = [
         {
@@ -137,9 +131,9 @@ export function LeftSidebar({
                                                     ),
                                                 )
                                                 .map((c) => c.id);
-                                            setSelectedCalendarIds(allIds);
+                                            onCalendarIdsChange?.(allIds);
                                         } else {
-                                            setSelectedCalendarIds([]);
+                                            onCalendarIdsChange?.([]);
                                         }
                                     }}
                                 />
@@ -180,22 +174,19 @@ export function LeftSidebar({
                                                             checked,
                                                         ) => {
                                                             if (checked) {
-                                                                setSelectedCalendarIds(
-                                                                    (prev) => [
-                                                                        ...prev,
+                                                                onCalendarIdsChange?.(
+                                                                    [
+                                                                        ...selectedCalendarIds,
                                                                         calendario.id,
                                                                     ],
                                                                 );
                                                             } else {
-                                                                setSelectedCalendarIds(
-                                                                    (prev) =>
-                                                                        prev.filter(
-                                                                            (
-                                                                                id,
-                                                                            ) =>
-                                                                                id !==
-                                                                                calendario.id,
-                                                                        ),
+                                                                onCalendarIdsChange?.(
+                                                                    selectedCalendarIds.filter(
+                                                                        (id) =>
+                                                                            id !==
+                                                                            calendario.id,
+                                                                    ),
                                                                 );
                                                             }
                                                         }}
@@ -288,22 +279,19 @@ export function LeftSidebar({
                                                             checked,
                                                         ) => {
                                                             if (checked) {
-                                                                setSelectedCalendarIds(
-                                                                    (prev) => [
-                                                                        ...prev,
+                                                                onCalendarIdsChange?.(
+                                                                    [
+                                                                        ...selectedCalendarIds,
                                                                         calendario.id,
                                                                     ],
                                                                 );
                                                             } else {
-                                                                setSelectedCalendarIds(
-                                                                    (prev) =>
-                                                                        prev.filter(
-                                                                            (
-                                                                                id,
-                                                                            ) =>
-                                                                                id !==
-                                                                                calendario.id,
-                                                                        ),
+                                                                onCalendarIdsChange?.(
+                                                                    selectedCalendarIds.filter(
+                                                                        (id) =>
+                                                                            id !==
+                                                                            calendario.id,
+                                                                    ),
                                                                 );
                                                             }
                                                         }}

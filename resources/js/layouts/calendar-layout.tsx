@@ -28,6 +28,9 @@ export default function CalendarLayout({
     const [calendariosState, setCalendariosState] =
         useState<any[]>(calendarios);
     const [selectedCalendars, setSelectedCalendars] = useState<any[]>([]);
+    const [selectedCalendarIds, setSelectedCalendarIds] = useState<number[]>(
+        [],
+    );
     const [events, setEvents] = useState<any[]>([]);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -40,6 +43,7 @@ export default function CalendarLayout({
         if (calendariosState.length > 0) {
             if (propSelectedCalendars && propSelectedCalendars.length > 0) {
                 setSelectedCalendars(propSelectedCalendars);
+                setSelectedCalendarIds(propSelectedCalendars.map((c) => c.id));
                 setEvents(
                     propSelectedCalendars.flatMap((c) => c.eventos || []),
                 );
@@ -54,6 +58,7 @@ export default function CalendarLayout({
                     }
                 }
                 setSelectedCalendars([calendarToSelect]);
+                setSelectedCalendarIds([calendarToSelect.id]);
                 setEvents(calendarToSelect.eventos || []);
             }
         }
@@ -69,13 +74,23 @@ export default function CalendarLayout({
 
     const handleCalendarSelect = (calendar: any) => {
         setSelectedCalendars([calendar]);
+        setSelectedCalendarIds([calendar.id]);
         setEvents(calendar.eventos || []);
         setSelectedDate(null); // Reset selected date when changing calendar
     };
 
     const handleCalendarsSelect = (calendars: any[]) => {
         setSelectedCalendars(calendars);
+        setSelectedCalendarIds(calendars.map((c) => c.id));
         setEvents(calendars.flatMap((c) => c.eventos || []));
+        setSelectedDate(null);
+    };
+
+    const handleCalendarIdsChange = (ids: number[]) => {
+        setSelectedCalendarIds(ids);
+        const selectedCals = calendariosState.filter((c) => ids.includes(c.id));
+        setSelectedCalendars(selectedCals);
+        setEvents(selectedCals.flatMap((c) => c.eventos || []));
         setSelectedDate(null);
     };
 
@@ -134,6 +149,7 @@ export default function CalendarLayout({
                                     ...prev,
                                 ]);
                                 setSelectedCalendars([newCalendar]);
+                                setSelectedCalendarIds([newCalendar.id]);
                                 setEvents(newCalendar.eventos || []);
                             }}
                             onCalendarUpdated={(updatedCalendar) => {
@@ -166,6 +182,8 @@ export default function CalendarLayout({
                                 }
                             }}
                             auth={auth}
+                            selectedCalendarIds={selectedCalendarIds}
+                            onCalendarIdsChange={handleCalendarIdsChange}
                         />
                     </div>
                 </div>
@@ -257,6 +275,18 @@ export default function CalendarLayout({
                                         : cal,
                                 ),
                             );
+                            setCalendariosState((prev) =>
+                                prev.map((cal) =>
+                                    cal.id === newEvent.calendario_id
+                                        ? {
+                                              ...cal,
+                                              eventos: cal.eventos
+                                                  ? [...cal.eventos, newEvent]
+                                                  : [newEvent],
+                                          }
+                                        : cal,
+                                ),
+                            );
                         }}
                         onEventUpdated={(updatedEvent) => {
                             setEvents((prev) =>
@@ -280,6 +310,22 @@ export default function CalendarLayout({
                                         : cal,
                                 ),
                             );
+                            setCalendariosState((prev) =>
+                                prev.map((cal) =>
+                                    cal.id === updatedEvent.calendario_id
+                                        ? {
+                                              ...cal,
+                                              eventos: cal.eventos
+                                                  ? cal.eventos.map((e: any) =>
+                                                        e.id === updatedEvent.id
+                                                            ? updatedEvent
+                                                            : e,
+                                                    )
+                                                  : [],
+                                          }
+                                        : cal,
+                                ),
+                            );
                             setSelectedEvent(updatedEvent);
                         }}
                         onEventDeleted={(eventId) => {
@@ -287,6 +333,16 @@ export default function CalendarLayout({
                                 prev.filter((e) => e.id !== eventId),
                             );
                             setSelectedCalendars((prev) =>
+                                prev.map((cal) => ({
+                                    ...cal,
+                                    eventos: cal.eventos
+                                        ? cal.eventos.filter(
+                                              (e: any) => e.id !== eventId,
+                                          )
+                                        : [],
+                                })),
+                            );
+                            setCalendariosState((prev) =>
                                 prev.map((cal) => ({
                                     ...cal,
                                     eventos: cal.eventos
@@ -360,6 +416,21 @@ export default function CalendarLayout({
                                                 : cal,
                                         ),
                                     );
+                                    setCalendariosState((prev) =>
+                                        prev.map((cal) =>
+                                            cal.id === newEvent.calendario_id
+                                                ? {
+                                                      ...cal,
+                                                      eventos: cal.eventos
+                                                          ? [
+                                                                ...cal.eventos,
+                                                                newEvent,
+                                                            ]
+                                                          : [newEvent],
+                                                  }
+                                                : cal,
+                                        ),
+                                    );
                                 }}
                                 onEventUpdated={(updatedEvent) => {
                                     setEvents((prev) =>
@@ -388,6 +459,25 @@ export default function CalendarLayout({
                                                 : cal,
                                         ),
                                     );
+                                    setCalendariosState((prev) =>
+                                        prev.map((cal) =>
+                                            cal.id ===
+                                            updatedEvent.calendario_id
+                                                ? {
+                                                      ...cal,
+                                                      eventos: cal.eventos
+                                                          ? cal.eventos.map(
+                                                                (e: any) =>
+                                                                    e.id ===
+                                                                    updatedEvent.id
+                                                                        ? updatedEvent
+                                                                        : e,
+                                                            )
+                                                          : [],
+                                                  }
+                                                : cal,
+                                        ),
+                                    );
                                     setSelectedEvent(updatedEvent);
                                 }}
                                 onEventDeleted={(eventId) => {
@@ -395,6 +485,17 @@ export default function CalendarLayout({
                                         prev.filter((e) => e.id !== eventId),
                                     );
                                     setSelectedCalendars((prev) =>
+                                        prev.map((cal) => ({
+                                            ...cal,
+                                            eventos: cal.eventos
+                                                ? cal.eventos.filter(
+                                                      (e: any) =>
+                                                          e.id !== eventId,
+                                                  )
+                                                : [],
+                                        })),
+                                    );
+                                    setCalendariosState((prev) =>
                                         prev.map((cal) => ({
                                             ...cal,
                                             eventos: cal.eventos
@@ -459,6 +560,7 @@ export default function CalendarLayout({
                                         ...prev,
                                     ]);
                                     setSelectedCalendars([newCalendar]);
+                                    setSelectedCalendarIds([newCalendar.id]);
                                     setEvents(newCalendar.eventos || []);
                                 }}
                                 onCalendarUpdated={(updatedCalendar) => {
@@ -491,6 +593,8 @@ export default function CalendarLayout({
                                     }
                                 }}
                                 auth={auth}
+                                selectedCalendarIds={selectedCalendarIds}
+                                onCalendarIdsChange={handleCalendarIdsChange}
                             />
                         </div>
                     </div>

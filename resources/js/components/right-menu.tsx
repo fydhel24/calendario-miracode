@@ -79,6 +79,17 @@ export function RightMenu({
         ),
     );
 
+    const canEditEvent =
+        selectedEvent &&
+        selectedCalendars.some(
+            (calendar) =>
+                calendar.id === selectedEvent.calendario_id &&
+                calendar.users?.some(
+                    (u: any) =>
+                        u.id === auth.user.id && u.pivot?.tipo_user === 'owner',
+                ),
+        );
+
     // Auto-select new-event when date is selected
     useEffect(() => {
         if (selectedDate) {
@@ -786,7 +797,7 @@ export function RightMenu({
                                                     Detalles del Evento
                                                 </h3>
                                             </div>
-                                            {isOwner && (
+                                            {canEditEvent && (
                                                 <div className="flex gap-2">
                                                     <Button
                                                         variant="outline"
@@ -1046,7 +1057,7 @@ export function RightMenu({
                                                 )}
 
                                             {/* Invite user form */}
-                                            {isOwner && (
+                                            {canEditEvent && (
                                                 <div>
                                                     <Label className="text-sm font-medium">
                                                         Agregar Usuario
