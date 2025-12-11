@@ -728,11 +728,16 @@ export function RightMenu({
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                onClick={() =>
+                                                onClick={() => {
                                                     setInternalActiveOption(
                                                         null,
-                                                    )
-                                                }
+                                                    );
+                                                    onDateClear?.();
+                                                    if (onExpansionChange)
+                                                        onExpansionChange(
+                                                            false,
+                                                        );
+                                                }}
                                                 className="h-8 w-8 transition-all duration-200 hover:scale-105 hover:bg-sidebar-accent"
                                             >
                                                 <ChevronLeft className="h-4 w-4" />
