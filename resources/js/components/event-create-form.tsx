@@ -129,14 +129,22 @@ export function EventCreateForm({
                                 <SelectValue placeholder="Selecciona un calendario" />
                             </SelectTrigger>
                             <SelectContent>
-                                {selectedCalendars.map((calendar) => (
-                                    <SelectItem
-                                        key={calendar.id}
-                                        value={calendar.id.toString()}
-                                    >
-                                        {calendar.nombre}
-                                    </SelectItem>
-                                ))}
+                                {selectedCalendars
+                                    .filter((calendar) =>
+                                        calendar.users?.some(
+                                            (u: any) =>
+                                                u.id === auth?.user?.id &&
+                                                u.pivot?.tipo_user === 'owner',
+                                        ),
+                                    )
+                                    .map((calendar) => (
+                                        <SelectItem
+                                            key={calendar.id}
+                                            value={calendar.id.toString()}
+                                        >
+                                            {calendar.nombre}
+                                        </SelectItem>
+                                    ))}
                             </SelectContent>
                         </Select>
                     </div>
