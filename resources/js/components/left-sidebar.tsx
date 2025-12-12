@@ -62,7 +62,7 @@ export function LeftSidebar({
 
     return (
         <div
-            className={`flex h-full flex-col border-r border-red-200/50 bg-white shadow-xl ${className}`}
+            className={`flex h-full flex-col border-r border-border bg-background shadow-xl ${className}`}
         >
             <div className="flex flex-shrink-0 items-center justify-between border-b border-sidebar-border/30 bg-sidebar p-4">
                 <div className="flex items-center gap-2">

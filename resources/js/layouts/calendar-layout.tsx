@@ -116,12 +116,12 @@ export default function CalendarLayout({
 
     return (
         <AppShell variant="sidebar">
-            <div className="relative flex h-screen overflow-hidden bg-white">
+            <div className="relative flex h-screen overflow-hidden bg-background">
                 {/* Sidebar izquierdo - Navegación - Hidden on mobile, overlay on tablet */}
                 <div className="hidden lg:flex">
                     {/* Botón toggle cuando está colapsado */}
                     {isLeftSidebarCollapsed && (
-                        <div className="flex w-16 flex-col items-center justify-center border-r border-red-200/50 bg-white shadow-xl">
+                        <div className="flex w-16 flex-col items-center justify-center border-r border-border bg-background shadow-xl">
                             <button
                                 onClick={toggleLeftSidebar}
                                 className="group rounded-xl p-3 transition-all duration-300 hover:scale-110 hover:bg-red-500 hover:shadow-lg"
@@ -137,7 +137,7 @@ export default function CalendarLayout({
                         className={`${isLeftSidebarCollapsed ? 'w-0' : 'w-64'} overflow-hidden transition-all duration-250 ease-in-out`}
                     >
                         <LeftSidebar
-                            className="h-full bg-white shadow-xl"
+                            className="h-full bg-background shadow-xl"
                             isCollapsed={isLeftSidebarCollapsed}
                             onToggle={toggleLeftSidebar}
                             calendarios={calendariosState}
@@ -194,7 +194,7 @@ export default function CalendarLayout({
                     <div className="mb-3 flex items-center justify-between sm:mb-6 lg:hidden">
                         <button
                             onClick={toggleLeftSidebar}
-                            className="group rounded-xl bg-red-400 p-3 shadow-lg transition-all duration-200 hover:scale-105 hover:bg-red-500 hover:shadow-xl"
+                            className="group rounded-xl bg-primary p-3 shadow-lg transition-all duration-200 hover:scale-105 hover:bg-primary/80 hover:shadow-xl"
                             title="Mostrar navegación"
                         >
                             <Calendar className="h-5 w-5 text-sidebar-foreground transition-colors group-hover:text-sidebar-accent-foreground" />
@@ -203,7 +203,7 @@ export default function CalendarLayout({
                             onClick={() =>
                                 setIsRightMenuExpanded(!isRightMenuExpanded)
                             }
-                            className="group rounded-xl bg-red-400 p-3 shadow-lg transition-all duration-200 hover:scale-105 hover:bg-red-500 hover:shadow-xl"
+                            className="group rounded-xl bg-primary p-3 shadow-lg transition-all duration-200 hover:scale-105 hover:bg-primary/80 hover:shadow-xl"
                             title="Mostrar menú"
                         >
                             <Calendar className="h-5 w-5 text-sidebar-foreground transition-colors group-hover:text-sidebar-accent-foreground" />
@@ -242,7 +242,7 @@ export default function CalendarLayout({
                         </div>
                     )}
 
-                    <div className="h-full w-full overflow-hidden rounded-2xl border border-red-200/50 bg-white shadow-2xl backdrop-blur-md sm:rounded-3xl">
+                    <div className="h-full w-full overflow-hidden rounded-2xl border border-border bg-background shadow-2xl backdrop-blur-md sm:rounded-3xl">
                         <FullCalendarComponent
                             events={events}
                             onDateSelect={handleDateSelect}
@@ -252,9 +252,9 @@ export default function CalendarLayout({
                 </div>
 
                 {/* Menú de la derecha - Hidden on mobile/tablet, overlay on larger screens */}
-                <div className="hidden flex-shrink-0 border-l border-red-200/50 shadow-xl xl:flex">
+                <div className="hidden flex-shrink-0 border-l border-border shadow-xl xl:flex">
                     <RightMenu
-                        className="h-full bg-white"
+                        className="h-full bg-background"
                         isExpanded={isRightMenuExpanded}
                         onExpansionChange={handleRightMenuExpansionChange}
                         selectedDate={selectedDate}
@@ -388,7 +388,7 @@ export default function CalendarLayout({
                         onClick={() => setIsRightMenuExpanded(false)}
                     >
                         <div
-                            className="absolute top-0 right-0 h-full w-full max-w-sm bg-white shadow-xl"
+                            className="absolute top-0 right-0 h-full w-full max-w-sm bg-background shadow-xl"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <RightMenu
@@ -544,7 +544,7 @@ export default function CalendarLayout({
                         onClick={toggleLeftSidebar}
                     >
                         <div
-                            className="absolute top-0 left-0 h-full w-full max-w-sm bg-white shadow-xl"
+                            className="absolute top-0 left-0 h-full w-full max-w-sm bg-background shadow-xl"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <LeftSidebar

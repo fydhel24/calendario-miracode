@@ -78,7 +78,7 @@ export default function FullCalendarComponent({
     };
 
     return (
-        <div className="full-calendar-container h-full w-full rounded-2xl border border-red-200/50 bg-white p-4 shadow-2xl backdrop-blur-sm md:p-6">
+        <div className="full-calendar-container h-full w-full rounded-2xl border border-border bg-background p-4 shadow-2xl backdrop-blur-sm md:p-6">
             <FullCalendar
                 ref={calendarRef}
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}

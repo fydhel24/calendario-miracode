@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
 import {
     Select,
     SelectContent,
@@ -487,8 +488,8 @@ export function RightMenu({
                                                         }}
                                                     >
                                                         <div className="flex items-center gap-2">
-                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-400">
-                                                                <User className="h-4 w-4 text-white" />
+                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
+                                                                <User className="h-4 w-4 text-primary-foreground" />
                                                             </div>
                                                             <div>
                                                                 <p className="text-sm font-medium">
@@ -503,7 +504,7 @@ export function RightMenu({
                                                             type="button"
                                                             variant="ghost"
                                                             size="sm"
-                                                            className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                                                            className="h-6 w-6 p-0 hover:bg-muted hover:text-muted-foreground"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 const form =
@@ -649,7 +650,7 @@ export function RightMenu({
 
     return (
         <div
-            className={`flex h-full border-l border-red-200/50 bg-white shadow-xl ${className}`}
+            className={`flex h-full border-l border-border bg-background shadow-xl ${className}`}
         >
             {/* Estructura expandible: siempre los iconos + contenido cuando está activo */}
             <div
@@ -658,7 +659,7 @@ export function RightMenu({
                 }`}
             >
                 {/* Iconos del menú - siempre visible */}
-                <div className="flex w-16 flex-col border-r border-red-200/50 bg-white">
+                <div className="flex w-16 flex-col border-r border-border bg-background">
                     <div className="flex flex-col space-y-2 p-2">
                         {menuOptions.map((option) => {
                             const Icon = option.icon;
@@ -685,7 +686,7 @@ export function RightMenu({
                 {/* Contenido - se muestra cuando hay una opción activa, fecha seleccionada o evento seleccionado */}
                 {shouldShowExpandedContent && (
                     <div className="flex-1 overflow-hidden">
-                        <div className="flex h-full flex-col bg-background/30 backdrop-blur-sm">
+                        <div className="flex h-full flex-col bg-background/80 backdrop-blur-sm">
                             {activeOption === 'edit-event' ? (
                                 // Mostrar formulario de edición
                                 <div className="flex-1 overflow-hidden">
@@ -747,7 +748,7 @@ export function RightMenu({
                                             </h3>
                                         </div>
                                     </div>
-                                    <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
+                                    <div className="flex-1 overflow-y-auto bg-background/80 backdrop-blur-sm">
                                         <EventCreateForm
                                             selectedDate={selectedDate}
                                             selectedCalendars={
@@ -781,7 +782,7 @@ export function RightMenu({
                                             </h3>
                                         </div>
                                     </div>
-                                    <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
+                                    <div className="flex-1 overflow-y-auto bg-background/80 backdrop-blur-sm">
                                         {
                                             menuOptions.find(
                                                 (opt) =>
@@ -970,8 +971,8 @@ export function RightMenu({
                                                                         className="flex items-center justify-between rounded-lg border p-2"
                                                                     >
                                                                         <div className="flex items-center gap-2">
-                                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-400">
-                                                                                <User className="h-4 w-4 text-white" />
+                                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
+                                                                                <User className="h-4 w-4 text-primary-foreground" />
                                                                             </div>
                                                                             <div>
                                                                                 <p className="text-sm font-medium">
@@ -1261,8 +1262,8 @@ export function RightMenu({
                                                                                 }}
                                                                             >
                                                                                 <div className="flex items-center gap-2">
-                                                                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-400">
-                                                                                        <User className="h-4 w-4 text-white" />
+                                                                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
+                                                                                        <User className="h-4 w-4 text-primary-foreground" />
                                                                                     </div>
                                                                                     <div>
                                                                                         <p className="text-sm font-medium">

@@ -239,7 +239,7 @@ export function EventCreateForm({
                                     return user ? (
                                         <div
                                             key={userId}
-                                            className="flex items-center gap-1 rounded-full border border-red-200 bg-red-100 px-2 py-1 text-xs text-red-700"
+                                            className="flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-1 text-xs text-muted-foreground"
                                         >
                                             <User className="h-3 w-3" />
                                             <span>{user.name}</span>
@@ -253,7 +253,7 @@ export function EventCreateForm({
                                                         ),
                                                     )
                                                 }
-                                                className="ml-1 rounded-full p-0.5 hover:bg-red-200"
+                                                className="ml-1 rounded-full p-0.5 hover:bg-muted"
                                             >
                                                 <X className="h-3 w-3" />
                                             </button>
@@ -304,8 +304,8 @@ export function EventCreateForm({
                                         }
                                     >
                                         <div className="flex items-center gap-2">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-400">
-                                                <User className="h-4 w-4 text-white" />
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
+                                                <User className="h-4 w-4 text-primary-foreground" />
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium">
@@ -320,7 +320,7 @@ export function EventCreateForm({
                                             type="button"
                                             variant="ghost"
                                             size="sm"
-                                            className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                                            className="h-6 w-6 p-0 hover:bg-muted hover:text-muted-foreground"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setSelectedUsers([
