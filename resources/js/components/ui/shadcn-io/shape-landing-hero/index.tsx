@@ -105,11 +105,11 @@ export function HeroGeometric({
     return (
         <div
             className={cn(
-                'relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#030303]',
+                'relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-br from-black via-red-900 via-blue-900 to-sky-900',
                 className,
             )}
         >
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.05] via-transparent to-rose-500/[0.05] blur-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-red-500/[0.08] via-blue-500/[0.08] to-sky-500/[0.08] blur-3xl" />
 
             <div className="absolute inset-0 overflow-hidden">
                 <ElegantShape
@@ -117,7 +117,7 @@ export function HeroGeometric({
                     width={600}
                     height={140}
                     rotate={12}
-                    gradient="from-indigo-500/[0.15]"
+                    gradient="from-red-500/[0.15]"
                     className="top-[15%] left-[-10%] md:top-[20%] md:left-[-5%]"
                 />
 
@@ -126,7 +126,7 @@ export function HeroGeometric({
                     width={500}
                     height={120}
                     rotate={-15}
-                    gradient="from-rose-500/[0.15]"
+                    gradient="from-blue-500/[0.15]"
                     className="top-[70%] right-[-5%] md:top-[75%] md:right-[0%]"
                 />
 
@@ -135,7 +135,7 @@ export function HeroGeometric({
                     width={300}
                     height={80}
                     rotate={-8}
-                    gradient="from-violet-500/[0.15]"
+                    gradient="from-black/[0.15]"
                     className="bottom-[5%] left-[5%] md:bottom-[10%] md:left-[10%]"
                 />
 
@@ -144,7 +144,7 @@ export function HeroGeometric({
                     width={200}
                     height={60}
                     rotate={20}
-                    gradient="from-amber-500/[0.15]"
+                    gradient="from-red-600/[0.15]"
                     className="top-[10%] right-[15%] md:top-[15%] md:right-[20%]"
                 />
 
@@ -153,7 +153,7 @@ export function HeroGeometric({
                     width={150}
                     height={40}
                     rotate={-25}
-                    gradient="from-cyan-500/[0.15]"
+                    gradient="from-blue-600/[0.15]"
                     className="top-[5%] left-[20%] md:top-[10%] md:left-[25%]"
                 />
             </div>
@@ -169,7 +169,7 @@ export function HeroGeometric({
                                 animate="visible"
                                 className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1 md:mb-12"
                             >
-                                <Circle className="h-2 w-2 fill-rose-500/80" />
+                                <Circle className="h-2 w-2 fill-red-500/80" />
                                 <span className="text-sm tracking-wide text-white/60">
                                     {badge}
                                 </span>
@@ -193,7 +193,7 @@ export function HeroGeometric({
                                     {title2 && (
                                         <span
                                             className={cn(
-                                                'bg-gradient-to-r from-indigo-300 via-white/90 to-rose-300 bg-clip-text text-transparent',
+                                                'bg-gradient-to-r from-red-300 via-white/90 to-blue-300 bg-clip-text text-transparent',
                                             )}
                                         >
                                             {title2}
@@ -219,7 +219,7 @@ export function HeroGeometric({
                 </div>
             )}
 
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-[#030303]/80" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-sky-500/10" />
             {children}
         </div>
     );
