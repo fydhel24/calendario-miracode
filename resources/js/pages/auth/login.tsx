@@ -19,13 +19,11 @@ interface LoginProps {
 
 export default function Login({
     status,
-    canResetPassword,
-    canRegister,
 }: LoginProps) {
     return (
         <AuthLayout
-            title="Inicia sesión en tu cuenta"
-            description="Ingresa tu correo electrónico y contraseña a continuación para iniciar sesión"
+            title="Inicia sesión"
+            description="Ingresa al Calendario y organiza tu tiempo"
         >
             <Head title="Iniciar sesión" />
 
@@ -39,7 +37,7 @@ export default function Login({
                         <div className="grid gap-6">
                             <div className="grid gap-2">
                                 <Label htmlFor="email" className="text-white">
-                                    Dirección de correo electrónico
+                                    Correo electrónico
                                 </Label>
                                 <Input
                                     id="email"
@@ -63,15 +61,6 @@ export default function Login({
                                     >
                                         Contraseña
                                     </Label>
-                                    {canResetPassword && (
-                                        <TextLink
-                                            href={request()}
-                                            className="ml-auto text-sm text-white/70 hover:text-white"
-                                            tabIndex={5}
-                                        >
-                                            ¿Olvidaste tu contraseña?
-                                        </TextLink>
-                                    )}
                                 </div>
                                 <Input
                                     id="password"
@@ -112,19 +101,6 @@ export default function Login({
                                 Iniciar sesión
                             </Button>
                         </div>
-
-                        {canRegister && (
-                            <div className="text-center text-sm text-white/70">
-                                ¿No tienes una cuenta?{' '}
-                                <TextLink
-                                    href={register()}
-                                    tabIndex={5}
-                                    className="text-white hover:text-white/90"
-                                >
-                                    Regístrate
-                                </TextLink>
-                            </div>
-                        )}
                     </>
                 )}
             </Form>
