@@ -685,7 +685,7 @@ export function RightMenu({
 
                 {/* Contenido - se muestra cuando hay una opción activa, fecha seleccionada o evento seleccionado */}
                 {shouldShowExpandedContent && (
-                    <div className="flex-1 overflow-hidden">
+                    <div className="flex-1">
                         <div className="flex h-full flex-col bg-background/80 backdrop-blur-sm">
                             {activeOption === 'edit-event' ? (
                                 // Mostrar formulario de edición
@@ -723,7 +723,7 @@ export function RightMenu({
                                 </div>
                             ) : activeOption === 'new-event' ? (
                                 // Mostrar formulario de evento directamente cuando hay fecha seleccionada
-                                <div className="flex-1 overflow-hidden">
+                                <div className="flex-1 overflow-y-auto">
                                     <div className="border-b border-sidebar-border bg-sidebar p-4">
                                         <div className="flex items-center gap-2">
                                             <Button
@@ -748,16 +748,14 @@ export function RightMenu({
                                             </h3>
                                         </div>
                                     </div>
-                                    <div className="flex-1 overflow-y-auto bg-background/80 backdrop-blur-sm">
-                                        <EventCreateForm
-                                            selectedDate={selectedDate}
-                                            selectedCalendars={
-                                                selectedCalendars
-                                            }
-                                            onEventCreated={onEventCreated}
-                                            auth={auth}
-                                        />
-                                    </div>
+                                    <EventCreateForm
+                                        selectedDate={selectedDate}
+                                        selectedCalendars={
+                                            selectedCalendars
+                                        }
+                                        onEventCreated={onEventCreated}
+                                        auth={auth}
+                                    />
                                 </div>
                             ) : activeOption ? (
                                 <>

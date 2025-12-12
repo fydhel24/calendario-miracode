@@ -115,7 +115,7 @@ export function EventCreateForm({
     };
 
     return (
-        <div className="space-y-4 p-4">
+        <div className="space-y-4 overflow-y-auto p-4">
             <h3 className="text-lg font-semibold">Crear Nuevo Evento</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
                 {selectedCalendars.length > 1 && (
