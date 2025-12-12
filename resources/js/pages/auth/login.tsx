@@ -38,7 +38,7 @@ export default function Login({
                     <>
                         <div className="grid gap-6">
                             <div className="grid gap-2">
-                                <Label htmlFor="email">
+                                <Label htmlFor="email" className="text-white">
                                     Dirección de correo electrónico
                                 </Label>
                                 <Input
@@ -50,17 +50,23 @@ export default function Login({
                                     tabIndex={1}
                                     autoComplete="email"
                                     placeholder="correo@ejemplo.com"
+                                    className="border-white/20 bg-white/10 text-white placeholder:text-white/50"
                                 />
                                 <InputError message={errors.email} />
                             </div>
 
                             <div className="grid gap-2">
                                 <div className="flex items-center">
-                                    <Label htmlFor="password">Contraseña</Label>
+                                    <Label
+                                        htmlFor="password"
+                                        className="text-white"
+                                    >
+                                        Contraseña
+                                    </Label>
                                     {canResetPassword && (
                                         <TextLink
                                             href={request()}
-                                            className="ml-auto text-sm"
+                                            className="ml-auto text-sm text-white/70 hover:text-white"
                                             tabIndex={5}
                                         >
                                             ¿Olvidaste tu contraseña?
@@ -75,6 +81,7 @@ export default function Login({
                                     tabIndex={2}
                                     autoComplete="current-password"
                                     placeholder="Contraseña"
+                                    className="border-white/20 bg-white/10 text-white placeholder:text-white/50"
                                 />
                                 <InputError message={errors.password} />
                             </div>
@@ -84,13 +91,19 @@ export default function Login({
                                     id="remember"
                                     name="remember"
                                     tabIndex={3}
+                                    className="border-white/20 data-[state=checked]:border-white data-[state=checked]:bg-white"
                                 />
-                                <Label htmlFor="remember">Recordarme</Label>
+                                <Label
+                                    htmlFor="remember"
+                                    className="text-white"
+                                >
+                                    Recordarme
+                                </Label>
                             </div>
 
                             <Button
                                 type="submit"
-                                className="mt-4 w-full"
+                                className="mt-4 w-full bg-white text-black hover:bg-white/90"
                                 tabIndex={4}
                                 disabled={processing}
                                 data-test="login-button"
@@ -101,9 +114,13 @@ export default function Login({
                         </div>
 
                         {canRegister && (
-                            <div className="text-center text-sm text-muted-foreground">
+                            <div className="text-center text-sm text-white/70">
                                 ¿No tienes una cuenta?{' '}
-                                <TextLink href={register()} tabIndex={5}>
+                                <TextLink
+                                    href={register()}
+                                    tabIndex={5}
+                                    className="text-white hover:text-white/90"
+                                >
                                     Regístrate
                                 </TextLink>
                             </div>
@@ -113,7 +130,7 @@ export default function Login({
             </Form>
 
             {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
+                <div className="mb-4 text-center text-sm font-medium text-green-400">
                     {status}
                 </div>
             )}
