@@ -47,7 +47,7 @@ export default function CalendarLayout({
                 setEvents(
                     propSelectedCalendars.flatMap((c) => c.eventos || []),
                 );
-            } else {
+            } else if (selectedCalendars.length === 0) {
                 let calendarToSelect = calendariosState[0];
                 if (selectedCalendarId) {
                     const found = calendariosState.find(
@@ -62,7 +62,7 @@ export default function CalendarLayout({
                 setEvents(calendarToSelect.eventos || []);
             }
         }
-    }, [calendariosState, selectedCalendarId, propSelectedCalendars]);
+    }, [calendariosState, selectedCalendarId, propSelectedCalendars, selectedCalendars.length]);
 
     const toggleLeftSidebar = () => {
         setIsLeftSidebarCollapsed(!isLeftSidebarCollapsed);
@@ -431,6 +431,8 @@ export default function CalendarLayout({
                                                 : cal,
                                         ),
                                     );
+                                    setSelectedEvent(null);
+                                    setSelectedDate(null);
                                 }}
                                 onEventUpdated={(updatedEvent) => {
                                     setEvents((prev) =>
