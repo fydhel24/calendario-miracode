@@ -142,7 +142,7 @@ export function EventCreateForm({
                                 <SelectValue placeholder="Selecciona un calendario" />
                             </SelectTrigger>
                             <SelectContent>
-                                
+
                                 {selectedCalendars
                                     .filter((calendar) =>
                                         calendar.users?.some(
@@ -186,8 +186,8 @@ export function EventCreateForm({
                         <FileText className="mr-2 h-4 w-4" />
                         {form.descripcion ? (
                             <span className="truncate">
-                                {form.descripcion.length > 50
-                                    ? `${form.descripcion.substring(0, 50)}...`
+                                {form.descripcion.length > 30
+                                    ? `${form.descripcion.substring(0, 30)}...`
                                     : form.descripcion}
                             </span>
                         ) : (

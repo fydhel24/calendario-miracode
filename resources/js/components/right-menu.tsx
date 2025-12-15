@@ -592,45 +592,6 @@ export function RightMenu({
                 </div>
             ),
         },
-        ...(isOwner
-            ? [
-                  {
-                      id: 'settings',
-                      label: 'Configuración',
-                      icon: Settings,
-                      content: (
-                          <div className="space-y-4 p-4">
-                              <h3 className="mb-4 text-lg font-semibold">
-                                  Configuración
-                              </h3>
-                              <div className="space-y-4">
-                                  <div className="flex items-center justify-between">
-                                      <Label htmlFor="notifications">
-                                          Notificaciones
-                                      </Label>
-                                      <Checkbox id="notifications" />
-                                  </div>
-                                  <div className="flex items-center justify-between">
-                                      <Label htmlFor="dark-mode">
-                                          Modo oscuro
-                                      </Label>
-                                      <Checkbox id="dark-mode" />
-                                  </div>
-                                  <div className="flex items-center justify-between">
-                                      <Label htmlFor="sync">
-                                          Sincronización
-                                      </Label>
-                                      <Checkbox id="sync" defaultChecked />
-                                  </div>
-                                  <Button className="mt-6 w-full">
-                                      Guardar
-                                  </Button>
-                              </div>
-                          </div>
-                      ),
-                  },
-              ]
-            : []),
     ];
 
     const handleOptionClick = (optionId: string) => {
