@@ -1,3 +1,4 @@
+import { DescriptionModal } from '@/components/description-modal';
 import { EventCreateForm } from '@/components/event-create-form';
 import { EventEditForm } from '@/components/event-edit-form';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import {
     Bell,
     ChevronLeft,
     Clock,
+    FileText,
     Plus,
     Search,
     Settings,
@@ -128,6 +130,7 @@ export function RightMenu({
     const [users, setUsers] = useState<any[]>([]);
     const [loadingUsers, setLoadingUsers] = useState(false);
     const [userSearch, setUserSearch] = useState('');
+    const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
 
     // Use internal state for active option
     const activeOption = internalActiveOption;
@@ -750,9 +753,7 @@ export function RightMenu({
                                     </div>
                                     <EventCreateForm
                                         selectedDate={selectedDate}
-                                        selectedCalendars={
-                                            selectedCalendars
-                                        }
+                                        selectedCalendars={selectedCalendars}
                                         onEventCreated={onEventCreated}
                                         auth={auth}
                                     />
@@ -896,11 +897,25 @@ export function RightMenu({
                                                     <Label className="text-sm font-medium">
                                                         Descripción
                                                     </Label>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        {
-                                                            selectedEvent.descripcion
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        onClick={() =>
+                                                            setIsDescriptionModalOpen(
+                                                                true,
+                                                            )
                                                         }
-                                                    </p>
+                                                        className="mt-1 w-full justify-start text-left font-normal"
+                                                    >
+                                                        <FileText className="mr-2 h-4 w-4" />
+                                                        <span className="truncate">
+                                                            {selectedEvent
+                                                                .descripcion
+                                                                .length > 30
+                                                                ? `${selectedEvent.descripcion.substring(0, 30)}...`
+                                                                : selectedEvent.descripcion}
+                                                        </span>
+                                                    </Button>
                                                 </div>
                                             )}
                                             {selectedEvent.ubicacion && (
@@ -1557,6 +1572,15 @@ export function RightMenu({
                         </div>
                     </div>
                 )}
+
+                <DescriptionModal
+                    isOpen={isDescriptionModalOpen}
+                    onClose={() => setIsDescriptionModalOpen(false)}
+                    description={selectedEvent?.descripcion || ''}
+                    onDescriptionChange={() => {}} // Read-only in details
+                    title="Descripción del Evento"
+                    readOnly={true}
+                />
             </div>
         </div>
     );

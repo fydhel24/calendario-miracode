@@ -16,6 +16,7 @@ interface DescriptionModalProps {
     description: string;
     onDescriptionChange: (description: string) => void;
     title?: string;
+    readOnly?: boolean;
 }
 
 export function DescriptionModal({
@@ -24,6 +25,7 @@ export function DescriptionModal({
     description,
     onDescriptionChange,
     title = 'Editar Descripción',
+    readOnly = false,
 }: DescriptionModalProps) {
     const [tempDescription, setTempDescription] = useState(description);
 
@@ -53,18 +55,25 @@ export function DescriptionModal({
                 <div className="py-4">
                     <Textarea
                         value={tempDescription}
-                        onChange={(e) => setTempDescription(e.target.value)}
+                        onChange={(e) =>
+                            !readOnly && setTempDescription(e.target.value)
+                        }
                         placeholder="Escribe la descripción del evento aquí..."
                         className="min-h-[300px] resize-none"
-                        autoFocus
+                        autoFocus={!readOnly}
+                        readOnly={readOnly}
                     />
                 </div>
-                <DialogFooter>
-                    <Button variant="outline" onClick={handleCancel}>
-                        Cancelar
-                    </Button>
-                    <Button onClick={handleSave}>Guardar Descripción</Button>
-                </DialogFooter>
+                {!readOnly && (
+                    <DialogFooter>
+                        <Button variant="outline" onClick={handleCancel}>
+                            Cancelar
+                        </Button>
+                        <Button onClick={handleSave}>
+                            Guardar Descripción
+                        </Button>
+                    </DialogFooter>
+                )}
             </DialogContent>
         </Dialog>
     );
