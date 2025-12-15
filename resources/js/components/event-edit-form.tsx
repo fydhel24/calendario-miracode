@@ -4,6 +4,26 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FileText } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+
+const eventColors = [
+    { name: 'Azul', value: '#2563eb' },
+    { name: 'Rojo', value: '#dc2626' },
+    { name: 'Amarillo', value: '#eab308' },
+    { name: 'Verde', value: '#16a34a' },
+    { name: 'Celeste', value: '#06b6d4' },
+    { name: 'Violeta', value: '#9333ea' },
+    { name: 'Rosado', value: '#ec4899' },
+    { name: 'Naranja', value: '#ea580c' },
+    { name: 'Café', value: '#8b4513' },
+    { name: 'Marrón', value: '#92400e' },
+];
 
 interface EventEditFormProps {
     eventToEdit?: any;
@@ -120,14 +140,35 @@ export function EventEditForm({
                 </div>
                 <div>
                     <Label htmlFor="color">Color</Label>
-                    <Input
-                        id="color"
-                        type="color"
+                    <Select
                         value={form.color}
-                        onChange={(e) =>
-                            setForm({ ...form, color: e.target.value })
+                        onValueChange={(value) =>
+                            setForm({ ...form, color: value })
+
                         }
-                    />
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un color" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {eventColors.map((color) => (
+                                <SelectItem
+                                    key={color.value}
+                                    value={color.value}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <div
+                                            className="h-4 w-4 rounded-full border"
+                                            style={{
+                                                backgroundColor: color.value,
+                                            }}
+                                        ></div>
+                                        {color.name}
+                                    </div>
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
                 <div>
                     <Label htmlFor="fecha_inicio">Fecha y Hora de Inicio</Label>
