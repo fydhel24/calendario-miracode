@@ -10,7 +10,6 @@ import {
     ChevronRight,
     Edit,
     HelpCircle,
-    Settings,
     Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -51,15 +50,6 @@ export function LeftSidebar({
                 c.users?.some((u: any) => u.id === auth?.user?.id),
             ).length && selectedCalendarIds.length > 0;
 
-    const menuItems = [
-        {
-            id: 'settings',
-            label: 'Configuración',
-            icon: Settings,
-            active: false,
-        },
-    ];
-
     return (
         <div
             className={`flex h-full flex-col border-r border-border bg-background shadow-xl ${className}`}
@@ -71,47 +61,26 @@ export function LeftSidebar({
                         Navegación
                     </h3>
                 </div>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={onToggle}
-                    className="h-8 w-8 transition-all duration-200 hover:scale-110 hover:bg-sidebar-accent hover:shadow-md"
-                >
-                    {isCollapsed ? (
-                        <ChevronRight className="h-4 w-4" />
-                    ) : (
-                        <ChevronDown className="h-4 w-4" />
-                    )}
-                </Button>
+                <div className="flex items-center gap-2">
+                    <AppearanceToggleDropdown />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={onToggle}
+                        className="h-8 w-8 transition-all duration-200 hover:scale-110 hover:bg-sidebar-accent hover:shadow-md"
+                    >
+                        {isCollapsed ? (
+                            <ChevronRight className="h-4 w-4" />
+                        ) : (
+                            <ChevronDown className="h-4 w-4" />
+                        )}
+                    </Button>
+                </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-2">
                 {!isCollapsed && (
                     <div className="space-y-1">
-                        {menuItems.map((item) => {
-                            const Icon = item.icon;
-                            return (
-                                <div
-                                    key={item.id}
-                                    className={`flex cursor-pointer items-center gap-2 rounded-lg p-2 transition-all duration-200 ${
-                                        item.active
-                                            ? 'scale-[1.02] transform bg-sidebar-accent text-sidebar-accent-foreground shadow-md'
-                                            : 'hover:scale-[1.01] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm'
-                                    }`}
-                                >
-                                    <Icon className="h-4 w-4" />
-                                    <span className="text-sm">
-                                        {item.label}
-                                    </span>
-                                </div>
-                            );
-                        })}
-
-                        {/* Appearance Toggle */}
-                        <div className="flex justify-center py-2">
-                            <AppearanceToggleDropdown />
-                        </div>
-
                         {/* Calendarios */}
                         <div className="border-t border-sidebar-border/30 pt-4">
                             <div className="mb-3 flex items-center justify-between">
@@ -322,42 +291,14 @@ export function LeftSidebar({
                                 </div>
                             </div>
                         </div>
-
-                        <div className="border-t border-sidebar-border/30 pt-4">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-9 w-full justify-start gap-2 rounded-lg transition-all duration-200 hover:scale-105 hover:bg-sidebar-accent hover:shadow-md"
-                            >
-                                <HelpCircle className="h-4 w-4" />
-                                <span className="text-sm font-medium">
-                                    Ayuda
-                                </span>
-                            </Button>
-                        </div>
                     </div>
                 )}
 
                 {isCollapsed && (
                     <div className="space-y-1">
-                        {menuItems.map((item) => {
-                            const Icon = item.icon;
-                            return (
-                                <Button
-                                    key={item.id}
-                                    variant="ghost"
-                                    size="icon"
-                                    className={`h-10 w-full transition-all duration-200 hover:scale-110 ${
-                                        item.active
-                                            ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-md'
-                                            : 'hover:bg-sidebar-accent hover:shadow-sm'
-                                    }`}
-                                    title={item.label}
-                                >
-                                    <Icon className="h-4 w-4" />
-                                </Button>
-                            );
-                        })}
+                        <div className="flex justify-center py-2">
+                            <AppearanceToggleDropdown />
+                        </div>
                     </div>
                 )}
             </div>
