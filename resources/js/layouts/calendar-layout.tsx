@@ -48,21 +48,43 @@ export default function CalendarLayout({
                     propSelectedCalendars.flatMap((c) => c.eventos || []),
                 );
             } else if (selectedCalendars.length === 0) {
-                let calendarToSelect = calendariosState[0];
-                if (selectedCalendarId) {
-                    const found = calendariosState.find(
-                        (c) => c.id === selectedCalendarId,
-                    );
-                    if (found) {
-                        calendarToSelect = found;
+                // Check localStorage for persisted selection
+                const storedIds = localStorage.getItem('selectedCalendarIds');
+                let calendarsToSelect = [];
+                if (storedIds) {
+                    try {
+                        const ids = JSON.parse(storedIds);
+                        calendarsToSelect = calendariosState.filter((c) =>
+                            ids.includes(c.id),
+                        );
+                    } catch (e) {
+                        // Invalid stored data
                     }
                 }
-                setSelectedCalendars([calendarToSelect]);
-                setSelectedCalendarIds([calendarToSelect.id]);
-                setEvents(calendarToSelect.eventos || []);
+                if (calendarsToSelect.length === 0) {
+                    // Fallback to prop or first calendar
+                    let calendarToSelect = calendariosState[0];
+                    if (selectedCalendarId) {
+                        const found = calendariosState.find(
+                            (c) => c.id === selectedCalendarId,
+                        );
+                        if (found) {
+                            calendarToSelect = found;
+                        }
+                    }
+                    calendarsToSelect = [calendarToSelect];
+                }
+                setSelectedCalendars(calendarsToSelect);
+                setSelectedCalendarIds(calendarsToSelect.map((c) => c.id));
+                setEvents(calendarsToSelect.flatMap((c) => c.eventos || []));
             }
         }
-    }, [calendariosState, selectedCalendarId, propSelectedCalendars, selectedCalendars.length]);
+    }, [
+        calendariosState,
+        selectedCalendarId,
+        propSelectedCalendars,
+        selectedCalendars.length,
+    ]);
 
     const toggleLeftSidebar = () => {
         setIsLeftSidebarCollapsed(!isLeftSidebarCollapsed);
@@ -77,6 +99,10 @@ export default function CalendarLayout({
         setSelectedCalendarIds([calendar.id]);
         setEvents(calendar.eventos || []);
         setSelectedDate(null); // Reset selected date when changing calendar
+        localStorage.setItem(
+            'selectedCalendarIds',
+            JSON.stringify([calendar.id]),
+        );
     };
 
     const handleCalendarsSelect = (calendars: any[]) => {
@@ -84,6 +110,10 @@ export default function CalendarLayout({
         setSelectedCalendarIds(calendars.map((c) => c.id));
         setEvents(calendars.flatMap((c) => c.eventos || []));
         setSelectedDate(null);
+        localStorage.setItem(
+            'selectedCalendarIds',
+            JSON.stringify(calendars.map((c) => c.id)),
+        );
     };
 
     const handleCalendarIdsChange = (ids: number[]) => {
@@ -92,6 +122,7 @@ export default function CalendarLayout({
         setSelectedCalendars(selectedCals);
         setEvents(selectedCals.flatMap((c) => c.eventos || []));
         setSelectedDate(null);
+        localStorage.setItem('selectedCalendarIds', JSON.stringify(ids));
     };
 
     const handleDateSelect = (date: string) => {
