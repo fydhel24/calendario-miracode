@@ -23,7 +23,10 @@ export default function CalendarLayout({
     selectedCalendars: propSelectedCalendars,
 }: CalendarLayoutProps) {
     const { auth } = usePage().props as any;
-    const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(true);
+    const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(() => {
+        const stored = localStorage.getItem('leftSidebarCollapsed');
+        return stored ? JSON.parse(stored) : true;
+    });
     const [isRightMenuExpanded, setIsRightMenuExpanded] = useState(false);
     const [calendariosState, setCalendariosState] =
         useState<any[]>(calendarios);
@@ -87,7 +90,9 @@ export default function CalendarLayout({
     ]);
 
     const toggleLeftSidebar = () => {
-        setIsLeftSidebarCollapsed(!isLeftSidebarCollapsed);
+        const newState = !isLeftSidebarCollapsed;
+        setIsLeftSidebarCollapsed(newState);
+        localStorage.setItem('leftSidebarCollapsed', JSON.stringify(newState));
     };
 
     const handleRightMenuExpansionChange = (expanded: boolean) => {
