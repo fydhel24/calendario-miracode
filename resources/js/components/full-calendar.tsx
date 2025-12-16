@@ -10,7 +10,6 @@ interface EventInput {
     title: string;
     start: string;
     end?: string;
-    
     allDay?: boolean;
 }
 
@@ -78,7 +77,44 @@ export default function FullCalendarComponent({
     };
 
     return (
-        <div className="full-calendar-container h-full w-full rounded-2xl border border-border bg-background p-4 shadow-2xl backdrop-blur-sm md:p-6">
+        <div className="full-calendar-container h-full w-full rounded-2xl border border-red-200 bg-background p-4 shadow-2xl backdrop-blur-sm md:p-6">
+            <style>{`
+                .fc-header-toolbar {
+                    background: linear-gradient(to right, transparent, rgba(239, 68, 68, 0.1), transparent);
+                    border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+                    padding: 0.5rem;
+                    border-radius: 0.75rem 0.75rem 0 0;
+                }
+                .fc-button {
+                    color: rgb(185, 28, 28);
+                    font-weight: bold;
+                    background: white;
+                    border: 1px solid rgb(220, 38, 38);
+                    border-radius: 0.375rem;
+                    padding: 0.25rem 0.75rem;
+                    transition: all 0.2s;
+                    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+                }
+                .fc-button:hover {
+                    color: rgb(127, 29, 29);
+                    background: rgb(254, 242, 242);
+                }
+                .fc-col-header {
+                    border-bottom: 2px solid rgb(220, 38, 38);
+                    background: rgba(239, 68, 68, 0.05);
+                }
+                .fc-day-today {
+                    background-color: rgba(239, 68, 68, 0.15) !important;
+                }
+                .fc-daygrid-day {
+                    border: 1px solid rgba(220, 38, 38, 0.1);
+                }
+                .fc-toolbar-title {
+                    color: rgb(185, 28, 28);
+                    font-weight: 700;
+                    font-size: 1.25rem;
+                }
+            `}</style>
             <FullCalendar
                 ref={calendarRef}
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -101,12 +137,12 @@ export default function FullCalendarComponent({
                 height="100%"
                 locale="es"
                 buttonText={{
-                    today: 'Hoy',
-                    month: 'Mes',
-                    week: 'Semana',
-                    day: 'Día',
-                    prev: 'Anterior',
-                    next: 'Siguiente',
+                    today: 'HOY',
+                    month: 'MES',
+                    week: 'SEMANA',
+                    day: 'DÍA',
+                    prev: 'ANTERIOR',
+                    next: 'SIGUIENTE',
                 }}
                 eventDisplay="block"
                 displayEventTime={false}
