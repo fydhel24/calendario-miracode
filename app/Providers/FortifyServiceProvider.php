@@ -52,7 +52,7 @@ class FortifyServiceProvider extends ServiceProvider
             try {
                 $response = Http::withHeaders([
                     'Accept' => 'application/json',
-                ])->timeout(10)->post('http://127.0.0.1:8001/api/auth/login', [
+                ])->timeout(10)->post('https://admusproductions.com/api/auth/login', [
                     'email' => $email,
                     'password' => $password,
                 ]);
