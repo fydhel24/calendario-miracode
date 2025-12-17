@@ -34,7 +34,7 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
         setLoading(true);
 
         router.post('/calendarios', form, {
-            onSuccess: (response) => {
+            onSuccess: () => {
                 setOpen(false);
                 setForm({
                     nombre: '',
@@ -42,7 +42,6 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
                     template: '',
                     estado: 'activo',
                 });
-                onCalendarCreated?.(response);
             },
             onError: () => {
                 setLoading(false);
