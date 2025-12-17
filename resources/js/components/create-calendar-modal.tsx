@@ -11,7 +11,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
@@ -29,12 +28,27 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
     });
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
-        router.post('/calendarios', form, {
-            onSuccess: () => {
+        try {
+            const csrfToken = document
+                .querySelector('meta[name="csrf-token"]')
+                ?.getAttribute('content');
+            const response = await fetch('/calendarios', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || '',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify(form),
+            });
+
+            if (response.ok) {
+                const newCalendar = await response.json();
+                onCalendarCreated?.(newCalendar);
                 setOpen(false);
                 setForm({
                     nombre: '',
@@ -42,14 +56,14 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
                     template: '',
                     estado: 'activo',
                 });
-            },
-            onError: () => {
-                setLoading(false);
-            },
-            onFinish: () => {
-                setLoading(false);
-            },
-        });
+            } else {
+                console.error('Error creating calendar');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

@@ -57,6 +57,11 @@ class CalendarController extends Controller
 
         session(['selected_calendar_id' => $calendario->id]);
 
+        // Check if it's an AJAX request
+        if ($request->ajax()) {
+            return response()->json($calendario->load('users'));
+        }
+
         return redirect()->route('dashboard')->with('success', 'Calendario creado exitosamente.');
     }
 
