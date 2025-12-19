@@ -56,10 +56,10 @@ export function EventCreateForm({
 
     // Set default calendar when calendars change
     useEffect(() => {
-        if (selectedCalendars.length > 0 && !selectedCalendarId) {
+        if (selectedCalendars.length > 0) {
             setSelectedCalendarId(selectedCalendars[0].id.toString());
         }
-    }, [selectedCalendars, selectedCalendarId]);
+    }, [selectedCalendars]);
 
     useEffect(() => {
         if (selectedDate) {
