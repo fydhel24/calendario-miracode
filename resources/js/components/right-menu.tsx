@@ -2,7 +2,6 @@ import { DescriptionModal } from '@/components/description-modal';
 import { EventCreateForm } from '@/components/event-create-form';
 import { EventEditForm } from '@/components/event-edit-form';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -19,9 +18,9 @@ import {
     ChevronLeft,
     Clock,
     FileText,
+    LogOut,
     Plus,
     Search,
-    Settings,
     User,
     Users,
 } from 'lucide-react';
@@ -589,6 +588,28 @@ export function RightMenu({
                             </form>
                         </div>
                     )}
+                </div>
+            ),
+        },
+        {
+            id: 'logout',
+            label: 'Cerrar Sesión',
+            icon: LogOut,
+            content: (
+                <div className="p-4">
+                    <form method="post" action="/logout">
+                        <input
+                            type="hidden"
+                            name="_token"
+                            value={document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''}
+                        />
+                        <button
+                            type="submit"
+                            className="w-full rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+                        >
+                            Cerrar Sesión
+                        </button>
+                    </form>
                 </div>
             ),
         },
