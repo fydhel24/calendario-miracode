@@ -192,7 +192,7 @@ export default function CalendarLayout({
                                 setCalendariosState((prev) =>
                                     prev.map((c) =>
                                         c.id === updatedCalendar.id
-                                            ? updatedCalendar
+                                            ? { ...c, ...updatedCalendar }
                                             : c,
                                     ),
                                 );
@@ -201,20 +201,21 @@ export default function CalendarLayout({
                                         (c) => c.id === updatedCalendar.id,
                                     )
                                 ) {
-                                    setSelectedCalendars((prev) => {
-                                        const updated = prev.map((c) =>
+                                    setSelectedCalendars((prev) =>
+                                        prev.map((c) =>
                                             c.id === updatedCalendar.id
-                                                ? updatedCalendar
+                                                ? { ...c, ...updatedCalendar }
                                                 : c,
-                                        );
-                                        // Update events with the new selectedCalendars
-                                        setEvents(
-                                            updated.flatMap(
-                                                (c) => c.eventos || [],
-                                            ),
-                                        );
-                                        return updated;
-                                    });
+                                        ),
+                                    );
+                                    // Update events template directly
+                                    setEvents((prev) =>
+                                        prev.map((e) =>
+                                            e.calendario_id === updatedCalendar.id
+                                                ? { ...e, template: updatedCalendar.template }
+                                                : e
+                                        )
+                                    );
                                 }
                             }}
                             auth={auth}
@@ -550,7 +551,7 @@ export default function CalendarLayout({
                                     setCalendariosState((prev) =>
                                         prev.map((c) =>
                                             c.id === updatedCalendar.id
-                                                ? updatedCalendar
+                                                ? { ...c, ...updatedCalendar }
                                                 : c,
                                         ),
                                     );
@@ -562,9 +563,17 @@ export default function CalendarLayout({
                                         setSelectedCalendars((prev) =>
                                             prev.map((c) =>
                                                 c.id === updatedCalendar.id
-                                                    ? updatedCalendar
+                                                    ? { ...c, ...updatedCalendar }
                                                     : c,
                                             ),
+                                        );
+                                        // Update events template directly
+                                        setEvents((prev) =>
+                                            prev.map((e) =>
+                                                e.calendario_id === updatedCalendar.id
+                                                    ? { ...e, template: updatedCalendar.template }
+                                                    : e
+                                            )
                                         );
                                     }
                                 }}

@@ -40,10 +40,10 @@ export default function FullCalendarComponent({
 
     const formattedEvents = useMemo(() => {
         return events.map((event) => {
-            // Body uses event color (priority) > template
-            const prioColor = event.color || event.template || '#2563eb';
-            // Strip uses template (priority) > event color
-            const stripColor = event.template || event.color || '#2563eb';
+            // Body uses template (priority) > default. NEVER event color.
+            const prioColor = event.template || '#2563eb';
+            // Strip uses event color (priority) > template > default
+            const stripColor = event.color || event.template || '#2563eb';
 
             return {
                 id: event.id.toString(),
