@@ -120,6 +120,38 @@ function CreateCalendarModal({ onCalendarCreated }: CreateCalendarModalProps) {
                             />
                         </div>
 
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="template" className="text-right">
+                                Color/Estilo
+                            </Label>
+                            <div className="col-span-3 flex gap-2">
+                                <Input
+                                    id="template"
+                                    type="color"
+                                    value={form.template || '#3b82f6'}
+                                    onChange={(e) =>
+                                        setForm({
+                                            ...form,
+                                            template: e.target.value,
+                                        })
+                                    }
+                                    className="h-10 w-20 p-1"
+                                />
+                                <Input
+                                    type="text"
+                                    placeholder="Opcional (Hex o clase)"
+                                    value={form.template}
+                                    onChange={(e) =>
+                                        setForm({
+                                            ...form,
+                                            template: e.target.value,
+                                        })
+                                    }
+                                    className="flex-1"
+                                />
+                            </div>
+                        </div>
+
                         <div
                             className="grid grid-cols-4 items-center gap-4"
                             style={{ display: 'none' }}

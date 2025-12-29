@@ -120,22 +120,36 @@ function EditCalendarModal({
                                 rows={3}
                             />
                         </div>
-                        <div className="grid grid-cols-4 items-center gap-4" style={{ display: 'none' }}>
+                        <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="template" className="text-right">
-                                Plantilla
+                                Color/Estilo
                             </Label>
-                            <Input
-                                id="template"
-                                value={form.template}
-                                onChange={(e) =>
-                                    setForm({
-                                        ...form,
-                                        template: e.target.value,
-                                    })
-                                }
-                                className="col-span-3"
-                                placeholder="Opcional"
-                            />
+                            <div className="col-span-3 flex gap-2">
+                                <Input
+                                    id="template"
+                                    type="color"
+                                    value={form.template || '#3b82f6'}
+                                    onChange={(e) =>
+                                        setForm({
+                                            ...form,
+                                            template: e.target.value,
+                                        })
+                                    }
+                                    className="h-10 w-20 p-1"
+                                />
+                                <Input
+                                    type="text"
+                                    placeholder="Opcional (Hex o clase)"
+                                    value={form.template}
+                                    onChange={(e) =>
+                                        setForm({
+                                            ...form,
+                                            template: e.target.value,
+                                        })
+                                    }
+                                    className="flex-1"
+                                />
+                            </div>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4" style={{ display: 'none' }}>
                             <Label htmlFor="estado" className="text-right">

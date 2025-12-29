@@ -48,7 +48,7 @@ export default function CalendarLayout({
                 setSelectedCalendars(propSelectedCalendars);
                 setSelectedCalendarIds(propSelectedCalendars.map((c) => c.id));
                 setEvents(
-                    propSelectedCalendars.flatMap((c) => c.eventos || []),
+                    propSelectedCalendars.flatMap((c) => c.eventos?.map((e: any) => ({ ...e, template: c.template })) || []),
                 );
             } else if (selectedCalendars.length === 0) {
                 // Check localStorage for persisted selection
@@ -79,7 +79,7 @@ export default function CalendarLayout({
                 }
                 setSelectedCalendars(calendarsToSelect);
                 setSelectedCalendarIds(calendarsToSelect.map((c) => c.id));
-                setEvents(calendarsToSelect.flatMap((c) => c.eventos || []));
+                setEvents(calendarsToSelect.flatMap((c) => c.eventos?.map((e: any) => ({ ...e, template: c.template })) || []));
             }
         }
     }, [
@@ -102,7 +102,7 @@ export default function CalendarLayout({
     const handleCalendarSelect = (calendar: any) => {
         setSelectedCalendars([calendar]);
         setSelectedCalendarIds([calendar.id]);
-        setEvents(calendar.eventos || []);
+        setEvents(calendar.eventos?.map((e: any) => ({ ...e, template: calendar.template })) || []);
         setSelectedDate(null); // Reset selected date when changing calendar
         localStorage.setItem(
             'selectedCalendarIds',
@@ -113,7 +113,7 @@ export default function CalendarLayout({
     const handleCalendarsSelect = (calendars: any[]) => {
         setSelectedCalendars(calendars);
         setSelectedCalendarIds(calendars.map((c) => c.id));
-        setEvents(calendars.flatMap((c) => c.eventos || []));
+        setEvents(calendars.flatMap((c) => c.eventos?.map((e: any) => ({ ...e, template: c.template })) || []));
         setSelectedDate(null);
         localStorage.setItem(
             'selectedCalendarIds',
@@ -125,7 +125,7 @@ export default function CalendarLayout({
         setSelectedCalendarIds(ids);
         const selectedCals = calendariosState.filter((c) => ids.includes(c.id));
         setSelectedCalendars(selectedCals);
-        setEvents(selectedCals.flatMap((c) => c.eventos || []));
+        setEvents(selectedCals.flatMap((c) => c.eventos?.map((e: any) => ({ ...e, template: c.template })) || []));
         setSelectedDate(null);
         localStorage.setItem('selectedCalendarIds', JSON.stringify(ids));
     };
@@ -303,11 +303,11 @@ export default function CalendarLayout({
                                 prev.map((cal) =>
                                     cal.id === newEvent.calendario_id
                                         ? {
-                                              ...cal,
-                                              eventos: cal.eventos
-                                                  ? [...cal.eventos, newEvent]
-                                                  : [newEvent],
-                                          }
+                                            ...cal,
+                                            eventos: cal.eventos
+                                                ? [...cal.eventos, newEvent]
+                                                : [newEvent],
+                                        }
                                         : cal,
                                 ),
                             );
@@ -315,11 +315,11 @@ export default function CalendarLayout({
                                 prev.map((cal) =>
                                     cal.id === newEvent.calendario_id
                                         ? {
-                                              ...cal,
-                                              eventos: cal.eventos
-                                                  ? [...cal.eventos, newEvent]
-                                                  : [newEvent],
-                                          }
+                                            ...cal,
+                                            eventos: cal.eventos
+                                                ? [...cal.eventos, newEvent]
+                                                : [newEvent],
+                                        }
                                         : cal,
                                 ),
                             );
@@ -334,15 +334,15 @@ export default function CalendarLayout({
                                 prev.map((cal) =>
                                     cal.id === updatedEvent.calendario_id
                                         ? {
-                                              ...cal,
-                                              eventos: cal.eventos
-                                                  ? cal.eventos.map((e: any) =>
-                                                        e.id === updatedEvent.id
-                                                            ? updatedEvent
-                                                            : e,
-                                                    )
-                                                  : [],
-                                          }
+                                            ...cal,
+                                            eventos: cal.eventos
+                                                ? cal.eventos.map((e: any) =>
+                                                    e.id === updatedEvent.id
+                                                        ? updatedEvent
+                                                        : e,
+                                                )
+                                                : [],
+                                        }
                                         : cal,
                                 ),
                             );
@@ -350,15 +350,15 @@ export default function CalendarLayout({
                                 prev.map((cal) =>
                                     cal.id === updatedEvent.calendario_id
                                         ? {
-                                              ...cal,
-                                              eventos: cal.eventos
-                                                  ? cal.eventos.map((e: any) =>
-                                                        e.id === updatedEvent.id
-                                                            ? updatedEvent
-                                                            : e,
-                                                    )
-                                                  : [],
-                                          }
+                                            ...cal,
+                                            eventos: cal.eventos
+                                                ? cal.eventos.map((e: any) =>
+                                                    e.id === updatedEvent.id
+                                                        ? updatedEvent
+                                                        : e,
+                                                )
+                                                : [],
+                                        }
                                         : cal,
                                 ),
                             );
@@ -373,8 +373,8 @@ export default function CalendarLayout({
                                     ...cal,
                                     eventos: cal.eventos
                                         ? cal.eventos.filter(
-                                              (e: any) => e.id !== eventId,
-                                          )
+                                            (e: any) => e.id !== eventId,
+                                        )
                                         : [],
                                 })),
                             );
@@ -383,8 +383,8 @@ export default function CalendarLayout({
                                     ...cal,
                                     eventos: cal.eventos
                                         ? cal.eventos.filter(
-                                              (e: any) => e.id !== eventId,
-                                          )
+                                            (e: any) => e.id !== eventId,
+                                        )
                                         : [],
                                 })),
                             );
@@ -441,14 +441,14 @@ export default function CalendarLayout({
                                         prev.map((cal) =>
                                             cal.id === newEvent.calendario_id
                                                 ? {
-                                                      ...cal,
-                                                      eventos: cal.eventos
-                                                          ? [
-                                                                ...cal.eventos,
-                                                                newEvent,
-                                                            ]
-                                                          : [newEvent],
-                                                  }
+                                                    ...cal,
+                                                    eventos: cal.eventos
+                                                        ? [
+                                                            ...cal.eventos,
+                                                            newEvent,
+                                                        ]
+                                                        : [newEvent],
+                                                }
                                                 : cal,
                                         ),
                                     );
@@ -456,14 +456,14 @@ export default function CalendarLayout({
                                         prev.map((cal) =>
                                             cal.id === newEvent.calendario_id
                                                 ? {
-                                                      ...cal,
-                                                      eventos: cal.eventos
-                                                          ? [
-                                                                ...cal.eventos,
-                                                                newEvent,
-                                                            ]
-                                                          : [newEvent],
-                                                  }
+                                                    ...cal,
+                                                    eventos: cal.eventos
+                                                        ? [
+                                                            ...cal.eventos,
+                                                            newEvent,
+                                                        ]
+                                                        : [newEvent],
+                                                }
                                                 : cal,
                                         ),
                                     );
@@ -481,38 +481,38 @@ export default function CalendarLayout({
                                     setSelectedCalendars((prev) =>
                                         prev.map((cal) =>
                                             cal.id ===
-                                            updatedEvent.calendario_id
+                                                updatedEvent.calendario_id
                                                 ? {
-                                                      ...cal,
-                                                      eventos: cal.eventos
-                                                          ? cal.eventos.map(
-                                                                (e: any) =>
-                                                                    e.id ===
+                                                    ...cal,
+                                                    eventos: cal.eventos
+                                                        ? cal.eventos.map(
+                                                            (e: any) =>
+                                                                e.id ===
                                                                     updatedEvent.id
-                                                                        ? updatedEvent
-                                                                        : e,
-                                                            )
-                                                          : [],
-                                                  }
+                                                                    ? updatedEvent
+                                                                    : e,
+                                                        )
+                                                        : [],
+                                                }
                                                 : cal,
                                         ),
                                     );
                                     setCalendariosState((prev) =>
                                         prev.map((cal) =>
                                             cal.id ===
-                                            updatedEvent.calendario_id
+                                                updatedEvent.calendario_id
                                                 ? {
-                                                      ...cal,
-                                                      eventos: cal.eventos
-                                                          ? cal.eventos.map(
-                                                                (e: any) =>
-                                                                    e.id ===
+                                                    ...cal,
+                                                    eventos: cal.eventos
+                                                        ? cal.eventos.map(
+                                                            (e: any) =>
+                                                                e.id ===
                                                                     updatedEvent.id
-                                                                        ? updatedEvent
-                                                                        : e,
-                                                            )
-                                                          : [],
-                                                  }
+                                                                    ? updatedEvent
+                                                                    : e,
+                                                        )
+                                                        : [],
+                                                }
                                                 : cal,
                                         ),
                                     );
@@ -527,9 +527,9 @@ export default function CalendarLayout({
                                             ...cal,
                                             eventos: cal.eventos
                                                 ? cal.eventos.filter(
-                                                      (e: any) =>
-                                                          e.id !== eventId,
-                                                  )
+                                                    (e: any) =>
+                                                        e.id !== eventId,
+                                                )
                                                 : [],
                                         })),
                                     );
@@ -538,9 +538,9 @@ export default function CalendarLayout({
                                             ...cal,
                                             eventos: cal.eventos
                                                 ? cal.eventos.filter(
-                                                      (e: any) =>
-                                                          e.id !== eventId,
-                                                  )
+                                                    (e: any) =>
+                                                        e.id !== eventId,
+                                                )
                                                 : [],
                                         })),
                                     );

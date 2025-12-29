@@ -21,6 +21,7 @@ interface BackendEvent {
     fecha_fin?: string;
     color?: string;
     emoji?: string;
+    template?: string;
 }
 
 interface FullCalendarComponentProps {
@@ -38,15 +39,45 @@ export default function FullCalendarComponent({
     const calendarRef = useRef<any>(null);
 
     const formattedEvents = useMemo(() => {
-        return events.map((event) => ({
-            id: event.id.toString(),
-            title: `${event.emoji || '📱'} ${event.titulo}`,
-            start: event.fecha_inicio,
-            end: event.fecha_fin,
-            backgroundColor: event.color || '#2563eb',
-            borderColor: event.color || '#2563eb',
-        }));
+        return events.map((event) => {
+            // Body uses event color (priority) > template
+            const prioColor = event.color || event.template || '#2563eb';
+            // Strip uses template (priority) > event color
+            const stripColor = event.template || event.color || '#2563eb';
+
+            return {
+                id: event.id.toString(),
+                title: event.titulo,
+                start: event.fecha_inicio,
+                end: event.fecha_fin,
+                backgroundColor: prioColor,
+                borderColor: prioColor,
+                extendedProps: {
+                    emoji: event.emoji,
+                    stripColor: stripColor,
+                },
+            };
+        });
     }, [events]);
+
+    const renderEventContent = (eventInfo: any) => {
+        const { emoji, stripColor } = eventInfo.event.extendedProps;
+        return (
+            <div className="flex h-full w-full items-center overflow-hidden">
+                {emoji && (
+                    <div
+                        className="flex h-full w-8 flex-shrink-0 items-center justify-center text-sm"
+                        style={{ backgroundColor: stripColor }}
+                    >
+                        {emoji}
+                    </div>
+                )}
+                <div className="flex-1 truncate px-2 text-xs font-medium text-white">
+                    {eventInfo.event.title}
+                </div>
+            </div>
+        );
+    };
 
     useEffect(() => {
         const resizeObserver = new ResizeObserver(() => {
@@ -135,6 +166,7 @@ export default function FullCalendarComponent({
                 events={formattedEvents}
                 dateClick={handleDateClick}
                 eventClick={handleEventClick}
+                eventContent={renderEventContent}
                 height="100%"
                 locale="es"
                 buttonText={{
