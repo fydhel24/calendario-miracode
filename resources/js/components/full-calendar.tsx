@@ -20,6 +20,7 @@ interface BackendEvent {
     fecha_inicio: string;
     fecha_fin?: string;
     color?: string;
+    emoji?: string;
 }
 
 interface FullCalendarComponentProps {
@@ -39,7 +40,7 @@ export default function FullCalendarComponent({
     const formattedEvents = useMemo(() => {
         return events.map((event) => ({
             id: event.id.toString(),
-            title: event.titulo,
+            title: `${event.emoji || '📱'} ${event.titulo}`,
             start: event.fecha_inicio,
             end: event.fecha_fin,
             backgroundColor: event.color || '#2563eb',

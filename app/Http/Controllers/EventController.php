@@ -24,6 +24,7 @@ class EventController extends Controller
             'ubicacion' => 'nullable|string',
             'prioridad' => 'nullable|string',
             'color' => 'nullable|string',
+            'emoji' => 'nullable|string',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
         ]);
@@ -34,6 +35,7 @@ class EventController extends Controller
             'ubicacion' => $request->ubicacion,
             'prioridad' => $request->prioridad,
             'color' => $request->color,
+            'emoji' => $request->emoji,
             'fecha_inicio' => $request->fecha_inicio,
             'fecha_fin' => $request->fecha_fin,
             'user_id' => Auth::id(),
@@ -63,6 +65,7 @@ class EventController extends Controller
             'ubicacion' => 'nullable|string',
             'prioridad' => 'nullable|string',
             'color' => 'nullable|string',
+            'emoji' => 'nullable|string',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
             'users' => 'nullable|array',
@@ -75,6 +78,7 @@ class EventController extends Controller
             'ubicacion',
             'prioridad',
             'color',
+            'emoji',
             'fecha_inicio',
             'fecha_fin'
         ]));

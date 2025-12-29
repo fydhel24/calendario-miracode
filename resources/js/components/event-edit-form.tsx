@@ -2,8 +2,6 @@ import { DescriptionModal } from '@/components/description-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FileText } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import {
     Select,
     SelectContent,
@@ -11,18 +9,20 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { FileText } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const eventColors = [
-    { name: 'Azul', value: '#2563eb' },
-    { name: 'Rojo', value: '#dc2626' },
-    { name: 'Amarillo', value: '#eab308' },
-    { name: 'Verde', value: '#16a34a' },
-    { name: 'Celeste', value: '#06b6d4' },
-    { name: 'Violeta', value: '#9333ea' },
-    { name: 'Rosado', value: '#ec4899' },
-    { name: 'Naranja', value: '#ea580c' },
-    { name: 'Café', value: '#8b4513' },
-    { name: 'Marrón', value: '#92400e' },
+    { name: 'Azul', value: '#2563eb', emoji: '📱' },
+    { name: 'Rojo', value: '#dc2626', emoji: '🔥' },
+    { name: 'Amarillo', value: '#eab308', emoji: '💡' },
+    { name: 'Verde', value: '#16a34a', emoji: '📈' },
+    { name: 'Celeste', value: '#06b6d4', emoji: '🌐' },
+    { name: 'Violeta', value: '#9333ea', emoji: '🎯' },
+    { name: 'Rosado', value: '#ec4899', emoji: '❤️' },
+    { name: 'Naranja', value: '#ea580c', emoji: '🚀' },
+    { name: 'Café', value: '#8b4513', emoji: '☕' },
+    { name: 'Marrón', value: '#92400e', emoji: '🏆' },
 ];
 
 interface EventEditFormProps {
@@ -44,6 +44,7 @@ export function EventEditForm({
         ubicacion: '',
         prioridad: '',
         color: '#2563eb',
+        emoji: '📱',
         fecha_inicio: '',
         fecha_fin: '',
     });
@@ -58,6 +59,7 @@ export function EventEditForm({
                 ubicacion: eventToEdit.ubicacion || '',
                 prioridad: eventToEdit.prioridad || 'Alta',
                 color: eventToEdit.color || '#2563eb',
+                emoji: eventToEdit.emoji || '📱',
                 fecha_inicio: eventToEdit.fecha_inicio
                     ? new Date(eventToEdit.fecha_inicio)
                           .toISOString()
@@ -142,10 +144,16 @@ export function EventEditForm({
                     <Label htmlFor="color">Color</Label>
                     <Select
                         value={form.color}
-                        onValueChange={(value) =>
-                            setForm({ ...form, color: value })
-
-                        }
+                        onValueChange={(value) => {
+                            const selectedColor = eventColors.find(
+                                (c) => c.value === value,
+                            );
+                            setForm({
+                                ...form,
+                                color: value,
+                                emoji: selectedColor?.emoji || '📱',
+                            });
+                        }}
                     >
                         <SelectTrigger>
                             <SelectValue placeholder="Selecciona un color" />
@@ -163,7 +171,7 @@ export function EventEditForm({
                                                 backgroundColor: color.value,
                                             }}
                                         ></div>
-                                        {color.name}
+                                        {color.emoji} {color.name}
                                     </div>
                                 </SelectItem>
                             ))}

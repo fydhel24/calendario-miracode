@@ -13,16 +13,16 @@ import { FileText, Search, User, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const eventColors = [
-    { name: 'Azul', value: '#2563eb' },
-    { name: 'Rojo', value: '#dc2626' },
-    { name: 'Amarillo', value: '#eab308' },
-    { name: 'Verde', value: '#16a34a' },
-    { name: 'Celeste', value: '#06b6d4' },
-    { name: 'Violeta', value: '#9333ea' },
-    { name: 'Rosado', value: '#ec4899' },
-    { name: 'Naranja', value: '#ea580c' },
-    { name: 'Café', value: '#8b4513' },
-    { name: 'Marrón', value: '#92400e' },
+    { name: 'Azul', value: '#2563eb', emoji: '📱' },
+    { name: 'Rojo', value: '#dc2626', emoji: '🔥' },
+    { name: 'Amarillo', value: '#eab308', emoji: '💡' },
+    { name: 'Verde', value: '#16a34a', emoji: '📈' },
+    { name: 'Celeste', value: '#06b6d4', emoji: '🌐' },
+    { name: 'Violeta', value: '#9333ea', emoji: '🎯' },
+    { name: 'Rosado', value: '#ec4899', emoji: '❤️' },
+    { name: 'Naranja', value: '#ea580c', emoji: '🚀' },
+    { name: 'Café', value: '#8b4513', emoji: '☕' },
+    { name: 'Marrón', value: '#92400e', emoji: '🏆' },
 ];
 
 interface EventCreateFormProps {
@@ -45,6 +45,7 @@ export function EventCreateForm({
         ubicacion: '',
         prioridad: 'Alta',
         color: '#2563eb',
+        emoji: '📱',
         fecha_inicio: '',
         fecha_fin: '',
     });
@@ -109,6 +110,7 @@ export function EventCreateForm({
                     ubicacion: '',
                     prioridad: 'Alta',
                     color: '#2563eb',
+                    emoji: '📱',
                     fecha_inicio: selectedDate
                         ? selectedDate.split('T')[0] + 'T09:30'
                         : '',
@@ -200,9 +202,16 @@ export function EventCreateForm({
                     <Label htmlFor="color">Escoje Color</Label>
                     <Select
                         value={form.color}
-                        onValueChange={(value) =>
-                            setForm({ ...form, color: value })
-                        }
+                        onValueChange={(value) => {
+                            const selectedColor = eventColors.find(
+                                (c) => c.value === value,
+                            );
+                            setForm({
+                                ...form,
+                                color: value,
+                                emoji: selectedColor?.emoji || '📱',
+                            });
+                        }}
                     >
                         <SelectTrigger>
                             <SelectValue placeholder="Selecciona un color" />
@@ -220,7 +229,7 @@ export function EventCreateForm({
                                                 backgroundColor: color.value,
                                             }}
                                         ></div>
-                                        {color.name}
+                                        {color.emoji} {color.name}
                                     </div>
                                 </SelectItem>
                             ))}

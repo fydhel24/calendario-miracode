@@ -18,6 +18,7 @@ class Evento extends Model
         'ubicacion',
         'prioridad',
         'color',
+        'emoji',
         'fecha_inicio',
         'fecha_fin',
         'user_id',
