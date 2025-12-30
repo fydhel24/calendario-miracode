@@ -61,7 +61,7 @@ export function useCalendarSelection({
         idsToSelect = JSON.parse(storedIds).filter((id: number) =>
           allCalendars.some(c => c.id === id)
         );
-      } catch {}
+      } catch { }
     }
 
     if (idsToSelect.length === 0) {
@@ -136,9 +136,9 @@ export function useCalendarSelection({
       prev.map(cal =>
         cal.id === newEvent.calendario_id
           ? {
-              ...cal,
-              eventos: cal.eventos ? [...cal.eventos, newEvent] : [newEvent],
-            }
+            ...cal,
+            eventos: cal.eventos ? [...cal.eventos, newEvent] : [newEvent],
+          }
           : cal
       )
     );
@@ -147,9 +147,9 @@ export function useCalendarSelection({
       prev.map(cal =>
         cal.id === newEvent.calendario_id
           ? {
-              ...cal,
-              eventos: cal.eventos ? [...cal.eventos, newEvent] : [newEvent],
-            }
+            ...cal,
+            eventos: cal.eventos ? [...cal.eventos, newEvent] : [newEvent],
+          }
           : cal
       )
     );
@@ -164,11 +164,11 @@ export function useCalendarSelection({
       calendars.map(cal =>
         cal.id === updatedEvent.calendario_id
           ? {
-              ...cal,
-              eventos: cal.eventos?.map((e: any) =>
-                e.id === updatedEvent.id ? updatedEvent : e
-              ),
-            }
+            ...cal,
+            eventos: cal.eventos?.map((e: any) =>
+              e.id === updatedEvent.id ? updatedEvent : e
+            ),
+          }
           : cal
       );
 
@@ -176,13 +176,14 @@ export function useCalendarSelection({
     setSelectedCalendars(updateEventInCalendars);
   };
 
-  const deleteEventFromState = (eventId: number) => {
-    setEvents(prev => prev.filter(e => e.id !== eventId));
+  const deleteEventFromState = (eventId: number | string) => {
+    const numericId = typeof eventId === 'string' ? parseInt(eventId, 10) : eventId;
+    setEvents(prev => prev.filter(e => e.id !== numericId));
 
     const removeEventFromCalendars = (calendars: Calendar[]) =>
       calendars.map(cal => ({
         ...cal,
-        eventos: cal.eventos?.filter((e: any) => e.id !== eventId),
+        eventos: cal.eventos?.filter((e: any) => e.id !== numericId),
       }));
 
     setAllCalendars(removeEventFromCalendars);

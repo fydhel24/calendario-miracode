@@ -28,7 +28,7 @@ export default function CalendarLayout({
     return saved ? JSON.parse(saved) : false // Cambiado a false por defecto para mejor primera impresión
   })
 
-  const [rightExpanded, setRightExpanded] = useState(true) // Abierto por defecto en desktop
+  const [rightExpanded, setRightExpanded] = useState(false) // Cerrado por defecto hasta que el usuario lo abra
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedEvent, setSelectedEvent] = useState<any>(null)
 
@@ -38,6 +38,7 @@ export default function CalendarLayout({
     selectedCalendarIds,
     events,
     selectCalendars,
+    selectCalendarIds,
     addCalendar,
     updateCalendar,
     addEventToState,
@@ -107,7 +108,7 @@ export default function CalendarLayout({
               selectedCalendarIds={selectedCalendarIds}
               onCalendarSelect={cal => selectCalendars([cal])}
               onCalendarsSelect={selectCalendars}
-              onCalendarIdsChange={selectCalendars}
+              onCalendarIdsChange={selectCalendarIds}
               onCalendarCreated={addCalendar}
               onCalendarUpdated={updateCalendar}
               auth={auth}
