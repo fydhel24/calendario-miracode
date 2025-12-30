@@ -3,9 +3,10 @@ import { AppShell } from '@/components/app-shell'
 import FullCalendarComponent from '@/components/full-calendar'
 import { LeftSidebar } from '@/components/left-sidebar'
 import { RightMenu } from '@/components/right-menu'
-import { CalendarIcon } from 'lucide-react'
+import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { usePage } from '@inertiajs/react'
 import { useState } from 'react'
+import { cn } from '@/lib/utils' // si tienes esta utilidad de shadcn
 
 import { useCalendarSelection } from '@/hooks/useCalendarSelection'
 
@@ -22,24 +23,21 @@ export default function CalendarLayout({
 }: CalendarLayoutProps) {
   const { auth } = usePage().props as any
 
-  // Estados de UI
   const [leftCollapsed, setLeftCollapsed] = useState(() => {
     const saved = localStorage.getItem('leftSidebarCollapsed')
-    return saved ? JSON.parse(saved) : true
+    return saved ? JSON.parse(saved) : false // Cambiado a false por defecto para mejor primera impresión
   })
 
-  const [rightExpanded, setRightExpanded] = useState(false)
+  const [rightExpanded, setRightExpanded] = useState(true) // Abierto por defecto en desktop
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedEvent, setSelectedEvent] = useState<any>(null)
 
-  // Hook principal de negocio
   const {
     allCalendars,
     selectedCalendars,
     selectedCalendarIds,
     events,
     selectCalendars,
-    selectCalendarIds,
     addCalendar,
     updateCalendar,
     addEventToState,
@@ -51,7 +49,6 @@ export default function CalendarLayout({
     propSelectedCalendars: initialSelectedCalendars,
   })
 
-  // Handlers simples
   const toggleLeft = () => {
     const next = !leftCollapsed
     setLeftCollapsed(next)
@@ -73,40 +70,35 @@ export default function CalendarLayout({
     }
   }
 
-  // Cálculos de layout
-  const leftWidth = leftCollapsed ? 64 : 256
-  const rightWidth = rightExpanded ? 384 : 64
-  const calendarWidth = `calc(100vw - ${leftWidth}px - ${rightWidth}px)`
-
   const hasSelection = selectedCalendars.length > 0
-  const isSingleCalendar = selectedCalendars.length === 1
-  const currentCalendar = isSingleCalendar ? selectedCalendars[0] : null
+  const isSingle = selectedCalendars.length === 1
+  const primaryCalendar = isSingle ? selectedCalendars[0] : selectedCalendars[0]
+
+  // Color del calendario activo (fallback a primary si no hay template)
+  const accentColor = primaryCalendar?.template?.color || 'hsl(var(--primary))'
 
   return (
     <AppShell variant="sidebar">
-      <div className="relative flex h-screen overflow-hidden bg-background">
-        {/* LEFT SIDEBAR - Desktop */}
+      <div className="relative flex h-screen overflow-hidden bg-gradient-to-br from-background via-background to-muted/30">
+        {/* LEFT SIDEBAR */}
         <div className="hidden lg:flex">
-          {/* Toggle button when collapsed */}
           {leftCollapsed && (
-            <div className="flex w-16 flex-col items-center border-r bg-background shadow-sm">
+            <div className="flex w-16 flex-col items-center border-r border-border/50 bg-background/95 backdrop-blur-sm">
               <button
                 onClick={toggleLeft}
-                className="group mt-4 rounded-full p-3 transition hover:bg-accent hover:text-accent-foreground"
-                title="Abrir navegación"
-                aria-label="Abrir navegación lateral"
+                className="group mt-6 rounded-2xl p-4 transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-xl"
+                title="Expandir navegación"
               >
-                <CalendarIcon className="h-6 w-6" />
+                <ChevronRight className="h-6 w-6 transition-transform group-hover:scale-110" />
               </button>
             </div>
           )}
 
-          {/* Sidebar content */}
           <div
-            className={`
-              h-full overflow-hidden border-r bg-background transition-all duration-300
-              ${leftCollapsed ? 'w-0' : 'w-64'}
-            `}
+            className={cn(
+              "h-full border-r border-border/50 bg-background/95 backdrop-blur-sm shadow-2xl transition-all duration-500",
+              leftCollapsed ? "w-0 opacity-0" : "w-80 opacity-100"
+            )}
           >
             <LeftSidebar
               isCollapsed={leftCollapsed}
@@ -115,7 +107,7 @@ export default function CalendarLayout({
               selectedCalendarIds={selectedCalendarIds}
               onCalendarSelect={cal => selectCalendars([cal])}
               onCalendarsSelect={selectCalendars}
-              onCalendarIdsChange={selectCalendarIds}
+              onCalendarIdsChange={selectCalendars}
               onCalendarCreated={addCalendar}
               onCalendarUpdated={updateCalendar}
               auth={auth}
@@ -123,65 +115,72 @@ export default function CalendarLayout({
           </div>
         </div>
 
-        {/* MAIN CONTENT */}
-        <div className="relative flex min-w-0 flex-1 flex-col">
-          {/* Mobile top bar */}
-          <div className="flex items-center justify-between border-b bg-background p-3 lg:hidden">
-            <button
-              onClick={toggleLeft}
-              className="rounded-lg p-2 hover:bg-accent"
-              aria-label="Abrir menú lateral"
-            >
-              <CalendarIcon className="h-6 w-6" />
-            </button>
+        {/* MAIN AREA */}
+        <div className="flex flex-1 flex-col">
+          {/* Elegant Header */}
+          <header className="relative border-b border-border/50 bg-background/90 backdrop-blur-md">
+            <div className="flex items-center justify-between px-6 py-5">
+              <div className="flex items-center gap-5">
+                {/* Mobile menu button */}
+                <button
+                  onClick={toggleLeft}
+                  className="rounded-xl p-3 lg:hidden hover:bg-accent/70 transition"
+                >
+                  <CalendarIcon className="h-7 w-7" />
+                </button>
 
-            <button
-              onClick={() => setRightExpanded(!rightExpanded)}
-              className="rounded-lg p-2 hover:bg-accent"
-              aria-label="Abrir panel derecho"
-            >
-              <CalendarIcon className="h-6 w-6" />
-            </button>
-          </div>
-
-          {/* Header info */}
-          {hasSelection && (
-            <div className="border-b bg-card/50 px-4 py-3 sm:px-6">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-1.5 rounded-full bg-primary" />
-                <div className="min-w-0 flex-1">
-                  <h1 className="truncate text-xl font-semibold sm:text-2xl">
-                    {isSingleCalendar
-                      ? currentCalendar.nombre
-                      : 'Múltiples calendarios'}
-                  </h1>
-                  {isSingleCalendar && currentCalendar.descripcion && (
-                    <p className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">
-                      {currentCalendar.descripcion}
-                    </p>
-                  )}
-                </div>
+                {/* Calendar title with accent */}
+                {hasSelection && (
+                  <div className="flex items-center gap-4">
+                    <div
+                      className="h-12 w-1.5 rounded-full"
+                      style={{ backgroundColor: accentColor }}
+                    />
+                    <div>
+                      <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">
+                        {isSingle
+                          ? primaryCalendar.nombre
+                          : `${selectedCalendars.length} calendarios`}
+                      </h1>
+                      {isSingle && primaryCalendar.descripcion && (
+                        <p className="mt-1 text-sm text-muted-foreground opacity-80">
+                          {primaryCalendar.descripcion}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
 
-          {/* Calendar */}
-          <div className="relative flex-1 overflow-hidden">
-            <FullCalendarComponent
-              events={events}
-              onDateSelect={handleDateSelect}
-              onEventClick={handleEventClick}
-            />
-          </div>
+              {/* Mobile right menu button */}
+              <button
+                onClick={() => setRightExpanded(!rightExpanded)}
+                className="rounded-xl p-3 lg:hidden hover:bg-accent/70 transition"
+              >
+                <CalendarIcon className="h-7 w-7" />
+              </button>
+            </div>
+          </header>
+
+          {/* Full Calendar */}
+          <main className="flex-1 overflow-hidden bg-background/50">
+            <div className="h-full rounded-t-3xl bg-background shadow-inner">
+              <FullCalendarComponent
+                events={events}
+                onDateSelect={handleDateSelect}
+                onEventClick={handleEventClick}
+              />
+            </div>
+          </main>
         </div>
 
         {/* RIGHT PANEL - Desktop */}
-        <div className="hidden border-l shadow-sm xl:block">
+        <div className="hidden xl:block">
           <div
-            className={`
-              h-full overflow-y-auto bg-background transition-all duration-300
-              ${rightExpanded ? 'w-96' : 'w-16'}
-            `}
+            className={cn(
+              "h-full border-l border-border/50 bg-background/95 backdrop-blur-sm shadow-2xl transition-all duration-500",
+              rightExpanded ? "w-96" : "w-16"
+            )}
           >
             <RightMenu
               isExpanded={rightExpanded}
@@ -198,20 +197,37 @@ export default function CalendarLayout({
               onDateClear={() => setSelectedDate(null)}
             />
           </div>
+
+          {/* Collapse button when expanded */}
+          {rightExpanded && (
+            <button
+              onClick={() => setRightExpanded(false)}
+              className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-background p-2 shadow-xl hover:scale-110 transition"
+            >
+              <ChevronRight className="h-5 w-5 rotate-180" />
+            </button>
+          )}
         </div>
 
-        {/* ── MOBILE OVERLAYS ── */}
-
-        {/* Mobile Right Menu */}
+        {/* MOBILE RIGHT MENU OVERLAY */}
         {rightExpanded && (
           <div
-            className="fixed inset-0 z-50 bg-black/60 xl:hidden"
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm xl:hidden"
             onClick={() => setRightExpanded(false)}
           >
             <div
-              className="absolute right-0 top-0 h-full w-full max-w-md bg-background shadow-2xl"
+              className="absolute right-0 top-0 h-full w-full max-w-lg bg-background shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
+              <div className="   items-center justify-between border-b border-border/50 p-5">
+                <h2 className="text-xl font-semibold">Detalles</h2>
+                <button
+                  onClick={() => setRightExpanded(false)}
+                  className="rounded-lg p-2 hover:bg-accent"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              </div>
               <RightMenu
                 isExpanded={true}
                 onExpansionChange={setRightExpanded}
