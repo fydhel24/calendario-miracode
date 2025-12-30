@@ -46,9 +46,9 @@ export function LeftSidebar({
     const [editModalOpen, setEditModalOpen] = useState(false);
     const selectAll =
         selectedCalendarIds.length ===
-            calendarios.filter((c) =>
-                c.users?.some((u: any) => u.id === auth?.user?.id),
-            ).length && selectedCalendarIds.length > 0;
+        calendarios.filter((c) =>
+            c.users?.some((u: any) => u.id === auth?.user?.id),
+        ).length && selectedCalendarIds.length > 0;
 
     return (
         <div
@@ -132,96 +132,110 @@ export function LeftSidebar({
                                                 (u: any) =>
                                                     u.id === auth?.user?.id &&
                                                     u.pivot?.tipo_user ===
-                                                        'owner',
+                                                    'owner',
                                             ),
                                         )
-                                        .map((calendario) => (
-                                            <div
-                                                key={calendario.id}
-                                                className="group flex items-center justify-between rounded-xl border border-transparent p-2.5 transition-all duration-200 hover:scale-[1.02] hover:border-sidebar-border/30 hover:bg-sidebar-accent hover:shadow-md"
-                                            >
-                                                <div className="flex flex-1 items-center gap-2">
-                                                    <Checkbox
-                                                        checked={selectedCalendarIds.includes(
-                                                            calendario.id,
-                                                        )}
-                                                        onCheckedChange={(
-                                                            checked,
-                                                        ) => {
-                                                            if (checked) {
-                                                                onCalendarIdsChange?.(
-                                                                    [
-                                                                        ...selectedCalendarIds,
-                                                                        calendario.id,
-                                                                    ],
-                                                                );
-                                                            } else {
-                                                                onCalendarIdsChange?.(
-                                                                    selectedCalendarIds.filter(
-                                                                        (id) =>
-                                                                            id !==
-                                                                            calendario.id,
-                                                                    ),
-                                                                );
-                                                            }
-                                                        }}
-                                                    />
+                                        .map((calendario) => {
+                                            const templateColor = calendario.template || '#000000';
+                                            const isSelected = selectedCalendarIds.includes(calendario.id);
+
+                                            return (
+                                                <div
+                                                    key={calendario.id}
+                                                    className={`calendar-item group ${isSelected ? 'calendar-item-selected' : ''}`}
+                                                    style={{
+                                                        borderColor: templateColor,
+                                                        boxShadow: `0 0 20px ${templateColor}15, inset 0 0 20px ${templateColor}08`
+                                                    }}
+                                                >
+                                                    {/* Color Badge */}
                                                     <div
-                                                        onClick={() =>
-                                                            onCalendarSelect &&
-                                                            onCalendarSelect(
-                                                                calendario,
-                                                            )
-                                                        }
-                                                        className="flex flex-1 cursor-pointer items-center gap-2 hover:text-sidebar-accent-foreground"
-                                                    >
-                                                        <Calendar className="h-4 w-4" />
-                                                        <span className="truncate text-sm">
-                                                            {calendario.nombre}
-                                                        </span>
+                                                        className="calendar-color-badge"
+                                                        style={{ backgroundColor: templateColor }}
+                                                        title={`Color: ${templateColor}`}
+                                                    />
+
+                                                    <div className="flex items-center gap-2.5">
+                                                        <Checkbox
+                                                            checked={isSelected}
+                                                            onCheckedChange={(
+                                                                checked,
+                                                            ) => {
+                                                                if (checked) {
+                                                                    onCalendarIdsChange?.(
+                                                                        [
+                                                                            ...selectedCalendarIds,
+                                                                            calendario.id,
+                                                                        ],
+                                                                    );
+                                                                } else {
+                                                                    onCalendarIdsChange?.(
+                                                                        selectedCalendarIds.filter(
+                                                                            (id) =>
+                                                                                id !==
+                                                                                calendario.id,
+                                                                        ),
+                                                                    );
+                                                                }
+                                                            }}
+                                                        />
+                                                        <div
+                                                            onClick={() =>
+                                                                onCalendarSelect &&
+                                                                onCalendarSelect(
+                                                                    calendario,
+                                                                )
+                                                            }
+                                                            className="flex flex-1 cursor-pointer items-center gap-2.5 hover:text-primary transition-colors"
+                                                        >
+                                                            <Calendar className="h-4 w-4" />
+                                                            <span className="truncate text-sm font-medium">
+                                                                {calendario.nombre}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-7 w-7 hover:bg-primary/10 hover:text-primary"
+                                                                title="Editar calendario"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setEditingCalendar(
+                                                                        calendario,
+                                                                    );
+                                                                    setEditModalOpen(
+                                                                        true,
+                                                                    );
+                                                                }}
+                                                            >
+                                                                <Edit className="h-3.5 w-3.5" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive"
+                                                                title="Eliminar calendario"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    if (
+                                                                        confirm(
+                                                                            '¿Estás seguro de que quieres eliminar este calendario?',
+                                                                        )
+                                                                    ) {
+                                                                        router.delete(
+                                                                            `/calendarios/${calendario.id}`,
+                                                                        );
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <Trash2 className="h-3.5 w-3.5" />
+                                                            </Button>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-6 w-6 hover:bg-sidebar-accent"
-                                                        title="Editar calendario"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setEditingCalendar(
-                                                                calendario,
-                                                            );
-                                                            setEditModalOpen(
-                                                                true,
-                                                            );
-                                                        }}
-                                                    >
-                                                        <Edit className="h-3 w-3" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-6 w-6 hover:bg-destructive hover:text-destructive-foreground"
-                                                        title="Eliminar calendario"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            if (
-                                                                confirm(
-                                                                    '¿Estás seguro de que quieres eliminar este calendario?',
-                                                                )
-                                                            ) {
-                                                                router.delete(
-                                                                    `/calendarios/${calendario.id}`,
-                                                                );
-                                                            }
-                                                        }}
-                                                    >
-                                                        <Trash2 className="h-3 w-3" />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        ))}
+                                            )
+                                        })}
                                 </div>
                             </div>
 
@@ -237,57 +251,71 @@ export function LeftSidebar({
                                                 (u: any) =>
                                                     u.id === auth?.user?.id &&
                                                     u.pivot?.tipo_user !==
-                                                        'owner',
+                                                    'owner',
                                             ),
                                         )
-                                        .map((calendario) => (
-                                            <div
-                                                key={calendario.id}
-                                                className="group flex items-center justify-between rounded-xl border border-transparent p-2.5 transition-all duration-200 hover:scale-[1.02] hover:border-sidebar-border/30 hover:bg-sidebar-accent hover:shadow-md"
-                                            >
-                                                <div className="flex flex-1 items-center gap-2">
-                                                    <Checkbox
-                                                        checked={selectedCalendarIds.includes(
-                                                            calendario.id,
-                                                        )}
-                                                        onCheckedChange={(
-                                                            checked,
-                                                        ) => {
-                                                            if (checked) {
-                                                                onCalendarIdsChange?.(
-                                                                    [
-                                                                        ...selectedCalendarIds,
-                                                                        calendario.id,
-                                                                    ],
-                                                                );
-                                                            } else {
-                                                                onCalendarIdsChange?.(
-                                                                    selectedCalendarIds.filter(
-                                                                        (id) =>
-                                                                            id !==
-                                                                            calendario.id,
-                                                                    ),
-                                                                );
-                                                            }
-                                                        }}
-                                                    />
+                                        .map((calendario) => {
+                                            const templateColor = calendario.template?.color || '#000000';
+                                            const isSelected = selectedCalendarIds.includes(calendario.id);
+
+                                            return (
+                                                <div
+                                                    key={calendario.id}
+                                                    className={`calendar-item group ${isSelected ? 'calendar-item-selected' : ''}`}
+                                                    style={{
+                                                        borderColor: templateColor,
+                                                        boxShadow: `0 0 20px ${templateColor}15, inset 0 0 20px ${templateColor}08`
+                                                    }}
+                                                >
+                                                    {/* Color Badge */}
                                                     <div
-                                                        onClick={() =>
-                                                            onCalendarSelect &&
-                                                            onCalendarSelect(
-                                                                calendario,
-                                                            )
-                                                        }
-                                                        className="flex flex-1 cursor-pointer items-center gap-2 hover:text-sidebar-accent-foreground"
-                                                    >
-                                                        <Calendar className="h-4 w-4" />
-                                                        <span className="truncate text-sm">
-                                                            {calendario.nombre}
-                                                        </span>
+                                                        className="calendar-color-badge"
+                                                        style={{ backgroundColor: templateColor }}
+                                                        title={`Color: ${templateColor}`}
+                                                    />
+
+                                                    <div className="flex items-center gap-2.5">
+                                                        <Checkbox
+                                                            checked={isSelected}
+                                                            onCheckedChange={(
+                                                                checked,
+                                                            ) => {
+                                                                if (checked) {
+                                                                    onCalendarIdsChange?.(
+                                                                        [
+                                                                            ...selectedCalendarIds,
+                                                                            calendario.id,
+                                                                        ],
+                                                                    );
+                                                                } else {
+                                                                    onCalendarIdsChange?.(
+                                                                        selectedCalendarIds.filter(
+                                                                            (id) =>
+                                                                                id !==
+                                                                                calendario.id,
+                                                                        ),
+                                                                    );
+                                                                }
+                                                            }}
+                                                        />
+                                                        <div
+                                                            onClick={() =>
+                                                                onCalendarSelect &&
+                                                                onCalendarSelect(
+                                                                    calendario,
+                                                                )
+                                                            }
+                                                            className="flex flex-1 cursor-pointer items-center gap-2.5 hover:text-primary transition-colors"
+                                                        >
+                                                            <Calendar className="h-4 w-4" />
+                                                            <span className="truncate text-sm font-medium">
+                                                                {calendario.nombre}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            )
+                                        })}
                                 </div>
                             </div>
                         </div>

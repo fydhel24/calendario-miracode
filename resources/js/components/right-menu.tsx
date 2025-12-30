@@ -23,6 +23,11 @@ import {
     Search,
     User,
     Users,
+    ShieldCheck,
+    Calendar,
+    MapPin,
+    Trash2,
+    Edit,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -144,20 +149,20 @@ export function RightMenu({
     const menuOptions: MenuOption[] = [
         ...(isOwner
             ? [
-                  {
-                      id: 'new-event',
-                      label: 'Nuevo Evento',
-                      icon: Plus,
-                      content: (
-                          <EventCreateForm
-                              selectedDate={selectedDate ?? undefined}
-                              selectedCalendars={selectedCalendars}
-                              onEventCreated={onEventCreated}
-                              auth={auth}
-                          />
-                      ),
-                  },
-              ]
+                {
+                    id: 'new-event',
+                    label: 'Nuevo Evento',
+                    icon: Plus,
+                    content: (
+                        <EventCreateForm
+                            selectedDate={selectedDate ?? undefined}
+                            selectedCalendars={selectedCalendars}
+                            onEventCreated={onEventCreated}
+                            auth={auth}
+                        />
+                    ),
+                },
+            ]
             : []),
         {
             id: 'reminder',
@@ -193,15 +198,16 @@ export function RightMenu({
 
                 return (
                     <div className="space-y-4 p-4">
-                        <h3 className="mb-4 text-lg font-semibold">
-                            Notificaciones
-                        </h3>
-                        <div className="max-h-96 space-y-2 overflow-y-auto">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Bell className="h-5 w-5 text-primary" />
+                            <h3 className="text-lg font-bold tracking-tight">Notificaciones</h3>
+                        </div>
+                        <div className="max-h-[70vh] space-y-3 overflow-y-auto pr-2 scrollbar-thin">
                             {notifications.length > 0 ? (
                                 notifications.map((notif, index) => (
                                     <div
                                         key={index}
-                                        className="cursor-pointer rounded-lg border p-3 transition-colors hover:bg-muted/50"
+                                        className="detail-card cursor-pointer group"
                                         onClick={() => {
                                             if (notif.type === 'calendar') {
                                                 onCalendarSelect?.(notif.item);
@@ -209,24 +215,30 @@ export function RightMenu({
                                                 onCalendarSelect?.(
                                                     notif.item.calendario,
                                                 );
-                                                // Optionally set selectedEvent, but since no prop, just switch calendar
                                             }
                                         }}
                                     >
-                                        <p className="text-sm">
-                                            {notif.message}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {new Date(
-                                                notif.date,
-                                            ).toLocaleString()}
-                                        </p>
+                                        <div className="flex gap-3">
+                                            <div className={`mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${notif.type === 'calendar' ? 'bg-blue-500/10 text-blue-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                                                {notif.type === 'calendar' ? <Calendar className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+                                            </div>
+                                            <div className="flex-1 space-y-1">
+                                                <p className="text-sm font-semibold leading-tight group-hover:text-primary transition-colors">
+                                                    {notif.message}
+                                                </p>
+                                                <div className="flex items-center gap-2 text-[10px] font-medium text-muted-foreground">
+                                                    <Clock className="h-3 w-3" />
+                                                    {new Date(notif.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-sm text-muted-foreground">
-                                    No hay notificaciones
-                                </p>
+                                <div className="flex flex-col items-center justify-center py-12 text-center opacity-40">
+                                    <Bell className="h-12 w-12 mb-3" />
+                                    <p className="text-sm font-medium">No hay notificaciones</p>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -239,32 +251,48 @@ export function RightMenu({
             icon: Users,
             content: (
                 <div className="space-y-4 p-4">
-                    <h3 className="mb-4 text-lg font-semibold">
-                        Miembros del Calendario
-                    </h3>
-                    <div className="max-h-96 space-y-3 overflow-y-auto">
+                    <div className="flex items-center gap-2 mb-2">
+                        <Users className="h-5 w-5 text-primary" />
+                        <h3 className="text-lg font-bold tracking-tight">Miembros</h3>
+                    </div>
+                    <div className="max-h-80 space-y-3 overflow-y-auto pr-2 scrollbar-thin">
                         {selectedCalendar?.users &&
-                        selectedCalendar.users.length > 0 ? (
+                            selectedCalendar.users.length > 0 ? (
                             selectedCalendar.users.map((user: any) => (
                                 <div
                                     key={user.id}
-                                    className="flex items-center justify-between rounded-lg border p-3"
+                                    className="detail-card border-l-4"
+                                    style={{ borderLeftColor: user.pivot?.tipo_user === 'owner' ? '#3b82f6' : user.pivot?.tipo_user === 'editor' ? '#10b981' : '#64748b' }}
                                 >
-                                    <div>
-                                        <p className="font-medium">
-                                            {user.name}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="rounded bg-primary/10 px-2 py-1 text-xs text-primary">
-                                            {user.pivot?.tipo_user || 'viewer'}
-                                        </span>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="relative">
+                                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 border border-primary/20">
+                                                    <User className="h-5 w-5 text-primary" />
+                                                </div>
+                                                {user.pivot?.tipo_user === 'owner' && (
+                                                    <div className="absolute -bottom-1 -right-1 rounded-full bg-background p-0.5">
+                                                        <ShieldCheck className="h-4 w-4 text-blue-500 fill-blue-500/20" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold tracking-tight">
+                                                    {user.name}
+                                                </p>
+                                                <span className={`role-badge role-badge-${user.pivot?.tipo_user || 'viewer'}`}>
+                                                    {user.pivot?.tipo_user === 'owner' ? 'Propietario' : user.pivot?.tipo_user === 'editor' ? 'Editor' : 'Espectador'}
+                                                </span>
+                                            </div>
+                                        </div>
                                         {isOwner &&
                                             user.pivot?.tipo_user !==
-                                                'owner' && (
+                                            'owner' && (
                                                 <Button
-                                                    variant="destructive"
-                                                    size="sm"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all"
+                                                    title="Remover miembro"
                                                     onClick={() => {
                                                         if (
                                                             confirm(
@@ -291,16 +319,16 @@ export function RightMenu({
                                                                 .then(() => {
                                                                     // Update selectedCalendar in real-time
                                                                     const updatedCalendar =
-                                                                        {
-                                                                            ...selectedCalendar,
-                                                                            users: selectedCalendar.users.filter(
-                                                                                (
-                                                                                    u,
-                                                                                ) =>
-                                                                                    u.id !==
-                                                                                    user.id,
-                                                                            ),
-                                                                        };
+                                                                    {
+                                                                        ...selectedCalendar,
+                                                                        users: selectedCalendar.users.filter(
+                                                                            (
+                                                                                u,
+                                                                            ) =>
+                                                                                u.id !==
+                                                                                user.id,
+                                                                        ),
+                                                                    };
                                                                     if (
                                                                         onCalendarUpdated
                                                                     )
@@ -319,16 +347,17 @@ export function RightMenu({
                                                         }
                                                     }}
                                                 >
-                                                    Remover
+                                                    <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             )}
                                     </div>
                                 </div>
                             ))
                         ) : (
-                            <p className="text-muted-foreground">
-                                No hay miembros
-                            </p>
+                            <div className="py-8 text-center opacity-40">
+                                <Users className="h-10 w-10 mx-auto mb-2" />
+                                <p className="text-sm font-medium">No hay miembros</p>
+                            </div>
                         )}
                     </div>
 
@@ -413,7 +442,7 @@ export function RightMenu({
                                                     .then((data) => {
                                                         throw new Error(
                                                             data.error ||
-                                                                'Error al agregar usuario',
+                                                            'Error al agregar usuario',
                                                         );
                                                     });
                                             }
@@ -451,7 +480,7 @@ export function RightMenu({
                                                 .filter(
                                                     (u: any) =>
                                                         u.id !==
-                                                            auth?.user?.id &&
+                                                        auth?.user?.id &&
                                                         u.name
                                                             .toLowerCase()
                                                             .includes(
@@ -639,13 +668,12 @@ export function RightMenu({
         >
             {/* Estructura expandible: siempre los iconos + contenido cuando está activo */}
             <div
-                className={`flex h-full transition-all duration-300 ease-in-out ${
-                    shouldShowExpandedContent ? 'w-96' : 'w-16'
-                }`}
+                className={`flex h-full transition-all duration-300 ease-in-out ${shouldShowExpandedContent ? 'w-96' : 'w-16'
+                    }`}
             >
                 {/* Iconos del menú - siempre visible */}
                 <div className="flex w-16 flex-col border-r border-border bg-background">
-                    <div className="flex flex-col space-y-2 p-2">
+                    <div className="flex flex-col space-y-3 p-2 mt-4">
                         {menuOptions.map((option) => {
                             const Icon = option.icon;
                             return (
@@ -654,11 +682,10 @@ export function RightMenu({
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => handleOptionClick(option.id)}
-                                    className={`h-10 w-10 transition-all duration-200 hover:scale-110 hover:shadow-md ${
-                                        activeOption === option.id
-                                            ? 'scale-105 transform bg-sidebar-accent text-sidebar-accent-foreground shadow-md'
-                                            : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                                    }`}
+                                    className={`h-11 w-11 rounded-xl transition-all duration-300 ${activeOption === option.id
+                                        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105'
+                                        : 'hover:bg-primary/10 hover:text-primary hover:scale-110 glass-icon'
+                                        }`}
                                     title={option.label}
                                 >
                                     <Icon className="h-5 w-5" />
@@ -778,724 +805,362 @@ export function RightMenu({
                                 <div className="flex-1 overflow-y-auto bg-background/50 p-4 backdrop-blur-sm">
                                     <div className="space-y-4">
                                         <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                                <Clock className="h-5 w-5 text-primary" />
-                                                <h3 className="text-lg font-semibold">
+                                            <div className="flex items-center gap-2 text-primary">
+                                                <Calendar className="h-5 w-5" />
+                                                <h3 className="text-lg font-bold tracking-tight">
                                                     Detalles del Evento
                                                 </h3>
                                             </div>
                                             {canEditEvent && (
                                                 <div className="flex gap-2">
                                                     <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => {
-                                                            // Set to edit mode - show form with event data
-                                                            setInternalActiveOption(
-                                                                'edit-event',
-                                                            );
-                                                        }}
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-all duration-200"
+                                                        title="Editar evento"
+                                                        onClick={() => setInternalActiveOption('edit-event')}
                                                     >
-                                                        Editar
+                                                        <Edit className="h-4 w-4" />
                                                     </Button>
                                                     <Button
-                                                        variant="destructive"
-                                                        size="sm"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
+                                                        title="Eliminar evento"
                                                         onClick={() => {
-                                                            if (
-                                                                confirm(
-                                                                    '¿Estás seguro de que quieres eliminar este evento?',
-                                                                )
-                                                            ) {
-                                                                // Delete event
-                                                                fetch(
-                                                                    `/eventos/${selectedEvent.id}`,
-                                                                    {
-                                                                        method: 'DELETE',
-                                                                        headers:
-                                                                            {
-                                                                                'X-CSRF-TOKEN':
-                                                                                    document
-                                                                                        .querySelector(
-                                                                                            'meta[name="csrf-token"]',
-                                                                                        )
-                                                                                        ?.getAttribute(
-                                                                                            'content',
-                                                                                        ) ||
-                                                                                    '',
-                                                                            },
-                                                                    },
-                                                                )
-                                                                    .then(
-                                                                        () => {
-                                                                            // Remove from events
-                                                                            if (
-                                                                                onEventDeleted
-                                                                            )
-                                                                                onEventDeleted(
-                                                                                    selectedEvent.id,
-                                                                                );
-                                                                            // Close details
-                                                                            setInternalActiveOption(
-                                                                                null,
-                                                                            );
-                                                                            if (
-                                                                                onExpansionChange
-                                                                            )
-                                                                                onExpansionChange(
-                                                                                    false,
-                                                                                );
-                                                                        },
-                                                                    )
-                                                                    .catch(
-                                                                        (
-                                                                            error,
-                                                                        ) => {
-                                                                            console.error(
-                                                                                'Error deleting event:',
-                                                                                error,
-                                                                            );
-                                                                        },
-                                                                    );
+                                                            if (confirm('¿Estás seguro de que quieres eliminar este evento?')) {
+                                                                fetch(`/eventos/${selectedEvent.id}`, {
+                                                                    method: 'DELETE',
+                                                                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' },
+                                                                }).then(() => {
+                                                                    if (onEventDeleted) onEventDeleted(selectedEvent.id);
+                                                                    setInternalActiveOption(null);
+                                                                    if (onExpansionChange) onExpansionChange(false);
+                                                                });
                                                             }
                                                         }}
                                                     >
-                                                        Eliminar
+                                                        <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="space-y-3">
-                                            <div>
-                                                <Label className="text-sm font-medium">
-                                                    Título
-                                                </Label>
-                                                <p className="text-base">
-                                                    {selectedEvent.titulo}
-                                                </p>
+
+                                        <div className="space-y-4">
+                                            <div className="detail-card">
+                                                <div className="info-group">
+                                                    <span className="info-label">
+                                                        <FileText className="h-3.5 w-3.5" />
+                                                        Título
+                                                    </span>
+                                                    <h2 className="text-xl font-bold tracking-tight">
+                                                        {selectedEvent.titulo}
+                                                    </h2>
+                                                </div>
                                             </div>
-                                            {selectedEvent.descripcion && (
-                                                <div>
-                                                    <Label className="text-sm font-medium">
-                                                        Descripción
-                                                    </Label>
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        onClick={() =>
-                                                            setIsDescriptionModalOpen(
-                                                                true,
-                                                            )
-                                                        }
-                                                        className="mt-1 w-full justify-start text-left font-normal"
-                                                    >
-                                                        <FileText className="mr-2 h-4 w-4" />
-                                                        <span className="truncate">
-                                                            {selectedEvent
-                                                                .descripcion
-                                                                .length > 30
-                                                                ? `${selectedEvent.descripcion.substring(0, 30)}...`
-                                                                : selectedEvent.descripcion}
+
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div className="detail-card">
+                                                    <div className="info-group">
+                                                        <span className="info-label">
+                                                            <Clock className="h-3.5 w-3.5" />
+                                                            Inicio
                                                         </span>
-                                                    </Button>
+                                                        <p className="text-xs font-bold">
+                                                            {new Date(selectedEvent.fecha_inicio).toLocaleDateString()}
+                                                        </p>
+                                                        <p className="text-[10px] text-muted-foreground uppercase font-black">
+                                                            {new Date(selectedEvent.fecha_inicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            )}
-                                            {selectedEvent.ubicacion && (
-                                                <div>
-                                                    <Label className="text-sm font-medium">
-                                                        Ubicación
-                                                    </Label>
-                                                    <p className="text-sm">
-                                                        {
-                                                            selectedEvent.ubicacion
-                                                        }
-                                                    </p>
+                                                <div className="detail-card">
+                                                    <div className="info-group">
+                                                        <span className="info-label">
+                                                            <Clock className="h-3.5 w-3.5" />
+                                                            Fin
+                                                        </span>
+                                                        <p className="text-xs font-bold">
+                                                            {selectedEvent.fecha_fin ? new Date(selectedEvent.fecha_fin).toLocaleDateString() : '---'}
+                                                        </p>
+                                                        <p className="text-[10px] text-muted-foreground uppercase font-black">
+                                                            {selectedEvent.fecha_fin ? new Date(selectedEvent.fecha_fin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '---'}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            )}
-                                            <div>
-                                                <Label className="text-sm font-medium">
-                                                    Fecha Inicio
-                                                </Label>
-                                                <p className="text-sm">
-                                                    {new Date(
-                                                        selectedEvent.fecha_inicio,
-                                                    ).toLocaleString()}
-                                                </p>
                                             </div>
-                                            {selectedEvent.fecha_fin && (
-                                                <div>
-                                                    <Label className="text-sm font-medium">
-                                                        Fecha Fin
-                                                    </Label>
-                                                    <p className="text-sm">
-                                                        {new Date(
-                                                            selectedEvent.fecha_fin,
-                                                        ).toLocaleString()}
-                                                    </p>
+
+                                            {selectedEvent.descripcion && (
+                                                <div className="detail-card">
+                                                    <div className="info-group">
+                                                        <span className="info-label">
+                                                            <FileText className="h-3.5 w-3.5" />
+                                                            Descripción
+                                                        </span>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            onClick={() => setIsDescriptionModalOpen(true)}
+                                                            className="mt-1 w-full justify-start h-auto py-2.5 px-3 text-left font-medium bg-muted/30 hover:bg-muted/50 rounded-lg text-sm transition-all duration-200"
+                                                        >
+                                                            <span className="line-clamp-2">
+                                                                {selectedEvent.descripcion}
+                                                            </span>
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                             )}
+
+                                            {selectedEvent.ubicacion && (
+                                                <div className="detail-card border-l-4 border-l-primary/50">
+                                                    <div className="info-group">
+                                                        <span className="info-label">
+                                                            <MapPin className="h-3.5 w-3.5" />
+                                                            Ubicación
+                                                        </span>
+                                                        <p className="text-sm font-semibold">
+                                                            {selectedEvent.ubicacion}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             {selectedEvent.user && (
-                                                <div>
-                                                    <Label className="text-sm font-medium">
-                                                        Creado por
-                                                    </Label>
-                                                    <p className="text-sm">
-                                                        {
-                                                            selectedEvent.user
-                                                                .name
-                                                        }
-                                                    </p>
-                                                </div>
-                                            )}
-                                            {selectedEvent.usuarios &&
-                                                selectedEvent.usuarios.length >
-                                                    0 && (
-                                                    <div>
-                                                        <Label className="text-sm font-medium">
-                                                            Usuarios Invitados
-                                                        </Label>
-                                                        <div className="mt-1 space-y-2">
-                                                            {selectedEvent.usuarios.map(
-                                                                (
-                                                                    usuario: any,
-                                                                ) => (
-                                                                    <div
-                                                                        key={
-                                                                            usuario.id
-                                                                        }
-                                                                        className="flex items-center justify-between rounded-lg border p-2"
-                                                                    >
-                                                                        <div className="flex items-center gap-2">
-                                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-                                                                                <User className="h-4 w-4 text-primary-foreground" />
-                                                                            </div>
-                                                                            <div>
-                                                                                <p className="text-sm font-medium">
-                                                                                    {
-                                                                                        usuario.name
-                                                                                    }
-                                                                                </p>
-                                                                                <p className="text-xs text-muted-foreground">
-                                                                                    {
-                                                                                        usuario.email
-                                                                                    }
-                                                                                </p>
-                                                                            </div>
-                                                                        </div>
-                                                                        {isOwner && (
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="sm"
-                                                                                className="h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                                                                                onClick={() => {
-                                                                                    if (
-                                                                                        confirm(
-                                                                                            `¿Estás seguro de que quieres remover a ${usuario.name}?`,
-                                                                                        )
-                                                                                    ) {
-                                                                                        fetch(
-                                                                                            `/eventos/${selectedEvent.id}/remove-user/${usuario.id}`,
-                                                                                            {
-                                                                                                method: 'DELETE',
-                                                                                                headers:
-                                                                                                    {
-                                                                                                        'X-CSRF-TOKEN':
-                                                                                                            document
-                                                                                                                .querySelector(
-                                                                                                                    'meta[name="csrf-token"]',
-                                                                                                                )
-                                                                                                                ?.getAttribute(
-                                                                                                                    'content',
-                                                                                                                ) ||
-                                                                                                            '',
-                                                                                                    },
-                                                                                            },
-                                                                                        )
-                                                                                            .then(
-                                                                                                () => {
-                                                                                                    // Update selectedEvent in real-time
-                                                                                                    const updatedEvent =
-                                                                                                        {
-                                                                                                            ...selectedEvent,
-                                                                                                            usuarios:
-                                                                                                                selectedEvent.usuarios.filter(
-                                                                                                                    (
-                                                                                                                        u,
-                                                                                                                    ) =>
-                                                                                                                        u.id !==
-                                                                                                                        usuario.id,
-                                                                                                                ),
-                                                                                                        };
-                                                                                                    if (
-                                                                                                        onEventUpdated
-                                                                                                    )
-                                                                                                        onEventUpdated(
-                                                                                                            updatedEvent,
-                                                                                                        );
-                                                                                                },
-                                                                                            )
-                                                                                            .catch(
-                                                                                                (
-                                                                                                    error,
-                                                                                                ) => {
-                                                                                                    console.error(
-                                                                                                        'Error removing user:',
-                                                                                                        error,
-                                                                                                    );
-                                                                                                },
-                                                                                            );
-                                                                                    }
-                                                                                }}
-                                                                            >
-                                                                                ×
-                                                                            </Button>
-                                                                        )}
-                                                                    </div>
-                                                                ),
-                                                            )}
+                                                <div className="detail-card bg-primary/5 border-primary/20">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 border border-primary/20">
+                                                            <User className="h-6 w-6 text-primary" />
+                                                        </div>
+                                                        <div className="info-group">
+                                                            <span className="info-label">Organizador</span>
+                                                            <p className="text-sm font-bold">{selectedEvent.user.name}</p>
                                                         </div>
                                                     </div>
-                                                )}
+                                                </div>
+                                            )}
 
-                                            {/* Invite user form */}
-                                            {canEditEvent && (
-                                                <div>
-                                                    <Label className="text-sm font-medium">
+                                            {selectedEvent.usuarios && selectedEvent.usuarios.length > 0 && (
+                                                <div className="space-y-3">
+                                                    <div className="flex items-center gap-2 px-1">
+                                                        <Users className="h-4 w-4 text-primary" />
+                                                        <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Invitados</span>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        {selectedEvent.usuarios.map((usuario: any) => (
+                                                            <div
+                                                                key={usuario.id}
+                                                                className="detail-card py-2 px-3"
+                                                            >
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted border">
+                                                                            <User className="h-4 w-4 text-muted-foreground" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="text-xs font-bold">
+                                                                                {usuario.name}
+                                                                            </p>
+                                                                            <p className="text-[10px] text-muted-foreground truncate max-w-[150px]">
+                                                                                {usuario.email}
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    {isOwner && (
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            className="h-6 w-6 text-muted-foreground hover:bg-destructive/10 hover:text-destructive rounded-full"
+                                                                            onClick={() => {
+                                                                                if (confirm(`¿Remover a ${usuario.name}?`)) {
+                                                                                    fetch(`/eventos/${selectedEvent.id}/remove-user/${usuario.id}`, {
+                                                                                        method: 'DELETE',
+                                                                                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' },
+                                                                                    }).then(() => {
+                                                                                        const updatedEvent = { ...selectedEvent, usuarios: selectedEvent.usuarios.filter((u: any) => u.id !== usuario.id) };
+                                                                                        if (onEventUpdated) onEventUpdated(updatedEvent);
+                                                                                    });
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            <span className="text-lg leading-none">×</span>
+                                                                        </Button>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Invite user form */}
+                                        {canEditEvent && (
+                                            <div className="detail-card mt-6">
+                                                <div className="info-group">
+                                                    <span className="info-label">
+                                                        <Plus className="h-3.5 w-3.5" />
                                                         Agregar Usuario
-                                                    </Label>
+                                                    </span>
                                                     <form
                                                         className="mt-2"
                                                         onSubmit={(e) => {
                                                             e.preventDefault();
-                                                            const formData =
-                                                                new FormData(
-                                                                    e.target as HTMLFormElement,
-                                                                );
-                                                            const user_id =
-                                                                formData.get(
-                                                                    'user_id',
-                                                                ) as string;
-                                                            if (!user_id)
-                                                                return;
+                                                            const formData = new FormData(e.target as HTMLFormElement);
+                                                            const user_id = formData.get('user_id') as string;
+                                                            if (!user_id) return;
 
-                                                            fetch(
-                                                                `/eventos/${selectedEvent.id}/add-user`,
-                                                                {
-                                                                    method: 'POST',
-                                                                    headers: {
-                                                                        'Content-Type':
-                                                                            'application/json',
-                                                                        'X-CSRF-TOKEN':
-                                                                            document
-                                                                                .querySelector(
-                                                                                    'meta[name="csrf-token"]',
-                                                                                )
-                                                                                ?.getAttribute(
-                                                                                    'content',
-                                                                                ) ||
-                                                                            '',
-                                                                    },
-                                                                    body: JSON.stringify(
-                                                                        {
-                                                                            user_id:
-                                                                                parseInt(
-                                                                                    user_id,
-                                                                                ),
-                                                                        },
-                                                                    ),
+                                                            fetch(`/eventos/${selectedEvent.id}/add-user`, {
+                                                                method: 'POST',
+                                                                headers: {
+                                                                    'Content-Type': 'application/json',
+                                                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                                                                 },
-                                                            )
-                                                                .then(
-                                                                    (
-                                                                        response,
-                                                                    ) => {
-                                                                        if (
-                                                                            response.ok
-                                                                        ) {
-                                                                            // Update selectedEvent in real-time
-                                                                            const invitedUser =
-                                                                                users.find(
-                                                                                    (
-                                                                                        u: any,
-                                                                                    ) =>
-                                                                                        u.id.toString() ===
-                                                                                        user_id,
-                                                                                );
-                                                                            if (
-                                                                                invitedUser &&
-                                                                                onEventUpdated
-                                                                            ) {
-                                                                                const updatedEvent =
-                                                                                    {
-                                                                                        ...selectedEvent,
-                                                                                        usuarios:
-                                                                                            [
-                                                                                                ...(selectedEvent.usuarios ||
-                                                                                                    []),
-                                                                                                invitedUser,
-                                                                                            ],
-                                                                                    };
-                                                                                onEventUpdated(
-                                                                                    updatedEvent,
-                                                                                );
-                                                                            }
-                                                                            (
-                                                                                e.target as HTMLFormElement
-                                                                            ).reset();
-                                                                            setUserSearch(
-                                                                                '',
-                                                                            );
-                                                                        } else {
-                                                                            return response
-                                                                                .json()
-                                                                                .then(
-                                                                                    (
-                                                                                        data,
-                                                                                    ) => {
-                                                                                        throw new Error(
-                                                                                            data.error ||
-                                                                                                'Error al invitar usuario',
-                                                                                        );
-                                                                                    },
-                                                                                );
+                                                                body: JSON.stringify({ user_id: parseInt(user_id) }),
+                                                            })
+                                                                .then((response) => {
+                                                                    if (response.ok) {
+                                                                        const invitedUser = users.find((u: any) => u.id.toString() === user_id);
+                                                                        if (invitedUser && onEventUpdated) {
+                                                                            const updatedEvent = {
+                                                                                ...selectedEvent,
+                                                                                usuarios: [...(selectedEvent.usuarios || []), invitedUser],
+                                                                            };
+                                                                            onEventUpdated(updatedEvent);
                                                                         }
-                                                                    },
-                                                                )
-                                                                .catch(
-                                                                    (error) => {
-                                                                        alert(
-                                                                            error.message,
-                                                                        );
-                                                                    },
-                                                                );
+                                                                        (e.target as HTMLFormElement).reset();
+                                                                        setUserSearch('');
+                                                                    } else {
+                                                                        return response.json().then((data) => {
+                                                                            throw new Error(data.error || 'Error al invitar usuario');
+                                                                        });
+                                                                    }
+                                                                })
+                                                                .catch((error) => {
+                                                                    alert(error.message);
+                                                                });
                                                         }}
                                                     >
-                                                        {/* Search Input */}
-                                                        <div className="relative mt-2">
+                                                        <div className="relative">
                                                             <div className="relative">
                                                                 <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
                                                                 <Input
                                                                     type="text"
-                                                                    placeholder="Buscar usuarios del calendario..."
-                                                                    value={
-                                                                        userSearch
-                                                                    }
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) =>
-                                                                        setUserSearch(
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                        )
-                                                                    }
-                                                                    className="pl-10"
-                                                                    disabled={
-                                                                        loadingUsers
-                                                                    }
+                                                                    placeholder="Buscar usuarios..."
+                                                                    value={userSearch}
+                                                                    onChange={(e) => setUserSearch(e.target.value)}
+                                                                    className="pl-10 h-9 text-sm rounded-lg"
+                                                                    disabled={loadingUsers}
                                                                 />
                                                             </div>
                                                         </div>
 
-                                                        {/* User List - Only show when there are search results */}
                                                         {userSearch && (
-                                                            <div className="mt-2 max-h-40 overflow-y-auto rounded-lg border border-border/50 bg-background/50">
-                                                                {selectedCalendar?.users
-                                                                    .filter(
-                                                                        (
-                                                                            u: any,
-                                                                        ) =>
-                                                                            u.id !==
-                                                                                auth
-                                                                                    ?.user
-                                                                                    ?.id &&
-                                                                            u.name
-                                                                                .toLowerCase()
-                                                                                .includes(
-                                                                                    userSearch.toLowerCase(),
-                                                                                ) &&
-                                                                            !selectedEvent.usuarios?.some(
-                                                                                (
-                                                                                    eu: any,
-                                                                                ) =>
-                                                                                    eu.id ===
-                                                                                    u.id,
-                                                                            ),
+                                                            <div className="mt-2 max-h-40 overflow-y-auto rounded-lg border border-border/50 bg-background/50 scrollbar-thin">
+                                                                {(selectedCalendar?.users || [])
+                                                                    .filter((u: any) =>
+                                                                        u.id !== auth?.user?.id &&
+                                                                        u.name.toLowerCase().includes(userSearch.toLowerCase()) &&
+                                                                        !selectedEvent.usuarios?.some((eu: any) => eu.id === u.id)
                                                                     )
-                                                                    .map(
-                                                                        (
-                                                                            user: any,
-                                                                        ) => (
-                                                                            <div
-                                                                                key={
-                                                                                    user.id
+                                                                    .map((user: any) => (
+                                                                        <div
+                                                                            key={user.id}
+                                                                            className="flex cursor-pointer items-center justify-between border-b border-border/20 p-2 last:border-b-0 hover:bg-primary/5 transition-colors"
+                                                                            onClick={() => {
+                                                                                const form = document.querySelector('form') as HTMLFormElement;
+                                                                                if (form) {
+                                                                                    const userIdInput = form.querySelector('input[name="user_id"]') as HTMLInputElement;
+                                                                                    if (userIdInput) userIdInput.value = user.id.toString();
+                                                                                    setUserSearch(user.name);
                                                                                 }
-                                                                                className="flex cursor-pointer items-center justify-between border-b border-border/20 p-2 last:border-b-0 hover:bg-muted/50"
-                                                                                onClick={() => {
-                                                                                    // Set the selected user by updating form state
-                                                                                    const form =
-                                                                                        document.querySelector(
-                                                                                            'form',
-                                                                                        ) as HTMLFormElement;
-                                                                                    if (
-                                                                                        form
-                                                                                    ) {
-                                                                                        const userIdInput =
-                                                                                            form.querySelector(
-                                                                                                'input[name="user_id"]',
-                                                                                            ) as HTMLInputElement;
-                                                                                        if (
-                                                                                            userIdInput
-                                                                                        ) {
-                                                                                            userIdInput.value =
-                                                                                                user.id.toString();
-                                                                                        }
-                                                                                        setUserSearch(
-                                                                                            user.name,
-                                                                                        ); // Show selected user name
-                                                                                    }
-                                                                                }}
-                                                                            >
-                                                                                <div className="flex items-center gap-2">
-                                                                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-                                                                                        <User className="h-4 w-4 text-primary-foreground" />
-                                                                                    </div>
-                                                                                    <div>
-                                                                                        <p className="text-sm font-medium">
-                                                                                            {
-                                                                                                user.name
-                                                                                            }
-                                                                                        </p>
-                                                                                        <p className="text-xs text-muted-foreground">
-                                                                                            {
-                                                                                                user.email
-                                                                                            }
-                                                                                        </p>
-                                                                                    </div>
+                                                                            }}
+                                                                        >
+                                                                            <div className="flex items-center gap-2">
+                                                                                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 border border-primary/20">
+                                                                                    <User className="h-3.5 w-3.5 text-primary" />
                                                                                 </div>
-                                                                                <Button
-                                                                                    type="button"
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
-                                                                                    onClick={(
-                                                                                        e,
-                                                                                    ) => {
-                                                                                        e.stopPropagation();
-                                                                                        const form =
-                                                                                            document.querySelector(
-                                                                                                'form',
-                                                                                            ) as HTMLFormElement;
-                                                                                        if (
-                                                                                            form
-                                                                                        ) {
-                                                                                            const userIdInput =
-                                                                                                form.querySelector(
-                                                                                                    'input[name="user_id"]',
-                                                                                                ) as HTMLInputElement;
-                                                                                            if (
-                                                                                                userIdInput
-                                                                                            ) {
-                                                                                                userIdInput.value =
-                                                                                                    user.id.toString();
-                                                                                            }
-                                                                                            setUserSearch(
-                                                                                                user.name,
-                                                                                            );
-                                                                                        }
-                                                                                    }}
-                                                                                >
-                                                                                    <User className="h-3 w-3" />
-                                                                                </Button>
+                                                                                <div>
+                                                                                    <p className="text-xs font-bold leading-none">{user.name}</p>
+                                                                                    <p className="text-[10px] text-muted-foreground">{user.email}</p>
+                                                                                </div>
                                                                             </div>
-                                                                        ),
-                                                                    )}
-                                                                {selectedCalendar?.users.filter(
-                                                                    (u: any) =>
-                                                                        u.id !==
-                                                                            auth
-                                                                                ?.user
-                                                                                ?.id &&
-                                                                        u.name
-                                                                            .toLowerCase()
-                                                                            .includes(
-                                                                                userSearch.toLowerCase(),
-                                                                            ) &&
-                                                                        !selectedEvent.usuarios?.some(
-                                                                            (
-                                                                                eu: any,
-                                                                            ) =>
-                                                                                eu.id ===
-                                                                                u.id,
-                                                                        ),
-                                                                ).length ===
-                                                                    0 &&
-                                                                    userSearch && (
-                                                                        <div className="p-4 text-center text-sm text-muted-foreground">
-                                                                            No
-                                                                            se
-                                                                            encontraron
-                                                                            usuarios
                                                                         </div>
-                                                                    )}
+                                                                    ))}
                                                             </div>
                                                         )}
-
-                                                        {/* Hidden input for user_id */}
-                                                        <input
-                                                            type="hidden"
-                                                            name="user_id"
-                                                        />
+                                                        <input type="hidden" name="user_id" />
                                                         <Button
                                                             type="submit"
-                                                            className="mt-2 w-full"
-                                                            disabled={
-                                                                loadingUsers ||
-                                                                !userSearch
-                                                            }
+                                                            className="mt-3 w-full h-9 text-xs font-bold uppercase tracking-wider"
+                                                            disabled={loadingUsers || !userSearch}
                                                         >
-                                                            Invitar Usuario
+                                                            Invitar
                                                         </Button>
                                                     </form>
                                                 </div>
-                                            )}
-                                        </div>
+                                            </div>
+                                        )}
 
-                                        {/* Comentarios - Estilo Chat */}
-                                        <div className="mt-6">
-                                            <Label className="mb-3 block text-sm font-medium">
-                                                Comentarios
-                                            </Label>
-                                            <div className="max-h-60 space-y-3 overflow-y-auto">
-                                                {selectedEvent.comentarios &&
-                                                selectedEvent.comentarios
-                                                    .length > 0 ? (
-                                                    selectedEvent.comentarios.map(
-                                                        (comentario: any) => (
-                                                            <div
-                                                                key={
-                                                                    comentario.id
-                                                                }
-                                                                className="flex gap-3"
-                                                            >
-                                                                <div className="flex-shrink-0">
-                                                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                                                                        <span className="text-xs font-medium text-primary">
-                                                                            {(
-                                                                                comentario
-                                                                                    .user
-                                                                                    ?.name ||
-                                                                                'U'
-                                                                            )
-                                                                                .charAt(
-                                                                                    0,
-                                                                                )
-                                                                                .toUpperCase()}
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="flex-1">
-                                                                    <div className="mb-1 flex items-center gap-2">
-                                                                        <span className="text-sm font-medium">
-                                                                            {comentario
-                                                                                .user
-                                                                                ?.name ||
-                                                                                'Usuario'}
-                                                                        </span>
-                                                                        <span className="text-xs text-muted-foreground">
-                                                                            {new Date(
-                                                                                comentario.created_at,
-                                                                            ).toLocaleString()}
-                                                                        </span>
-                                                                    </div>
-                                                                    <div className="rounded-lg bg-muted/50 px-3 py-2">
-                                                                        <p className="text-sm">
-                                                                            {
-                                                                                comentario.contenido
-                                                                            }
-                                                                        </p>
-                                                                    </div>
+                                        {/* Comentarios */}
+                                        <div className="mt-6 border-t border-border/40 pt-6">
+                                            <div className="flex items-center gap-2 mb-4 px-1">
+                                                <FileText className="h-4 w-4 text-primary" />
+                                                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Comentarios</span>
+                                            </div>
+                                            <div className="max-h-60 space-y-4 overflow-y-auto pr-2 scrollbar-thin">
+                                                {selectedEvent.comentarios && selectedEvent.comentarios.length > 0 ? (
+                                                    selectedEvent.comentarios.map((comentario: any) => (
+                                                        <div key={comentario.id} className="flex gap-3">
+                                                            <div className="flex-shrink-0">
+                                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 border border-primary/20">
+                                                                    <span className="text-[10px] font-bold text-primary">
+                                                                        {(comentario.user?.name || 'U').charAt(0).toUpperCase()}
+                                                                    </span>
                                                                 </div>
                                                             </div>
-                                                        ),
-                                                    )
+                                                            <div className="flex-1 space-y-1">
+                                                                <div className="flex items-center justify-between">
+                                                                    <span className="text-xs font-bold">{comentario.user?.name || 'Usuario'}</span>
+                                                                    <span className="text-[10px] text-muted-foreground">{new Date(comentario.created_at).toLocaleDateString()}</span>
+                                                                </div>
+                                                                <div className="rounded-xl bg-muted/40 px-3 py-2 border border-border/50 shadow-sm">
+                                                                    <p className="text-sm leading-relaxed">{comentario.contenido}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))
                                                 ) : (
-                                                    <p className="py-4 text-center text-sm text-muted-foreground">
-                                                        No hay comentarios aún.
-                                                    </p>
+                                                    <div className="py-8 text-center opacity-30">
+                                                        <FileText className="h-8 w-8 mx-auto mb-2" />
+                                                        <p className="text-xs font-medium">No hay comentarios aún</p>
+                                                    </div>
                                                 )}
                                             </div>
 
-                                            {/* Formulario para agregar comentario */}
                                             <form
                                                 className="mt-4"
                                                 onSubmit={(e) => {
                                                     e.preventDefault();
-                                                    const formData =
-                                                        new FormData(
-                                                            e.target as HTMLFormElement,
-                                                        );
-                                                    const contenido =
-                                                        formData.get(
-                                                            'contenido',
-                                                        ) as string;
-                                                    if (!contenido.trim())
-                                                        return;
+                                                    const formData = new FormData(e.target as HTMLFormElement);
+                                                    const contenido = formData.get('contenido') as string;
+                                                    if (!contenido.trim()) return;
 
-                                                    fetch(
-                                                        `/eventos/${selectedEvent.id}/comentarios`,
-                                                        {
-                                                            method: 'POST',
-                                                            headers: {
-                                                                'Content-Type':
-                                                                    'application/json',
-                                                                'X-CSRF-TOKEN':
-                                                                    document
-                                                                        .querySelector(
-                                                                            'meta[name="csrf-token"]',
-                                                                        )
-                                                                        ?.getAttribute(
-                                                                            'content',
-                                                                        ) || '',
-                                                            },
-                                                            body: JSON.stringify(
-                                                                { contenido },
-                                                            ),
+                                                    fetch(`/eventos/${selectedEvent.id}/comentarios`, {
+                                                        method: 'POST',
+                                                        headers: {
+                                                            'Content-Type': 'application/json',
+                                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                                                         },
-                                                    )
-                                                        .then((response) =>
-                                                            response.json(),
-                                                        )
+                                                        body: JSON.stringify({ contenido }),
+                                                    })
+                                                        .then((response) => response.json())
                                                         .then((newComment) => {
-                                                            // Add to selectedEvent comentarios
-                                                            const updatedEvent =
-                                                                {
-                                                                    ...selectedEvent,
-                                                                    comentarios:
-                                                                        [
-                                                                            ...(selectedEvent.comentarios ||
-                                                                                []),
-                                                                            newComment,
-                                                                        ],
-                                                                };
-                                                            // Update via callback if available
-                                                            if (
-                                                                onEventUpdated
-                                                            ) {
-                                                                onEventUpdated(
-                                                                    updatedEvent,
-                                                                );
-                                                            }
-                                                            // Reset form
-                                                            (
-                                                                e.target as HTMLFormElement
-                                                            ).reset();
-                                                        })
-                                                        .catch((error) => {
-                                                            console.error(
-                                                                'Error adding comment:',
-                                                                error,
-                                                            );
+                                                            const updatedEvent = {
+                                                                ...selectedEvent,
+                                                                comentarios: [...(selectedEvent.comentarios || []), newComment],
+                                                            };
+                                                            if (onEventUpdated) onEventUpdated(updatedEvent);
+                                                            (e.target as HTMLFormElement).reset();
                                                         });
                                                 }}
                                             >
@@ -1503,13 +1168,10 @@ export function RightMenu({
                                                     <Input
                                                         name="contenido"
                                                         placeholder="Escribe un comentario..."
-                                                        className="flex-1"
+                                                        className="flex-1 h-9 text-sm rounded-lg"
                                                         required
                                                     />
-                                                    <Button
-                                                        type="submit"
-                                                        size="sm"
-                                                    >
+                                                    <Button type="submit" size="sm" className="h-9 px-3">
                                                         <Plus className="h-4 w-4" />
                                                     </Button>
                                                 </div>
@@ -1554,16 +1216,16 @@ export function RightMenu({
                         </div>
                     </div>
                 )}
-
-                <DescriptionModal
-                    isOpen={isDescriptionModalOpen}
-                    onClose={() => setIsDescriptionModalOpen(false)}
-                    description={selectedEvent?.descripcion || ''}
-                    onDescriptionChange={() => {}} // Read-only in details
-                    title="Descripción del Evento"
-                    readOnly={true}
-                />
             </div>
+
+            <DescriptionModal
+                isOpen={isDescriptionModalOpen}
+                onClose={() => setIsDescriptionModalOpen(false)}
+                description={selectedEvent?.descripcion || ''}
+                onDescriptionChange={() => { }} // Read-only in details
+                title="Descripción del Evento"
+                readOnly={true}
+            />
         </div>
     );
 }
