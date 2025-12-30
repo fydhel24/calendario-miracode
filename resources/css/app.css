@@ -213,7 +213,10 @@
     /* Select All Checkbox Container */
     .select-all-container {
         @apply mb-3 flex items-center gap-2.5 rounded-lg bg-sidebar-accent/30 p-2.5 transition-colors;
-        @apply hover:bg-sidebar-accent/50;
+    }
+
+    .select-all-container:hover {
+        @apply bg-sidebar-accent/80 border-sidebar-primary/20;
     }
 
     /* Formal Badges for Roles */
@@ -244,7 +247,7 @@
     }
 
     .detail-card:hover {
-        @apply border-border/80 bg-background/60 shadow-lg scale-[1.01];
+        @apply border-primary/20 bg-background/90 shadow-md scale-[1.01];
     }
 
     /* Info Group */

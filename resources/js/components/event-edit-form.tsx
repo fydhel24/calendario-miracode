@@ -9,8 +9,25 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { FileText } from 'lucide-react';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription
+} from '@/components/ui/card';
+import {
+    FileText,
+    Edit,
+    Calendar,
+    Clock,
+    Palette,
+    ChevronRight,
+    Save,
+    XCircle
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 const eventColors = [
     { name: 'Azul', value: '#2563eb', emoji: '📱' },
@@ -62,11 +79,15 @@ export function EventEditForm({
                 emoji: eventToEdit.emoji || '📱',
                 fecha_inicio: eventToEdit.fecha_inicio
                     ? new Date(eventToEdit.fecha_inicio)
-                          .toISOString()
-                          .slice(0, 16)
+                        .toLocaleString('sv-SE') // Use locale that outputs YYYY-MM-DD HH:mm
+                        .replace(' ', 'T')
+                        .slice(0, 16)
                     : '',
                 fecha_fin: eventToEdit.fecha_fin
-                    ? new Date(eventToEdit.fecha_fin).toISOString().slice(0, 16)
+                    ? new Date(eventToEdit.fecha_fin)
+                        .toLocaleString('sv-SE')
+                        .replace(' ', 'T')
+                        .slice(0, 16)
                     : '',
             });
         }
@@ -103,119 +124,164 @@ export function EventEditForm({
     };
 
     return (
-        <div className="space-y-4 p-4">
-            <h3 className="mb-4 text-lg font-semibold">Editar Evento</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <Label htmlFor="titulo">Título</Label>
-                    <Input
-                        id="titulo"
-                        value={form.titulo}
-                        onChange={(e) =>
-                            setForm({ ...form, titulo: e.target.value })
-                        }
-                        placeholder="Título del evento"
-                        required
-                    />
-                </div>
-                <div>
-                    <Label htmlFor="descripcion">Descripción (Opcional)</Label>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setIsDescriptionModalOpen(true)}
-                        className="w-full justify-start text-left font-normal"
-                    >
-                        <FileText className="mr-2 h-4 w-4" />
-                        {form.descripcion ? (
-                            <span className="truncate">
-                                {form.descripcion.length > 30
-                                    ? `${form.descripcion.substring(0, 30)}...`
-                                    : form.descripcion}
-                            </span>
-                        ) : (
-                            <span className="text-muted-foreground">
-                                Haz clic para editar la descripción
-                            </span>
-                        )}
-                    </Button>
-                </div>
-                <div>
-                    <Label htmlFor="color">Color</Label>
-                    <Select
-                        value={form.color}
-                        onValueChange={(value) => {
-                            const selectedColor = eventColors.find(
-                                (c) => c.value === value,
-                            );
-                            setForm({
-                                ...form,
-                                color: value,
-                                emoji: selectedColor?.emoji || '📱',
-                            });
-                        }}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Selecciona un color" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {eventColors.map((color) => (
-                                <SelectItem
-                                    key={color.value}
-                                    value={color.value}
+        <div className="flex flex-col gap-6 p-6 pb-20 overflow-y-auto max-h-[85vh] scrollbar-thin">
+            <Card className="border-none bg-transparent shadow-none">
+                <CardHeader className="px-0 pt-0">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
+                            <Edit className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-2xl font-bold tracking-tight">Editar Evento</CardTitle>
+                            <CardDescription className="text-sm font-medium opacity-70">Actualiza la información de tu actividad</CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+
+                <CardContent className="px-0 space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        {/* Basic Info Section */}
+                        <div className="space-y-5">
+                            <div className="flex items-center gap-2 mb-2 text-primary font-bold text-sm uppercase tracking-wider">
+                                <FileText className="h-4 w-4" />
+                                <span>Detalles del Evento</span>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-[13px] font-bold" htmlFor="titulo">Título</Label>
+                                <Input
+                                    id="titulo"
+                                    value={form.titulo}
+                                    onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+                                    className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                                    required
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-[13px] font-bold" htmlFor="descripcion">Descripción</Label>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setIsDescriptionModalOpen(true)}
+                                    className="h-11 w-full justify-between rounded-xl border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 transition-all px-4"
                                 >
                                     <div className="flex items-center gap-2">
-                                        <div
-                                            className="h-4 w-4 rounded-full border"
-                                            style={{
-                                                backgroundColor: color.value,
-                                            }}
-                                        ></div>
-                                        {color.emoji} {color.name}
+                                        <FileText className="h-4 w-4 text-muted-foreground" />
+                                        <span className={form.descripcion ? "font-medium" : "text-muted-foreground font-normal"}>
+                                            {form.descripcion ? (form.descripcion.length > 25 ? `${form.descripcion.substring(0, 25)}...` : form.descripcion) : "No hay descripción..."}
+                                        </span>
                                     </div>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div>
-                    <Label htmlFor="fecha_inicio">Fecha y Hora de Inicio</Label>
-                    <Input
-                        id="fecha_inicio"
-                        type="datetime-local"
-                        value={form.fecha_inicio}
-                        onChange={(e) =>
-                            setForm({ ...form, fecha_inicio: e.target.value })
-                        }
-                        required
-                    />
-                </div>
-                <div>
-                    <Label htmlFor="fecha_fin">
-                        Fecha y Hora de Fin (Opcional)
-                    </Label>
-                    <Input
-                        id="fecha_fin"
-                        type="datetime-local"
-                        value={form.fecha_fin}
-                        onChange={(e) =>
-                            setForm({ ...form, fecha_fin: e.target.value })
-                        }
-                    />
-                </div>
-                <div className="flex gap-2">
-                    <Button type="submit" disabled={loading} className="flex-1">
-                        {loading ? 'Guardando...' : 'Guardar Cambios'}
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => onModeChange?.(null)}
-                    >
-                        Cancelar
-                    </Button>
-                </div>
-            </form>
+                                    <ChevronRight className="h-4 w-4 opacity-30" />
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* Date & Color Section */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-5">
+                                <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
+                                    <Clock className="h-4 w-4" />
+                                    <span>Programación</span>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[13px] font-bold" htmlFor="fecha_inicio">Inicio</Label>
+                                    <Input
+                                        id="fecha_inicio"
+                                        type="datetime-local"
+                                        value={form.fecha_inicio}
+                                        onChange={(e) => setForm({ ...form, fecha_inicio: e.target.value })}
+                                        className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20"
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[13px] font-bold" htmlFor="fecha_fin">Fin (Opcional)</Label>
+                                    <Input
+                                        id="fecha_fin"
+                                        type="datetime-local"
+                                        value={form.fecha_fin}
+                                        onChange={(e) => setForm({ ...form, fecha_fin: e.target.value })}
+                                        className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-5">
+                                <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
+                                    <Palette className="h-4 w-4" />
+                                    <span>Estilo</span>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[13px] font-bold">Personalización</Label>
+                                    <Select
+                                        value={form.color}
+                                        onValueChange={(value) => {
+                                            const selectedColor = eventColors.find((c) => c.value === value);
+                                            setForm({ ...form, color: value, emoji: selectedColor?.emoji || '📱' });
+                                        }}
+                                    >
+                                        <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-none shadow-inner transition-all">
+                                            <SelectValue placeholder="Color del evento" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-xl border-border/50 shadow-2xl">
+                                            {eventColors.map((color) => (
+                                                <SelectItem key={color.value} value={color.value} className="rounded-lg m-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="h-5 w-5 rounded-full shadow-sm" style={{ backgroundColor: color.value }} />
+                                                        <span className="text-lg">{color.emoji}</span>
+                                                        <span className="font-medium">{color.name}</span>
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="p-4 rounded-xl border-2 border-dashed flex items-center justify-center bg-muted/5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-10 w-10 rounded-xl flex items-center justify-center text-xl shadow-lg border border-white/10" style={{ backgroundColor: form.color }}>
+                                            {form.emoji}
+                                        </div>
+                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Vista Previa</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Submit Actions */}
+                        <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                            <Button
+                                type="submit"
+                                className="h-12 flex-1 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.98]"
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <span>Guardando...</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <Save className="h-5 w-5" />
+                                        <span>Guardar Cambios</span>
+                                    </div>
+                                )}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => onModeChange?.(null)}
+                                className="h-12 rounded-2xl border-2 font-bold px-8 hover:bg-destructive/5 hover:text-destructive hover:border-destructive/20 transition-all"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <XCircle className="h-5 w-5" />
+                                    <span>Cancelar</span>
+                                </div>
+                            </Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
 
             <DescriptionModal
                 isOpen={isDescriptionModalOpen}
@@ -224,7 +290,7 @@ export function EventEditForm({
                 onDescriptionChange={(newDescription: string) =>
                     setForm({ ...form, descripcion: newDescription })
                 }
-                title="Editar Descripción del Evento"
+                title="Actualizar Descripción"
             />
         </div>
     );

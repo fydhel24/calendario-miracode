@@ -3,10 +3,11 @@ import { AppShell } from '@/components/app-shell'
 import FullCalendarComponent from '@/components/full-calendar'
 import { LeftSidebar } from '@/components/left-sidebar'
 import { RightMenu } from '@/components/right-menu'
-import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CalendarIcon, ChevronLeft, ChevronRight, Menu } from 'lucide-react'
 import { usePage } from '@inertiajs/react'
 import { useState } from 'react'
-import { cn } from '@/lib/utils' // si tienes esta utilidad de shadcn
+import { cn } from '@/lib/utils'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
 import { useCalendarSelection } from '@/hooks/useCalendarSelection'
 
@@ -25,10 +26,10 @@ export default function CalendarLayout({
 
   const [leftCollapsed, setLeftCollapsed] = useState(() => {
     const saved = localStorage.getItem('leftSidebarCollapsed')
-    return saved ? JSON.parse(saved) : false // Cambiado a false por defecto para mejor primera impresión
+    return saved ? JSON.parse(saved) : false
   })
 
-  const [rightExpanded, setRightExpanded] = useState(false) // Cerrado por defecto hasta que el usuario lo abra
+  const [rightExpanded, setRightExpanded] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedEvent, setSelectedEvent] = useState<any>(null)
 
@@ -74,14 +75,13 @@ export default function CalendarLayout({
   const hasSelection = selectedCalendars.length > 0
   const isSingle = selectedCalendars.length === 1
   const primaryCalendar = isSingle ? selectedCalendars[0] : selectedCalendars[0]
-
-  // Color del calendario activo (fallback a primary si no hay template)
   const accentColor = primaryCalendar?.template?.color || 'hsl(var(--primary))'
 
   return (
     <AppShell variant="sidebar">
       <div className="relative flex h-screen overflow-hidden bg-gradient-to-br from-background via-background to-muted/30">
-        {/* LEFT SIDEBAR */}
+
+        {/* LEFT SIDEBAR - Desktop */}
         <div className="hidden lg:flex">
           {leftCollapsed && (
             <div className="flex w-16 flex-col items-center border-r border-border/50 bg-background/95 backdrop-blur-sm">
@@ -98,7 +98,7 @@ export default function CalendarLayout({
           <div
             className={cn(
               "h-full border-r border-border/50 bg-background/95 backdrop-blur-sm shadow-2xl transition-all duration-500",
-              leftCollapsed ? "w-0 opacity-0" : "w-80 opacity-100"
+              leftCollapsed ? "w-0 opacity-0 overflow-hidden" : "w-80 opacity-100"
             )}
           >
             <LeftSidebar
@@ -117,20 +117,38 @@ export default function CalendarLayout({
         </div>
 
         {/* MAIN AREA */}
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col overflow-hidden">
           {/* Elegant Header */}
           <header className="relative border-b border-border/50 bg-background/90 backdrop-blur-md">
             <div className="flex items-center justify-between px-6 py-5">
               <div className="flex items-center gap-5">
                 {/* Mobile menu button */}
-                <button
-                  onClick={toggleLeft}
-                  className="rounded-xl p-3 lg:hidden hover:bg-accent/70 transition"
-                >
-                  <CalendarIcon className="h-7 w-7" />
-                </button>
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <button
+                      className="rounded-xl p-3 lg:hidden hover:bg-accent/70 transition"
+                      aria-label="Abrir menú"
+                    >
+                      <Menu className="h-7 w-7" />
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="p-0 w-80">
+                    <LeftSidebar
+                      isCollapsed={false}
+                      onToggle={() => { }}
+                      calendarios={allCalendars}
+                      selectedCalendarIds={selectedCalendarIds}
+                      onCalendarSelect={cal => selectCalendars([cal])}
+                      onCalendarsSelect={selectCalendars}
+                      onCalendarIdsChange={selectCalendarIds}
+                      onCalendarCreated={addCalendar}
+                      onCalendarUpdated={updateCalendar}
+                      auth={auth}
+                    />
+                  </SheetContent>
+                </Sheet>
 
-                {/* Calendar title with accent */}
+                {/* Calendar title */}
                 {hasSelection && (
                   <div className="flex items-center gap-4">
                     <div
@@ -164,7 +182,7 @@ export default function CalendarLayout({
           </header>
 
           {/* Full Calendar */}
-          <main className="flex-1 overflow-hidden bg-background/50">
+          <main className="flex-1 overflow-y-auto bg-background/50">
             <div className="h-full rounded-t-3xl bg-background shadow-inner">
               <FullCalendarComponent
                 events={events}
@@ -198,14 +216,12 @@ export default function CalendarLayout({
               onDateClear={() => setSelectedDate(null)}
             />
           </div>
-
-          {/* Collapse button when expanded */}
           {rightExpanded && (
             <button
               onClick={() => setRightExpanded(false)}
               className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-background p-2 shadow-xl hover:scale-110 transition"
             >
-              <ChevronRight className="h-5 w-5 rotate-180" />
+              <ChevronLeft className="h-5 w-5" />
             </button>
           )}
         </div>
@@ -220,7 +236,7 @@ export default function CalendarLayout({
               className="absolute right-0 top-0 h-full w-full max-w-lg bg-background shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
-              <div className="   items-center justify-between border-b border-border/50 p-5">
+              <div className="flex items-center justify-between border-b border-border/50 p-5">
                 <h2 className="text-xl font-semibold">Detalles</h2>
                 <button
                   onClick={() => setRightExpanded(false)}

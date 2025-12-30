@@ -9,8 +9,28 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { FileText, Search, User, X } from 'lucide-react';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription
+} from '@/components/ui/card';
+import {
+    FileText,
+    Search,
+    User,
+    X,
+    Calendar,
+    Clock,
+    Palette,
+    MapPin,
+    Users,
+    ChevronRight,
+    PlusCircle
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 const eventColors = [
     { name: 'Azul', value: '#2563eb', emoji: '📱' },
@@ -130,271 +150,261 @@ export function EventCreateForm({
     };
 
     return (
-        <div className="space-y-4 overflow-y-auto p-4">
-            <h3 className="text-lg font-semibold">Crear Nuevo Evento</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                {selectedCalendars.length > 1 && (
-                    <div>
-                        <Label htmlFor="calendar">Seleccionar Calendario</Label>
-                        <Select
-                            value={selectedCalendarId}
-                            onValueChange={setSelectedCalendarId}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Selecciona un calendario" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {selectedCalendars
-                                    .filter((calendar) =>
-                                        calendar.users?.some(
-                                            (u: any) =>
-                                                u.id === auth?.user?.id &&
-                                                u.pivot?.tipo_user === 'owner',
-                                        ),
-                                    )
-                                    .map((calendar) => (
-                                        <SelectItem
-                                            key={calendar.id}
-                                            value={calendar.id.toString()}
-                                        >
-                                            {calendar.nombre}
-                                        </SelectItem>
-                                    ))}
-                            </SelectContent>
-                        </Select>
+        <div className="flex flex-col gap-6 p-6 pb-20 overflow-y-auto max-h-[85vh] scrollbar-thin">
+            <Card className="border-none bg-transparent shadow-none">
+                <CardHeader className="px-0 pt-0">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                            <PlusCircle className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-2xl font-bold tracking-tight">Nuevo Evento</CardTitle>
+                            <CardDescription className="text-sm font-medium opacity-70">Completa los detalles para tu nueva actividad</CardDescription>
+                        </div>
                     </div>
-                )}
-                <div>
-                    <Label htmlFor="titulo">Título</Label>
-                    <Input
-                        id="titulo"
-                        value={form.titulo}
-                        onChange={(e) =>
-                            setForm({ ...form, titulo: e.target.value })
-                        }
-                        placeholder="Título del evento"
-                        required
-                    />
-                </div>
-                <div>
-                    <Label htmlFor="descripcion">Nota(Opcional)</Label>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setIsDescriptionModalOpen(true)}
-                        className="w-full justify-start text-left font-normal"
-                    >
-                        <FileText className="mr-2 h-4 w-4" />
-                        {form.descripcion ? (
-                            <span className="truncate">
-                                {form.descripcion.length > 30
-                                    ? `${form.descripcion.substring(0, 30)}...`
-                                    : form.descripcion}
-                            </span>
-                        ) : (
-                            <span className="text-muted-foreground">
-                                Haz clic para agregar una descripción
-                            </span>
-                        )}
-                    </Button>
-                </div>
-                <div>
-                    <Label htmlFor="color">Escoje Color</Label>
-                    <Select
-                        value={form.color}
-                        onValueChange={(value) => {
-                            const selectedColor = eventColors.find(
-                                (c) => c.value === value,
-                            );
-                            setForm({
-                                ...form,
-                                color: value,
-                                emoji: selectedColor?.emoji || '📱',
-                            });
-                        }}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Selecciona un color" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {eventColors.map((color) => (
-                                <SelectItem
-                                    key={color.value}
-                                    value={color.value}
+                </CardHeader>
+
+                <CardContent className="px-0 space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        {/* Basic Info Section */}
+                        <div className="space-y-5">
+                            <div className="flex items-center gap-2 mb-2 text-primary font-bold text-sm uppercase tracking-wider">
+                                <FileText className="h-4 w-4" />
+                                <span>Información Básica</span>
+                            </div>
+
+                            {selectedCalendars.length > 1 && (
+                                <div className="space-y-2">
+                                    <Label className="text-[13px] font-bold" htmlFor="calendar">Calendario Destino</Label>
+                                    <Select value={selectedCalendarId} onValueChange={setSelectedCalendarId}>
+                                        <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all">
+                                            <SelectValue placeholder="Selecciona un calendario" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-xl border-border/50 shadow-2xl">
+                                            {selectedCalendars
+                                                .filter((calendar) =>
+                                                    calendar.users?.some(
+                                                        (u: any) =>
+                                                            u.id === auth?.user?.id &&
+                                                            u.pivot?.tipo_user === 'owner',
+                                                    ),
+                                                )
+                                                .map((calendar) => (
+                                                    <SelectItem key={calendar.id} value={calendar.id.toString()} className="rounded-lg m-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="h-2 w-2 rounded-full" style={{ backgroundColor: calendar.template?.color || 'gray' }} />
+                                                            {calendar.nombre}
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
+
+                            <div className="space-y-2">
+                                <Label className="text-[13px] font-bold" htmlFor="titulo">Título del Evento</Label>
+                                <Input
+                                    id="titulo"
+                                    value={form.titulo}
+                                    onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+                                    placeholder="Ej: Reunión de Equipo Nexus"
+                                    className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all"
+                                    required
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-[13px] font-bold" htmlFor="descripcion">Descripción / Notas</Label>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setIsDescriptionModalOpen(true)}
+                                    className="h-11 w-full justify-between rounded-xl border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 transition-all px-4"
                                 >
                                     <div className="flex items-center gap-2">
-                                        <div
-                                            className="h-4 w-4 rounded-full border"
-                                            style={{
-                                                backgroundColor: color.value,
-                                            }}
-                                        ></div>
-                                        {color.emoji} {color.name}
+                                        <FileText className="h-4 w-4 text-muted-foreground" />
+                                        <span className={form.descripcion ? "font-medium" : "text-muted-foreground font-normal"}>
+                                            {form.descripcion ? (form.descripcion.length > 25 ? `${form.descripcion.substring(0, 25)}...` : form.descripcion) : "Agregar detalles adicionales..."}
+                                        </span>
                                     </div>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div>
-                    <Label htmlFor="fecha_inicio">Fecha y Hora de Inicio</Label>
-                    <Input
-                        id="fecha_inicio"
-                        type="datetime-local"
-                        value={form.fecha_inicio}
-                        onChange={(e) =>
-                            setForm({
-                                ...form,
-                                fecha_inicio: e.target.value,
-                            })
-                        }
-                        required
-                    />
-                </div>
-                <div>
-                    <Label htmlFor="fecha_fin">
-                        Fecha y Hora de Fin (Opcional)
-                    </Label>
-                    <Input
-                        id="fecha_fin"
-                        type="datetime-local"
-                        value={form.fecha_fin}
-                        onChange={(e) =>
-                            setForm({ ...form, fecha_fin: e.target.value })
-                        }
-                    />
-                </div>
-                <div>
-                    <Label>Invitar Usuarios (Opcional)</Label>
-
-                    {/* Selected Users Display */}
-                    {selectedUsers.length > 0 && (
-                        <div className="mt-2 mb-3">
-                            <Label className="mb-2 block text-sm text-muted-foreground">
-                                Usuarios Invitados:
-                            </Label>
-                            <div className="flex flex-wrap gap-2">
-                                {selectedUsers.map((userId) => {
-                                    const user = allUsers.find(
-                                        (u: any) => u.id === userId,
-                                    );
-                                    return user ? (
-                                        <div
-                                            key={userId}
-                                            className="flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-1 text-xs text-muted-foreground"
-                                        >
-                                            <User className="h-3 w-3" />
-                                            <span>{user.name}</span>
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    setSelectedUsers(
-                                                        selectedUsers.filter(
-                                                            (id) =>
-                                                                id !== userId,
-                                                        ),
-                                                    )
-                                                }
-                                                className="ml-1 rounded-full p-0.5 hover:bg-muted"
-                                            >
-                                                <X className="h-3 w-3" />
-                                            </button>
-                                        </div>
-                                    ) : null;
-                                })}
+                                    <ChevronRight className="h-4 w-4 opacity-30" />
+                                </Button>
                             </div>
                         </div>
-                    )}
 
-                    {/* Search Input */}
-                    <div className="relative mt-2">
-                        <div className="relative">
-                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
-                            <Input
-                                type="text"
-                                placeholder="Buscar usuarios..."
-                                value={userSearch}
-                                onChange={(e) => setUserSearch(e.target.value)}
-                                className="pl-10"
-                            />
-                        </div>
-                    </div>
+                        {/* Date & Color Section */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-5">
+                                <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
+                                    <Clock className="h-4 w-4" />
+                                    <span>Programación</span>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[13px] font-bold" htmlFor="fecha_inicio">Inicio</Label>
+                                    <Input
+                                        id="fecha_inicio"
+                                        type="datetime-local"
+                                        value={form.fecha_inicio}
+                                        onChange={(e) => setForm({ ...form, fecha_inicio: e.target.value })}
+                                        className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20"
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[13px] font-bold" htmlFor="fecha_fin">Fin (Opcional)</Label>
+                                    <Input
+                                        id="fecha_fin"
+                                        type="datetime-local"
+                                        value={form.fecha_fin}
+                                        onChange={(e) => setForm({ ...form, fecha_fin: e.target.value })}
+                                        className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20"
+                                    />
+                                </div>
+                            </div>
 
-                    {/* User List - Only show when there are search results */}
-                    {userSearch && (
-                        <div className="mt-2 max-h-40 overflow-y-auto rounded-lg border border-border/50 bg-background/50">
-                            {allUsers
-                                .filter(
-                                    (u: any) =>
-                                        u.id !== auth?.user?.id &&
-                                        u.name
-                                            .toLowerCase()
-                                            .includes(
-                                                userSearch.toLowerCase(),
-                                            ) &&
-                                        !selectedUsers.includes(u.id),
-                                )
-                                .map((user: any) => (
-                                    <div
-                                        key={user.id}
-                                        className="flex cursor-pointer items-center justify-between border-b border-border/20 p-2 last:border-b-0 hover:bg-muted/50"
-                                        onClick={() =>
-                                            setSelectedUsers([
-                                                ...selectedUsers,
-                                                user.id,
-                                            ])
-                                        }
+                            <div className="space-y-5">
+                                <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
+                                    <Palette className="h-4 w-4" />
+                                    <span>Estilo</span>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[13px] font-bold">Personalización</Label>
+                                    <Select
+                                        value={form.color}
+                                        onValueChange={(value) => {
+                                            const selectedColor = eventColors.find((c) => c.value === value);
+                                            setForm({ ...form, color: value, emoji: selectedColor?.emoji || '📱' });
+                                        }}
                                     >
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-                                                <User className="h-4 w-4 text-primary-foreground" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium">
-                                                    {user.name}
-                                                </p>
-                                                <p className="text-xs text-muted-foreground">
-                                                    {user.email}
-                                                </p>
-                                            </div>
+                                        <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-none shadow-inner transition-all">
+                                            <SelectValue placeholder="Color del evento" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-xl border-border/50 shadow-2xl">
+                                            {eventColors.map((color) => (
+                                                <SelectItem key={color.value} value={color.value} className="rounded-lg m-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="h-5 w-5 rounded-full shadow-sm" style={{ backgroundColor: color.value }} />
+                                                        <span className="text-lg">{color.emoji}</span>
+                                                        <span className="font-medium">{color.name}</span>
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="p-4 rounded-xl border-2 border-dashed flex items-center justify-center bg-muted/5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-10 w-10 rounded-xl flex items-center justify-center text-xl shadow-lg border border-white/10" style={{ backgroundColor: form.color }}>
+                                            {form.emoji}
                                         </div>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-6 w-6 p-0 hover:bg-muted hover:text-muted-foreground"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSelectedUsers([
-                                                    ...selectedUsers,
-                                                    user.id,
-                                                ]);
-                                            }}
-                                        >
-                                            <User className="h-3 w-3" />
-                                        </Button>
+                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Vista Previa</span>
                                     </div>
-                                ))}
-                            {allUsers.filter(
-                                (u: any) =>
-                                    u.id !== auth?.user?.id &&
-                                    u.name
-                                        .toLowerCase()
-                                        .includes(userSearch.toLowerCase()) &&
-                                    !selectedUsers.includes(u.id),
-                            ).length === 0 &&
-                                userSearch && (
-                                    <div className="p-4 text-center text-sm text-muted-foreground">
-                                        No se encontraron usuarios
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Invites Section */}
+                        <div className="space-y-5">
+                            <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
+                                <Users className="h-4 w-4" />
+                                <span>Invitados</span>
+                            </div>
+
+                            <div className="relative group">
+                                <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 transform text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                <Input
+                                    type="text"
+                                    placeholder="Buscar por nombre o correo..."
+                                    value={userSearch}
+                                    onChange={(e) => setUserSearch(e.target.value)}
+                                    className="h-12 pl-12 rounded-2xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/50"
+                                />
+                            </div>
+
+                            {userSearch && (
+                                <div className="rounded-2xl border border-border/50 bg-background/50 backdrop-blur-md overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300 shadow-2xl">
+                                    <div className="max-h-52 overflow-y-auto scrollbar-thin">
+                                        {allUsers
+                                            .filter((u: any) =>
+                                                u.id !== auth?.user?.id &&
+                                                (u.name.toLowerCase().includes(userSearch.toLowerCase()) || u.email.toLowerCase().includes(userSearch.toLowerCase())) &&
+                                                !selectedUsers.includes(u.id)
+                                            )
+                                            .map((user: any) => (
+                                                <div
+                                                    key={user.id}
+                                                    className="flex items-center justify-between p-3 border-b border-border/20 last:border-0 hover:bg-primary/5 cursor-pointer transition-colors"
+                                                    onClick={() => { setSelectedUsers([...selectedUsers, user.id]); setUserSearch(''); }}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+                                                            <User className="h-4 w-4 text-primary" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-bold">{user.name}</p>
+                                                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">{user.email}</p>
+                                                        </div>
+                                                    </div>
+                                                    <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-primary hover:text-white transition-all">
+                                                        <PlusCircle className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedUsers.length > 0 && (
+                                <div className="space-y-3 p-4 rounded-2xl bg-muted/10 border border-border/40">
+                                    <Label className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">Usuarios Seleccionados ({selectedUsers.length})</Label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedUsers.map((userId) => {
+                                            const user = allUsers.find((u: any) => u.id === userId);
+                                            return user ? (
+                                                <div key={userId} className="detail-card flex items-center gap-2 group !mb-0 !p-1.5 pr-3">
+                                                    <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
+                                                        <User className="h-3 w-3 text-primary" />
+                                                    </div>
+                                                    <span className="text-xs font-bold">{user.name}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSelectedUsers(selectedUsers.filter(id => id !== userId))}
+                                                        className="h-5 w-5 rounded-full bg-muted flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive hover:text-white"
+                                                    >
+                                                        <X className="h-3 w-3" />
+                                                    </button>
+                                                </div>
+                                            ) : null;
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Submit Actions */}
+                        <div className="pt-4">
+                            <Button
+                                type="submit"
+                                className="h-12 w-full rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.98]"
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <span>Procesando...</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <PlusCircle className="h-5 w-5" />
+                                        <span>Crear Evento Oficial</span>
                                     </div>
                                 )}
+                            </Button>
                         </div>
-                    )}
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Creando...' : 'Crear Evento'}
-                </Button>
-            </form>
+                    </form>
+                </CardContent>
+            </Card>
 
             <DescriptionModal
                 isOpen={isDescriptionModalOpen}
@@ -403,7 +413,7 @@ export function EventCreateForm({
                 onDescriptionChange={(newDescription: string) =>
                     setForm({ ...form, descripcion: newDescription })
                 }
-                title="Agregar Descripción del Evento"
+                title="Detalles del Evento"
             />
         </div>
     );
