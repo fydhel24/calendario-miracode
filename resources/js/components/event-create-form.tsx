@@ -44,6 +44,12 @@ const eventColors = [
     { name: 'Naranja', value: '#ea580c', emoji: '🚀' },
     { name: 'Café', value: '#8b4513', emoji: '☕' },
     { name: 'Marrón', value: '#92400e', emoji: '🏆' },
+    // Social Media Icons
+    { name: 'Facebook', value: '#1877F2', emoji: '/icon/icons8-facebook.svg' },
+    { name: 'Instagram', value: '#E1306C', emoji: '/icon/icons8-instagram.svg' },
+    { name: 'TikTok', value: '#000000', emoji: '/icon/icons8-tiktok.svg' },
+    { name: 'WhatsApp', value: '#25D366', emoji: '/icon/icons8-whatsapp.svg' },
+    { name: 'YouTube', value: '#FF0000', emoji: '/icon/icons8-youtube.svg' },
 ];
 
 interface EventCreateFormProps {
@@ -177,7 +183,7 @@ export function EventCreateForm({
                                 <div className="space-y-2">
                                     <Label className="text-[13px] font-bold" htmlFor="calendar">Calendario Destino</Label>
                                     <Select value={selectedCalendarId} onValueChange={setSelectedCalendarId}>
-                                        <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all">
+                                        <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20">
                                             <SelectValue placeholder="Selecciona un calendario" />
                                         </SelectTrigger>
                                         <SelectContent className="rounded-xl border-border/50 shadow-2xl">
@@ -208,21 +214,21 @@ export function EventCreateForm({
                                     id="titulo"
                                     value={form.titulo}
                                     onChange={(e) => setForm({ ...form, titulo: e.target.value })}
-                                    placeholder="Ej: Reunión de Equipo Nexus"
-                                    className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all font-medium text-lg"
+                                    placeholder="Ej: Reunión de Equipo Admus"
+                                    className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20 font-medium text-lg"
                                     required
                                 />
                             </div>
                         </div>
 
-                        {/* 2. Scheduling Section */}
+                        {/* 2. Description Section */}
                         <div className="space-y-2">
                             <Label className="text-[13px] font-bold" htmlFor="descripcion">Descripción / Notas</Label>
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={() => setIsDescriptionModalOpen(true)}
-                                className="h-11 w-full justify-between rounded-xl border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 transition-all px-4"
+                                className="h-11 w-full justify-between rounded-xl border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 px-4"
                             >
                                 <div className="flex items-center gap-2">
                                     <FileText className="h-4 w-4 text-muted-foreground" />
@@ -236,32 +242,34 @@ export function EventCreateForm({
 
                         {/* 3. Appearance Section */}
                         <div className="space-y-5">
-                                <div className="space-y-2">
-                                    <Label className="text-[13px] font-bold">Color y Tema</Label>
-                                    <Select
-                                        value={form.color}
-                                        onValueChange={(value) => {
-                                            const selectedColor = eventColors.find((c) => c.value === value);
-                                            setForm({ ...form, color: value, emoji: selectedColor?.emoji || '📱' });
-                                        }}
-                                    >
-                                        <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-none shadow-inner transition-all">
-                                            <SelectValue placeholder="Color del evento" />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-xl border-border/50 shadow-2xl">
-                                            {eventColors.map((color) => (
-                                                <SelectItem key={color.value} value={color.value} className="rounded-lg m-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="h-5 w-5 rounded-full shadow-sm" style={{ backgroundColor: color.value }} />
+                            <div className="space-y-2">
+                                <Label className="text-[13px] font-bold">Color y Tema</Label>
+                                <Select
+                                    value={form.color}
+                                    onValueChange={(value) => {
+                                        const selectedColor = eventColors.find((c) => c.value === value);
+                                        setForm({ ...form, color: value, emoji: selectedColor?.emoji || '📱' });
+                                    }}
+                                >
+                                    <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-none shadow-inner">
+                                        <SelectValue placeholder="Color del evento" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-xl border-border/50 shadow-2xl">
+                                        {eventColors.map((color) => (
+                                            <SelectItem key={color.value} value={color.value} className="rounded-lg m-1">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-5 w-5 rounded-full shadow-sm" style={{ backgroundColor: color.value }} />
+                                                    {color.emoji.includes('.svg') ? (
+                                                        <img src={color.emoji} alt={color.name} className="h-5 w-5 object-contain" />
+                                                    ) : (
                                                         <span className="text-lg">{color.emoji}</span>
-                                                        <span className="font-medium">{color.name}</span>
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                              
-
+                                                    )}
+                                                    <span className="font-medium">{color.name}</span>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
 

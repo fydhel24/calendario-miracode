@@ -57,6 +57,28 @@ export default function FullCalendarComponent({
   const renderEventContent = (eventInfo: any) => {
     const { emoji, stripColor } = eventInfo.event.extendedProps
     const backgroundColor = eventInfo.event.backgroundColor
+    const isSvg = emoji?.includes('.svg')
+
+    if (isSvg) {
+      return (
+        <div
+          className="group relative flex h-full w-full items-center overflow-hidden rounded-md border border-white/20 shadow-sm transition-all duration-300 hover:shadow-md"
+        style={{
+          backgroundColor: backgroundColor,
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+        }}
+        >
+          <div className="flex h-full items-center justify-center pl-2 pr-1">
+            <img src={emoji} alt="icon" className="h-8 w-8 object-contain" />
+          </div>
+            <div className="min-w-0 flex-1 truncate px-2.5 text-lg font-bold tracking-tight text-white drop-shadow-md">
+      
+            {eventInfo.event.title}
+          </div>
+        </div>
+      )
+    }
 
     return (
       <div
@@ -69,16 +91,16 @@ export default function FullCalendarComponent({
       >
         {emoji && (
           <div
-            className="flex h-full w-8 min-w-[32px] items-center justify-center text-sm shadow-inner"
+            className="flex  w-8 h-8 items-center justify-center text-sm shadow-inner"
             style={{
               backgroundColor: stripColor,
-              borderRight: '1px solid rgba(255, 255, 255, 0.2)'
+              borderRight: '2px solid rgba(255, 255, 255, 0.2)'
             }}
           >
             {emoji}
           </div>
         )}
-        <div className="min-w-0 flex-1 truncate px-2.5 text-[11px] font-bold tracking-tight text-white drop-shadow-md">
+        <div className="min-w-0 flex-1 truncate px-2.5 text-lg font-bold tracking-tight text-white drop-shadow-md">
           {eventInfo.event.title}
         </div>
 
