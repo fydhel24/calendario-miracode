@@ -232,37 +232,7 @@ export function EventCreateForm({
                                 </Button>
                             </div>
                         </div>
-
-                        {/* Date & Color Section */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-5">
-                                <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
-                                    <Clock className="h-4 w-4" />
-                                    <span>Programación</span>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[13px] font-bold" htmlFor="fecha_inicio">Inicio</Label>
-                                    <Input
-                                        id="fecha_inicio"
-                                        type="datetime-local"
-                                        value={form.fecha_inicio}
-                                        onChange={(e) => setForm({ ...form, fecha_inicio: e.target.value })}
-                                        className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20"
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[13px] font-bold" htmlFor="fecha_fin">Fin (Opcional)</Label>
-                                    <Input
-                                        id="fecha_fin"
-                                        type="datetime-local"
-                                        value={form.fecha_fin}
-                                        onChange={(e) => setForm({ ...form, fecha_fin: e.target.value })}
-                                        className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20"
-                                    />
-                                </div>
-                            </div>
-
+                        <div>
                             <div className="space-y-5">
                                 <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
                                     <Palette className="h-4 w-4" />
@@ -302,6 +272,37 @@ export function EventCreateForm({
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        {/* Date & Color Section */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-5">
+                                <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
+                                    <Clock className="h-4 w-4" />
+                                    <span>Programación</span>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[13px] font-bold" htmlFor="fecha_inicio">Inicio</Label>
+                                    <Input
+                                        id="fecha_inicio"
+                                        type="datetime-local"
+                                        value={form.fecha_inicio}
+                                        onChange={(e) => setForm({ ...form, fecha_inicio: e.target.value })}
+                                        className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20"
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[13px] font-bold" htmlFor="fecha_fin">Fin (Opcional)</Label>
+                                    <Input
+                                        id="fecha_fin"
+                                        type="datetime-local"
+                                        value={form.fecha_fin}
+                                        onChange={(e) => setForm({ ...form, fecha_fin: e.target.value })}
+                                        className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20"
+                                    />
+                                </div>
+                            </div>
+
                         </div>
 
                         {/* Invites Section */}

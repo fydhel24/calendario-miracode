@@ -108,7 +108,9 @@ export function RightMenu({
     // Reset to details when event is selected
     useEffect(() => {
         if (selectedEvent) {
-            setInternalActiveOption(null);
+            if (selectedEvent) {
+                setInternalActiveOption(null);
+            }
         }
     }, [selectedEvent]);
 
@@ -668,7 +670,7 @@ export function RightMenu({
         >
             {/* Estructura expandible: siempre los iconos + contenido cuando está activo */}
             <div
-                className={`flex h-full transition-all duration-300 ease-in-out ${shouldShowExpandedContent ? 'w-96' : 'w-16'
+                className={`flex h-full transition-all duration-300 ease-in-out ${shouldShowExpandedContent ? 'w-full' : 'w-16'
                     }`}
             >
                 {/* Iconos del menú - siempre visible */}

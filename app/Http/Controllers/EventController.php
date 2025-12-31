@@ -29,30 +29,35 @@ class EventController extends Controller
             'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
         ]);
 
-        $evento = $calendario->eventos()->create([
-            'titulo' => $request->titulo,
-            'descripcion' => $request->descripcion,
-            'ubicacion' => $request->ubicacion,
-            'prioridad' => $request->prioridad,
-            'color' => $request->color,
-            'emoji' => $request->emoji,
-            'fecha_inicio' => $request->fecha_inicio,
-            'fecha_fin' => $request->fecha_fin,
-            'user_id' => Auth::id(),
-        ]);
+        try {
+            $evento = $calendario->eventos()->create([
+                'titulo' => $request->titulo,
+                'descripcion' => $request->descripcion,
+                'ubicacion' => $request->ubicacion,
+                'prioridad' => $request->prioridad,
+                'color' => $request->color,
+                'emoji' => $request->emoji,
+                'fecha_inicio' => $request->fecha_inicio,
+                'fecha_fin' => $request->fecha_fin,
+                'user_id' => Auth::id(),
+            ]);
 
-        // Invite selected users
-        if ($request->filled('users') && is_array($request->users)) {
-            foreach ($request->users as $userId) {
-                EventoUsuario::create([
-                    'evento_id' => $evento->id,
-                    'user_id' => $userId,
-                    'rol' => 'invitado',
-                ]);
+            // Invite selected users
+            if ($request->has('users') && is_array($request->input('users'))) {
+                foreach ($request->input('users') as $userId) {
+                    EventoUsuario::create([
+                        'evento_id' => $evento->id,
+                        'user_id' => $userId,
+                        'rol' => 'invitado',
+                    ]);
+                }
             }
-        }
 
-        return response()->json($evento->load('user', 'usuarios', 'calendario'))->withHeaders(['X-Inertia' => false]);
+            return response()->json($evento->load('user', 'usuarios', 'calendario'))->withHeaders(['X-Inertia' => false]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error creating event: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
+        }
     }
 
     public function update(Request $request, Evento $evento)

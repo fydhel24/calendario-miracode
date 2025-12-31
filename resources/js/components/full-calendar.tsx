@@ -21,12 +21,14 @@ interface FullCalendarComponentProps {
   events?: BackendEvent[]
   onDateSelect?: (date: string) => void
   onEventClick?: (eventId: string) => void
+  onEventDrop?: (info: any) => void
 }
 
 export default function FullCalendarComponent({
   events = [],
   onDateSelect,
   onEventClick,
+  onEventDrop,
 }: FullCalendarComponentProps) {
   const isMobile = useIsMobile()
   const calendarRef = useRef<any>(null)
@@ -37,7 +39,7 @@ export default function FullCalendarComponent({
       const stripColor = event.color || event.template || 'hsl(var(--primary))'
 
       return {
-        id: event.id.toString(),
+        id: event.id ? event.id.toString() : `temp-${Math.random()}`,
         title: event.titulo,
         start: event.fecha_inicio,
         end: event.fecha_fin,
@@ -112,6 +114,10 @@ export default function FullCalendarComponent({
   const handleEventClick = (info: any) => {
     info.jsEvent.preventDefault()
     onEventClick?.(info.event.id)
+  }
+
+  const handleEventDrop = (info: any) => {
+    onEventDrop?.(info)
   }
 
   return (
@@ -257,6 +263,7 @@ export default function FullCalendarComponent({
         events={formattedEvents}
         dateClick={handleDateClick}
         eventClick={handleEventClick}
+        eventDrop={handleEventDrop}
         eventContent={renderEventContent}
         height="auto"
         locale="es"

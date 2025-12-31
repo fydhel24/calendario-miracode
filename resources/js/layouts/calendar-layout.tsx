@@ -4,7 +4,7 @@ import FullCalendarComponent from '@/components/full-calendar'
 import { LeftSidebar } from '@/components/left-sidebar'
 import { RightMenu } from '@/components/right-menu'
 import { CalendarIcon, ChevronLeft, ChevronRight, Menu } from 'lucide-react'
-import { usePage } from '@inertiajs/react'
+import { usePage, router } from '@inertiajs/react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -70,6 +70,75 @@ export default function CalendarLayout({
       setSelectedDate(null)
       setRightExpanded(true)
     }
+  }
+
+  const handleEventDrop = (info: any) => {
+    const { event } = info
+    const originalEvent = events.find(e => String(e.id) === event.id)
+
+    if (!originalEvent) {
+      info.revert()
+      return
+    }
+
+    const newStart = event.startStr
+    const newEnd = event.endStr
+
+    // Convert to ISO string to ensure UTC consistency and avoid timezone drift
+    const startISO = new Date(newStart).toISOString();
+    const endISO = newEnd ? new Date(newEnd).toISOString() : null;
+
+    console.group('📅 Drag and Drop Debug Info');
+    console.log(`%c Evento: ${originalEvent.titulo}`, 'color: #3b82f6; font-weight: bold;');
+    console.log(`%c 🕒 Anterior:`, 'color: #dc2626; font-weight: bold;');
+    console.table({
+      Inicio: originalEvent.fecha_inicio,
+      Fin: originalEvent.fecha_fin || 'N/A'
+    });
+    console.log(`%c 🕒 Nuevo (Enviado a Backend):`, 'color: #16a34a; font-weight: bold;');
+    console.table({
+      Inicio: startISO,
+      Fin: endISO || 'N/A'
+    });
+    console.groupEnd();
+
+    // Use fetch instead of router.put to avoid Inertia lifecycle issues (404/undefined errors) for drag&drop
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+
+    fetch(`/eventos/${event.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken,
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        titulo: originalEvent.titulo,
+        fecha_inicio: startISO,
+        fecha_fin: endISO,
+      }),
+    })
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok')
+        return response.json()
+      })
+      .then(updatedEvent => {
+        // Only update state if successful
+        updateEventInState({
+          ...originalEvent,
+          fecha_inicio: newStart,
+          fecha_fin: newEnd,
+          // Ensure we merge any data returned from server if needed, 
+          // but for drag & drop, trusting the new dates + original event data is usually safer for UI stability
+          // unless the server modifies other fields.
+          // For now, let's trust the server response if it returns the full event.
+          ...(updatedEvent.id ? updatedEvent : {})
+        })
+      })
+      .catch(error => {
+        console.error('Error updating event drop:', error)
+        info.revert()
+      })
   }
 
   const hasSelection = selectedCalendars.length > 0
@@ -188,13 +257,14 @@ export default function CalendarLayout({
                 events={events}
                 onDateSelect={handleDateSelect}
                 onEventClick={handleEventClick}
+                onEventDrop={handleEventDrop}
               />
             </div>
           </main>
         </div>
 
         {/* RIGHT PANEL - Desktop */}
-        <div className="hidden xl:block">
+        <div className="hidden lg:block">
           <div
             className={cn(
               "h-full border-l border-border/50 bg-background/95 backdrop-blur-sm shadow-2xl transition-all duration-500",
@@ -229,7 +299,7 @@ export default function CalendarLayout({
         {/* MOBILE RIGHT MENU OVERLAY */}
         {rightExpanded && (
           <div
-            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm xl:hidden"
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm lg:hidden"
             onClick={() => setRightExpanded(false)}
           >
             <div

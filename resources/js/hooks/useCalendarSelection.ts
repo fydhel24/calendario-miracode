@@ -157,7 +157,7 @@ export function useCalendarSelection({
 
   const updateEventInState = (updatedEvent: any) => {
     setEvents(prev =>
-      prev.map(e => (e.id === updatedEvent.id ? updatedEvent : e))
+      prev.map(e => (String(e.id) === String(updatedEvent.id) ? { ...e, ...updatedEvent } : e))
     );
 
     const updateEventInCalendars = (calendars: Calendar[]) =>
@@ -166,7 +166,7 @@ export function useCalendarSelection({
           ? {
             ...cal,
             eventos: cal.eventos?.map((e: any) =>
-              e.id === updatedEvent.id ? updatedEvent : e
+              String(e.id) === String(updatedEvent.id) ? { ...e, ...updatedEvent } : e
             ),
           }
           : cal
