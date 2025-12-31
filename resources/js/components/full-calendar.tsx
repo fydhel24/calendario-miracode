@@ -132,7 +132,7 @@ export default function FullCalendarComponent({
           padding: 1rem;
           background: hsl(var(--card));
           border-radius: 1rem;
-          border: 1px border oklch(0.9 0.01 240);
+          border: 1px solid oklch(0.9 0.01 240);
           box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
         }
 
@@ -222,6 +222,21 @@ export default function FullCalendarComponent({
             z-index: 10;
             transform: translateY(-1px) scale(1.02);
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Improved Grid Borders */
+        .fc-theme-standard td, .fc-theme-standard th {
+          border: 1px solid hsl(var(--border) / 0.6);
+        }
+
+        .fc .fc-scrollgrid {
+          border-radius: 1.25rem;
+          overflow: hidden;
+          border: 1px solid hsl(var(--border) / 0.8);
+        }
+
+        .fc .fc-col-header {
+          background: hsl(var(--muted)/0.3);
         }
       `}} />
 

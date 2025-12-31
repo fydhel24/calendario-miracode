@@ -24,7 +24,8 @@ import {
     Palette,
     ChevronRight,
     Save,
-    XCircle
+    XCircle,
+    Trash2
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -46,6 +47,7 @@ interface EventEditFormProps {
     eventToEdit?: any;
     selectedCalendar?: any;
     onEventUpdated?: (event: any) => void;
+    onEventDeleted?: (eventId: string) => void;
     onModeChange?: (mode: string | null) => void;
 }
 
@@ -53,6 +55,7 @@ export function EventEditForm({
     eventToEdit,
     selectedCalendar,
     onEventUpdated,
+    onEventDeleted,
     onModeChange,
 }: EventEditFormProps) {
     const [form, setForm] = useState({
@@ -123,22 +126,39 @@ export function EventEditForm({
             });
     };
 
-    return (
-        <div className="flex flex-col gap-6 p-6 pb-20 overflow-y-auto max-h-[85vh] scrollbar-thin">
-            <Card className="border-none bg-transparent shadow-none">
-                <CardHeader className="px-0 pt-0">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
-                            <Edit className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <CardTitle className="text-2xl font-bold tracking-tight">Editar Evento</CardTitle>
-                            <CardDescription className="text-sm font-medium opacity-70">Actualiza la información de tu actividad</CardDescription>
-                        </div>
-                    </div>
-                </CardHeader>
+    const handleDelete = () => {
+        if (!eventToEdit || !confirm('¿Estás seguro de que deseas eliminar este evento?')) return;
 
-                <CardContent className="px-0 space-y-6">
+        setLoading(true);
+        fetch(`/eventos/${eventToEdit.id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN':
+                    document
+                        .querySelector('meta[name="csrf-token"]')
+                        ?.getAttribute('content') || '',
+            },
+        })
+            .then(() => {
+                if (onEventDeleted) {
+                    onEventDeleted(eventToEdit.id);
+                } else {
+                    onEventUpdated?.({ id: eventToEdit.id, deleted: true });
+                }
+                onModeChange?.(null);
+            })
+            .catch((error) => {
+                console.error('Error deleting event:', error);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    };
+
+    return (
+        <div className="flex flex-col gap-6 p-6 pb-20">
+            <Card className="border-none bg-transparent shadow-none">
+                <CardContent className="p-0">
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Basic Info Section */}
                         <div className="space-y-5">
@@ -177,13 +197,57 @@ export function EventEditForm({
                             </div>
                         </div>
 
-                        {/* Date & Color Section */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-5">
-                                <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
-                                    <Clock className="h-4 w-4" />
-                                    <span>Programación</span>
+                        {/* Estilo Section (Moved Up) */}
+                        <div className="space-y-5">
+                            <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
+                                <Palette className="h-4 w-4" />
+                                <span>Estilo Visual</span>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-[13px] font-bold">Personalización</Label>
+                                <Select
+                                    value={form.color}
+                                    onValueChange={(value) => {
+                                        const selectedColor = eventColors.find((c) => c.value === value);
+                                        setForm({ ...form, color: value, emoji: selectedColor?.emoji || '📱' });
+                                    }}
+                                >
+                                    <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-none shadow-inner transition-all">
+                                        <SelectValue placeholder="Color del evento" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-xl border-border/50 shadow-2xl">
+                                        {eventColors.map((color) => (
+                                            <SelectItem key={color.value} value={color.value} className="rounded-lg m-1">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-5 w-5 rounded-full shadow-sm" style={{ backgroundColor: color.value }} />
+                                                    <span className="text-lg">{color.emoji}</span>
+                                                    <span className="font-medium">{color.name}</span>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="p-4 rounded-2xl border-2 border-dashed flex items-center justify-center bg-muted/5 border-primary/20">
+                                <div className="flex items-center gap-4">
+                                    <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-white/10" style={{ backgroundColor: form.color }}>
+                                        {form.emoji}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">Vista Previa</span>
+                                        <span className="text-[10px] font-medium opacity-50">Así lucirá en el calendario</span>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Scheduling Section (Moved Down) */}
+                        <div className="space-y-5">
+                            <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
+                                <Clock className="h-4 w-4" />
+                                <span>Programación</span>
+                            </div>
+                            <div className="grid grid-cols-1 gap-4">
                                 <div className="space-y-2">
                                     <Label className="text-[13px] font-bold" htmlFor="fecha_inicio">Inicio</Label>
                                     <Input
@@ -206,64 +270,24 @@ export function EventEditForm({
                                     />
                                 </div>
                             </div>
-
-                            <div className="space-y-5">
-                                <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
-                                    <Palette className="h-4 w-4" />
-                                    <span>Estilo</span>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[13px] font-bold">Personalización</Label>
-                                    <Select
-                                        value={form.color}
-                                        onValueChange={(value) => {
-                                            const selectedColor = eventColors.find((c) => c.value === value);
-                                            setForm({ ...form, color: value, emoji: selectedColor?.emoji || '📱' });
-                                        }}
-                                    >
-                                        <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-none shadow-inner transition-all">
-                                            <SelectValue placeholder="Color del evento" />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-xl border-border/50 shadow-2xl">
-                                            {eventColors.map((color) => (
-                                                <SelectItem key={color.value} value={color.value} className="rounded-lg m-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="h-5 w-5 rounded-full shadow-sm" style={{ backgroundColor: color.value }} />
-                                                        <span className="text-lg">{color.emoji}</span>
-                                                        <span className="font-medium">{color.name}</span>
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="p-4 rounded-xl border-2 border-dashed flex items-center justify-center bg-muted/5">
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-xl flex items-center justify-center text-xl shadow-lg border border-white/10" style={{ backgroundColor: form.color }}>
-                                            {form.emoji}
-                                        </div>
-                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Vista Previa</span>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         {/* Submit Actions */}
-                        <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                        <div className="flex flex-col gap-3 pt-6">
                             <Button
                                 type="submit"
-                                className="h-12 flex-1 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.98]"
+                                className="h-12 w-full rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.98]"
                                 disabled={loading}
                             >
                                 {loading ? (
                                     <div className="flex items-center gap-2">
                                         <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        <span>Guardando...</span>
+                                        <span>Procesando...</span>
                                     </div>
                                 ) : (
                                     <div className="flex items-center gap-2">
                                         <Save className="h-5 w-5" />
-                                        <span>Guardar Cambios</span>
+                                        <span>Confirmar Cambios</span>
                                     </div>
                                 )}
                             </Button>
@@ -271,11 +295,11 @@ export function EventEditForm({
                                 type="button"
                                 variant="outline"
                                 onClick={() => onModeChange?.(null)}
-                                className="h-12 rounded-2xl border-2 font-bold px-8 hover:bg-destructive/5 hover:text-destructive hover:border-destructive/20 transition-all"
+                                className="h-12 rounded-2xl border-2 font-bold px-8 hover:bg-muted transition-all"
                             >
                                 <div className="flex items-center gap-2">
                                     <XCircle className="h-5 w-5" />
-                                    <span>Cancelar</span>
+                                    <span>Cancelar Edición</span>
                                 </div>
                             </Button>
                         </div>
@@ -290,7 +314,7 @@ export function EventEditForm({
                 onDescriptionChange={(newDescription: string) =>
                     setForm({ ...form, descripcion: newDescription })
                 }
-                title="Actualizar Descripción"
+                title="Actualizar Detalles"
             />
         </div>
     );

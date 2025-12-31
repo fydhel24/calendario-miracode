@@ -701,8 +701,8 @@ export function RightMenu({
                         <div className="flex h-full flex-col bg-background/80 backdrop-blur-sm">
                             {activeOption === 'edit-event' ? (
                                 // Mostrar formulario de edición
-                                <div className="flex-1 overflow-hidden">
-                                    <div className="border-b border-sidebar-border bg-sidebar p-4">
+                                <div className="flex-1 overflow-hidden flex flex-col">
+                                    <div className="border-b border-sidebar-border bg-sidebar p-4 flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <Button
                                                 variant="ghost"
@@ -721,12 +721,35 @@ export function RightMenu({
                                                 Editar Evento
                                             </h3>
                                         </div>
+                                        {canEditEvent && (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                    if (confirm('¿Estás seguro de que quieres eliminar este evento?')) {
+                                                        fetch(`/eventos/${selectedEvent.id}`, {
+                                                            method: 'DELETE',
+                                                            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' },
+                                                        }).then(() => {
+                                                            if (onEventDeleted) onEventDeleted(selectedEvent.id);
+                                                            setInternalActiveOption(null);
+                                                            if (onExpansionChange) onExpansionChange(false);
+                                                        });
+                                                    }
+                                                }}
+                                                className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
+                                                title="Eliminar evento"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        )}
                                     </div>
                                     <div className="flex-1 overflow-y-auto bg-background/50 backdrop-blur-sm">
                                         <EventEditForm
                                             eventToEdit={selectedEvent}
                                             selectedCalendar={selectedCalendar}
                                             onEventUpdated={onEventUpdated}
+                                            onEventDeleted={onEventDeleted}
                                             onModeChange={
                                                 setInternalActiveOption
                                             }
@@ -1226,6 +1249,6 @@ export function RightMenu({
                 title="Descripción del Evento"
                 readOnly={true}
             />
-        </div>
+        </div >
     );
 }
