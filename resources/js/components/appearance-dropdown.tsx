@@ -13,18 +13,14 @@ export default function AppearanceToggleDropdown({
         switch (appearance) {
             case 'dark':
                 return <Moon className="h-5 w-5" />;
-            case 'light':
+            default :
                 return <Sun className="h-5 w-5" />;
-            default:
-                return <Monitor className="h-5 w-5" />;
         }
     };
 
     const cycleAppearance = () => {
         if (appearance === 'light') {
             updateAppearance('dark');
-        } else if (appearance === 'dark') {
-            updateAppearance('system');
         } else {
             updateAppearance('light');
         }
