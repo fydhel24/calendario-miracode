@@ -873,12 +873,12 @@ export function RightMenu({
 
                                         <div className="space-y-4">
                                             <div className="detail-card">
-                                                <div className="info-group w-full">
+                                                <div className="info-group">
                                                     <span className="info-label">
                                                         <FileText className="h-3.5 w-3.5" />
                                                         Título
                                                     </span>
-                                                    <h2 className="text-xl font-bold tracking-tight break-words whitespace-normal">
+                                                    <h2 className="text-xl font-bold tracking-tight break-all">
                                                         {selectedEvent.titulo}
                                                     </h2>
                                                 </div>
@@ -917,7 +917,7 @@ export function RightMenu({
 
                                             {selectedEvent.descripcion && (
                                                 <div className="detail-card">
-                                                    <div className="info-group w-full">
+                                                    <div className="info-group">
                                                         <span className="info-label">
                                                             <FileText className="h-3.5 w-3.5" />
                                                             Descripción
@@ -928,9 +928,9 @@ export function RightMenu({
                                                             onClick={() => setIsDescriptionModalOpen(true)}
                                                             className="mt-1 w-full justify-start h-auto py-2.5 px-3 text-left font-medium bg-muted/30 hover:bg-muted/50 rounded-lg text-sm transition-all duration-200"
                                                         >
-                                                            <div className="line-clamp-3 break-words whitespace-normal w-full">
+                                                            <span className="line-clamp-[7] whitespace-pre-wrap break-all text-left">
                                                                 {selectedEvent.descripcion}
-                                                            </div>
+                                                            </span>
                                                         </Button>
                                                     </div>
                                                 </div>
