@@ -39,6 +39,6 @@ class CalendarioPolicy
     public function createEvent(User $user, Calendario $calendario): bool
     {
         $pivot = $calendario->users()->where('user_id', $user->id)->first();
-        return $pivot && $pivot->pivot->tipo_user === 'owner';
+        return $pivot && in_array($pivot->pivot->tipo_user, ['owner', 'editor']);
     }
 }
