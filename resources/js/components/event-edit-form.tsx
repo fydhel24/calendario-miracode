@@ -29,7 +29,7 @@ import {
     XCircle,
     Trash2
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
 const eventColors = [
@@ -43,6 +43,12 @@ const eventColors = [
     { name: 'Naranja', value: '#ea580c', emoji: '🚀' },
     { name: 'Café', value: '#8b4513', emoji: '☕' },
     { name: 'Marrón', value: '#92400e', emoji: '🏆' },
+    // Social Media Icons
+    { name: 'Facebook', value: '#1877F2', emoji: '/icon/icons8-facebook.svg' },
+    { name: 'Instagram', value: '#E1306C', emoji: '/icon/icons8-instagram.svg' },
+    { name: 'TikTok', value: '#000000', emoji: '/icon/icons8-tiktok.svg' },
+    { name: 'WhatsApp', value: '#25D366', emoji: '/icon/icons8-whatsapp.svg' },
+    { name: 'YouTube', value: '#FF0000', emoji: '/icon/icons8-youtube.svg' },
 ];
 
 interface EventEditFormProps {
@@ -60,18 +66,75 @@ export function EventEditForm({
     onEventDeleted,
     onModeChange,
 }: EventEditFormProps) {
-    const [form, setForm] = useState({
-        titulo: '',
-        descripcion: '',
-        ubicacion: '',
-        prioridad: '',
-        color: '#2563eb',
-        emoji: '📱',
-        fecha_inicio: '',
-        fecha_fin: '',
+    const baseEventColors = [
+        { name: 'Azul', value: '#2563eb', emoji: '📱' },
+        { name: 'Rojo', value: '#dc2626', emoji: '🔥' },
+        { name: 'Amarillo', value: '#eab308', emoji: '💡' },
+        { name: 'Verde', value: '#16a34a', emoji: '📈' },
+        { name: 'Celeste', value: '#06b6d4', emoji: '🌐' },
+        { name: 'Violeta', value: '#9333ea', emoji: '🎯' },
+        { name: 'Rosado', value: '#ec4899', emoji: '❤️' },
+        { name: 'Naranja', value: '#ea580c', emoji: '🚀' },
+        { name: 'Café', value: '#8b4513', emoji: '☕' },
+        { name: 'Marrón', value: '#92400e', emoji: '🏆' },
+        // Social Media Icons
+        { name: 'Facebook', value: '#1877F2', emoji: '/icon/icons8-facebook.svg' },
+        { name: 'Instagram', value: '#E1306C', emoji: '/icon/icons8-instagram.svg' },
+        { name: 'TikTok', value: '#000000', emoji: '/icon/icons8-tiktok.svg' },
+        { name: 'WhatsApp', value: '#25D366', emoji: '/icon/icons8-whatsapp.svg' },
+        { name: 'YouTube', value: '#FF0000', emoji: '/icon/icons8-youtube.svg' },
+    ];
+
+    const [form, setForm] = useState(() => {
+        if (eventToEdit) {
+            return {
+                titulo: eventToEdit.titulo || '',
+                descripcion: eventToEdit.descripcion || '',
+                ubicacion: eventToEdit.ubicacion || '',
+                prioridad: eventToEdit.prioridad || 'Alta',
+                color: eventToEdit.color || '#2563eb',
+                emoji: eventToEdit.emoji || '📱',
+                fecha_inicio: eventToEdit.fecha_inicio
+                    ? new Date(eventToEdit.fecha_inicio)
+                        .toLocaleString('sv-SE') // Use locale that outputs YYYY-MM-DD HH:mm
+                        .replace(' ', 'T')
+                        .slice(0, 16)
+                    : '',
+                fecha_fin: eventToEdit.fecha_fin
+                    ? new Date(eventToEdit.fecha_fin)
+                        .toLocaleString('sv-SE')
+                        .replace(' ', 'T')
+                        .slice(0, 16)
+                    : '',
+            };
+        }
+        return {
+            titulo: '',
+            descripcion: '',
+            ubicacion: '',
+            prioridad: 'Alta',
+            color: '#2563eb',
+            emoji: '📱',
+            fecha_inicio: '',
+            fecha_fin: '',
+        };
     });
     const [loading, setLoading] = useState(false);
     const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
+
+    const eventColors = useMemo(() => {
+        if (eventToEdit && eventToEdit.color) {
+            const hasColor = baseEventColors.some(c => c.value === eventToEdit.color);
+            if (!hasColor) {
+                return [...baseEventColors, {
+                    name: 'Personalizado',
+                    value: eventToEdit.color,
+                    emoji: eventToEdit.emoji || '📅'
+                }];
+            }
+        }
+        return baseEventColors;
+    }, [eventToEdit]);
 
     useEffect(() => {
         if (eventToEdit) {
@@ -216,14 +279,20 @@ export function EventEditForm({
                                     }}
                                 >
                                     <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-none shadow-inner transition-all">
-                                        <SelectValue placeholder="Color del evento" />
+                                        <SelectValue>
+                                            {eventColors.find(c => c.value === form.color)?.name || form.color || "Seleccionar color y tema"}
+                                        </SelectValue>
                                     </SelectTrigger>
                                     <SelectContent className="rounded-xl border-border/50 shadow-2xl">
                                         {eventColors.map((color) => (
                                             <SelectItem key={color.value} value={color.value} className="rounded-lg m-1">
                                                 <div className="flex items-center gap-2">
                                                     <div className="h-5 w-5 rounded-full shadow-sm" style={{ backgroundColor: color.value }} />
-                                                    <span className="text-lg">{color.emoji}</span>
+                                                    {color.emoji.includes('.svg') ? (
+                                                        <img src={color.emoji} alt={color.name} className="h-5 w-5 object-contain" />
+                                                    ) : (
+                                                        <span className="text-lg">{color.emoji}</span>
+                                                    )}
                                                     <span className="font-medium">{color.name}</span>
                                                 </div>
                                             </SelectItem>
