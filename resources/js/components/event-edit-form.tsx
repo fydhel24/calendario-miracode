@@ -280,7 +280,22 @@ export function EventEditForm({
                                 >
                                     <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-none shadow-inner transition-all">
                                         <SelectValue>
-                                            {eventColors.find(c => c.value === form.color)?.name || form.color || "Seleccionar color y tema"}
+                                            {(() => {
+                                                const selected = eventColors.find(c => c.value === form.color);
+                                                if (selected) {
+                                                    return (
+                                                        <div className="flex items-center gap-2">
+                                                            {selected.emoji.includes('.svg') ? (
+                                                                <img src={selected.emoji} alt={selected.name} className="h-4 w-4 object-contain" />
+                                                            ) : (
+                                                                <span className="text-sm">{selected.emoji}</span>
+                                                            )}
+                                                            <span>{selected.name}</span>
+                                                        </div>
+                                                    );
+                                                }
+                                                return form.color || "Seleccionar color y tema";
+                                            })()}
                                         </SelectValue>
                                     </SelectTrigger>
                                     <SelectContent className="rounded-xl border-border/50 shadow-2xl">
