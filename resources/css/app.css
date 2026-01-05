@@ -242,7 +242,7 @@
 
     /* Side Detail Card */
     .detail-card {
-        @apply rounded-xl border border-border/40 bg-background/40 p-3.5 transition-all duration-300;
+        @apply rounded-xl border border-border/40 bg-background/40 p-3.5 transition-all duration-300 overflow-hidden break-words;
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
     }

@@ -2,6 +2,7 @@ import { DescriptionModal } from '@/components/description-modal';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -28,7 +29,7 @@ import {
     XCircle,
     Trash2
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
 const eventColors = [
@@ -42,6 +43,12 @@ const eventColors = [
     { name: 'Naranja', value: '#ea580c', emoji: '🚀' },
     { name: 'Café', value: '#8b4513', emoji: '☕' },
     { name: 'Marrón', value: '#92400e', emoji: '🏆' },
+    // Social Media Icons
+    { name: 'Facebook', value: '#1877F2', emoji: '/icon/icons8-facebook.svg' },
+    { name: 'Instagram', value: '#E1306C', emoji: '/icon/icons8-instagram.svg' },
+    { name: 'TikTok', value: '#000000', emoji: '/icon/icons8-tiktok.svg' },
+    { name: 'WhatsApp', value: '#25D366', emoji: '/icon/icons8-whatsapp.svg' },
+    { name: 'YouTube', value: '#FF0000', emoji: '/icon/icons8-youtube.svg' },
 ];
 
 interface EventEditFormProps {
@@ -59,18 +66,75 @@ export function EventEditForm({
     onEventDeleted,
     onModeChange,
 }: EventEditFormProps) {
-    const [form, setForm] = useState({
-        titulo: '',
-        descripcion: '',
-        ubicacion: '',
-        prioridad: '',
-        color: '#2563eb',
-        emoji: '📱',
-        fecha_inicio: '',
-        fecha_fin: '',
+    const baseEventColors = [
+        { name: 'Azul', value: '#2563eb', emoji: '📱' },
+        { name: 'Rojo', value: '#dc2626', emoji: '🔥' },
+        { name: 'Amarillo', value: '#eab308', emoji: '💡' },
+        { name: 'Verde', value: '#16a34a', emoji: '📈' },
+        { name: 'Celeste', value: '#06b6d4', emoji: '🌐' },
+        { name: 'Violeta', value: '#9333ea', emoji: '🎯' },
+        { name: 'Rosado', value: '#ec4899', emoji: '❤️' },
+        { name: 'Naranja', value: '#ea580c', emoji: '🚀' },
+        { name: 'Café', value: '#8b4513', emoji: '☕' },
+        { name: 'Marrón', value: '#92400e', emoji: '🏆' },
+        // Social Media Icons
+        { name: 'Facebook', value: '#1877F2', emoji: '/icon/icons8-facebook.svg' },
+        { name: 'Instagram', value: '#E1306C', emoji: '/icon/icons8-instagram.svg' },
+        { name: 'TikTok', value: '#000000', emoji: '/icon/icons8-tiktok.svg' },
+        { name: 'WhatsApp', value: '#25D366', emoji: '/icon/icons8-whatsapp.svg' },
+        { name: 'YouTube', value: '#FF0000', emoji: '/icon/icons8-youtube.svg' },
+    ];
+
+    const [form, setForm] = useState(() => {
+        if (eventToEdit) {
+            return {
+                titulo: eventToEdit.titulo || '',
+                descripcion: eventToEdit.descripcion || '',
+                ubicacion: eventToEdit.ubicacion || '',
+                prioridad: eventToEdit.prioridad || 'Alta',
+                color: eventToEdit.color || '#2563eb',
+                emoji: eventToEdit.emoji || '📱',
+                fecha_inicio: eventToEdit.fecha_inicio
+                    ? new Date(eventToEdit.fecha_inicio)
+                        .toLocaleString('sv-SE') // Use locale that outputs YYYY-MM-DD HH:mm
+                        .replace(' ', 'T')
+                        .slice(0, 16)
+                    : '',
+                fecha_fin: eventToEdit.fecha_fin
+                    ? new Date(eventToEdit.fecha_fin)
+                        .toLocaleString('sv-SE')
+                        .replace(' ', 'T')
+                        .slice(0, 16)
+                    : '',
+            };
+        }
+        return {
+            titulo: '',
+            descripcion: '',
+            ubicacion: '',
+            prioridad: 'Alta',
+            color: '#2563eb',
+            emoji: '📱',
+            fecha_inicio: '',
+            fecha_fin: '',
+        };
     });
     const [loading, setLoading] = useState(false);
     const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
+
+    const eventColors = useMemo(() => {
+        if (eventToEdit && eventToEdit.color) {
+            const hasColor = baseEventColors.some(c => c.value === eventToEdit.color);
+            if (!hasColor) {
+                return [...baseEventColors, {
+                    name: 'Personalizado',
+                    value: eventToEdit.color,
+                    emoji: eventToEdit.emoji || '📅'
+                }];
+            }
+        }
+        return baseEventColors;
+    }, [eventToEdit]);
 
     useEffect(() => {
         if (eventToEdit) {
@@ -107,6 +171,7 @@ export function EventEditForm({
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN':
                     document
                         .querySelector('meta[name="csrf-token"]')
@@ -170,11 +235,11 @@ export function EventEditForm({
 
                             <div className="space-y-2">
                                 <Label className="text-[13px] font-bold" htmlFor="titulo">Título</Label>
-                                <Input
+                                <Textarea
                                     id="titulo"
                                     value={form.titulo}
                                     onChange={(e) => setForm({ ...form, titulo: e.target.value })}
-                                    className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all font-medium text-lg"
+                                    className="min-h-[44px] h-auto rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all font-medium text-lg py-2 break-all"
                                     required
                                 />
                             </div>
@@ -187,15 +252,18 @@ export function EventEditForm({
                                 type="button"
                                 variant="outline"
                                 onClick={() => setIsDescriptionModalOpen(true)}
-                                className="h-11 w-full justify-between rounded-xl border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 transition-all px-4"
+                                className="h-auto min-h-11 w-full justify-between rounded-xl border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 transition-all px-4 py-2"
                             >
-                                <div className="flex items-center gap-2">
-                                    <FileText className="h-4 w-4 text-muted-foreground" />
-                                    <span className={form.descripcion ? "font-medium" : "text-muted-foreground font-normal"}>
-                                        {form.descripcion ? (form.descripcion.length > 30 ? `${form.descripcion.substring(0, 30)}...` : form.descripcion) : "Agregar detalles..."}
+                                <div className="flex items-center gap-2 text-left min-w-0 flex-1">
+                                    <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                    <span className={cn(
+                                        "line-clamp-[7] whitespace-pre-wrap break-all",
+                                        form.descripcion ? "font-medium" : "text-muted-foreground font-normal"
+                                    )}>
+                                        {form.descripcion || "Agregar detalles..."}
                                     </span>
                                 </div>
-                                <ChevronRight className="h-4 w-4 opacity-30" />
+                                <ChevronRight className="h-4 w-4 opacity-30 flex-shrink-0" />
                             </Button>
                         </div>
 
@@ -211,14 +279,35 @@ export function EventEditForm({
                                     }}
                                 >
                                     <SelectTrigger className="h-11 rounded-xl bg-muted/30 border-none shadow-inner transition-all">
-                                        <SelectValue placeholder="Color del evento" />
+                                        <SelectValue>
+                                            {(() => {
+                                                const selected = eventColors.find(c => c.value === form.color);
+                                                if (selected) {
+                                                    return (
+                                                        <div className="flex items-center gap-2">
+                                                            {selected.emoji.includes('.svg') ? (
+                                                                <img src={selected.emoji} alt={selected.name} className="h-4 w-4 object-contain" />
+                                                            ) : (
+                                                                <span className="text-sm">{selected.emoji}</span>
+                                                            )}
+                                                            <span>{selected.name}</span>
+                                                        </div>
+                                                    );
+                                                }
+                                                return form.color || "Seleccionar color y tema";
+                                            })()}
+                                        </SelectValue>
                                     </SelectTrigger>
                                     <SelectContent className="rounded-xl border-border/50 shadow-2xl">
                                         {eventColors.map((color) => (
                                             <SelectItem key={color.value} value={color.value} className="rounded-lg m-1">
                                                 <div className="flex items-center gap-2">
                                                     <div className="h-5 w-5 rounded-full shadow-sm" style={{ backgroundColor: color.value }} />
-                                                    <span className="text-lg">{color.emoji}</span>
+                                                    {color.emoji.includes('.svg') ? (
+                                                        <img src={color.emoji} alt={color.name} className="h-5 w-5 object-contain" />
+                                                    ) : (
+                                                        <span className="text-lg">{color.emoji}</span>
+                                                    )}
                                                     <span className="font-medium">{color.name}</span>
                                                 </div>
                                             </SelectItem>
