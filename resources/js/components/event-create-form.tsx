@@ -194,7 +194,7 @@ export function EventCreateForm({
                                                     calendar.users?.some(
                                                         (u: any) =>
                                                             u.id === auth?.user?.id &&
-                                                            u.pivot?.tipo_user === 'owner',
+                                                            ['owner', 'editor'].includes(u.pivot?.tipo_user),
                                                     ),
                                                 )
                                                 .map((calendar) => (

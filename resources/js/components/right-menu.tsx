@@ -86,6 +86,12 @@ export function RightMenu({
         ),
     );
 
+    const canCreateEvent = selectedCalendars.some((calendar) =>
+        calendar?.users?.some(
+            (u: any) => u.id === auth.user.id && ['owner', 'editor'].includes(u.pivot?.tipo_user),
+        ),
+    );
+
     const canEditEvent =
         selectedEvent &&
         selectedCalendars.some(
@@ -93,7 +99,7 @@ export function RightMenu({
                 calendar.id === selectedEvent.calendario_id &&
                 calendar.users?.some(
                     (u: any) =>
-                        u.id === auth.user.id && u.pivot?.tipo_user === 'owner',
+                        u.id === auth.user.id && ['owner', 'editor'].includes(u.pivot?.tipo_user),
                 ),
         );
 
@@ -149,7 +155,7 @@ export function RightMenu({
             : activeOption !== null;
 
     const menuOptions: MenuOption[] = [
-        ...(isOwner
+        ...(canCreateEvent
             ? [
                 {
                     id: 'new-event',
