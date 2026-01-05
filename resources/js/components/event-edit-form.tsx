@@ -2,6 +2,7 @@ import { DescriptionModal } from '@/components/description-modal';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -107,6 +108,7 @@ export function EventEditForm({
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN':
                     document
                         .querySelector('meta[name="csrf-token"]')
@@ -170,11 +172,11 @@ export function EventEditForm({
 
                             <div className="space-y-2">
                                 <Label className="text-[13px] font-bold" htmlFor="titulo">Título</Label>
-                                <Input
+                                <Textarea
                                     id="titulo"
                                     value={form.titulo}
                                     onChange={(e) => setForm({ ...form, titulo: e.target.value })}
-                                    className="h-11 rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all font-medium text-lg"
+                                    className="min-h-[44px] h-auto rounded-xl bg-muted/30 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all font-medium text-lg py-2 break-all"
                                     required
                                 />
                             </div>
@@ -187,15 +189,18 @@ export function EventEditForm({
                                 type="button"
                                 variant="outline"
                                 onClick={() => setIsDescriptionModalOpen(true)}
-                                className="h-11 w-full justify-between rounded-xl border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 transition-all px-4"
+                                className="h-auto min-h-11 w-full justify-between rounded-xl border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 transition-all px-4 py-2"
                             >
-                                <div className="flex items-center gap-2">
-                                    <FileText className="h-4 w-4 text-muted-foreground" />
-                                    <span className={form.descripcion ? "font-medium" : "text-muted-foreground font-normal"}>
-                                        {form.descripcion ? (form.descripcion.length > 30 ? `${form.descripcion.substring(0, 30)}...` : form.descripcion) : "Agregar detalles..."}
+                                <div className="flex items-center gap-2 text-left min-w-0 flex-1">
+                                    <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                    <span className={cn(
+                                        "line-clamp-[7] whitespace-pre-wrap break-all",
+                                        form.descripcion ? "font-medium" : "text-muted-foreground font-normal"
+                                    )}>
+                                        {form.descripcion || "Agregar detalles..."}
                                     </span>
                                 </div>
-                                <ChevronRight className="h-4 w-4 opacity-30" />
+                                <ChevronRight className="h-4 w-4 opacity-30 flex-shrink-0" />
                             </Button>
                         </div>
 

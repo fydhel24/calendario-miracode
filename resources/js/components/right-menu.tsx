@@ -878,7 +878,7 @@ export function RightMenu({
                                                         <FileText className="h-3.5 w-3.5" />
                                                         Título
                                                     </span>
-                                                    <h2 className="text-xl font-bold tracking-tight">
+                                                    <h2 className="text-xl font-bold tracking-tight break-all">
                                                         {selectedEvent.titulo}
                                                     </h2>
                                                 </div>
@@ -928,7 +928,7 @@ export function RightMenu({
                                                             onClick={() => setIsDescriptionModalOpen(true)}
                                                             className="mt-1 w-full justify-start h-auto py-2.5 px-3 text-left font-medium bg-muted/30 hover:bg-muted/50 rounded-lg text-sm transition-all duration-200"
                                                         >
-                                                            <span className="line-clamp-2">
+                                                            <span className="line-clamp-[7] whitespace-pre-wrap break-all text-left">
                                                                 {selectedEvent.descripcion}
                                                             </span>
                                                         </Button>
